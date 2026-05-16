@@ -6,7 +6,7 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLExporter } from 'three/examples/jsm/exporters/STLExporter.js';
 
-const WHATSAPP_NUMBER = '5511999999999';
+const WHATSAPP_NUMBER = '5598984809302';
 
 const COLORS = [
   { id: 'rosa',    name: 'Rosa Bebê',    hex: '#F8C8D0', three: 0xF8C8D0 },

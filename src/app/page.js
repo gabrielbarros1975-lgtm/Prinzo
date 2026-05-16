@@ -2,44 +2,44 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
-const WHATSAPP_NUMBER = '5511999999999';
+const WHATSAPP_NUMBER = '5598984809302';
 
 const CATEGORIES = [
-  { id: 'todos',     label: 'Todos' },
-  { id: 'bebe',     label: '👶 Bebê' },
-  { id: 'futebol',  label: '⚽ Times' },
-  { id: 'copa',     label: '🏆 Copa do Mundo' },
-  { id: 'suporte',  label: '🔧 Suportes' },
-  { id: 'brinquedo',label: '🎮 Brinquedos' },
+  { id: 'todos', label: 'Todos' },
+  { id: 'bebe', label: '👶 Bebê' },
+  { id: 'futebol', label: '⚽ Times' },
+  { id: 'copa', label: '🏆 Copa do Mundo' },
+  { id: 'suporte', label: '🔧 Suportes' },
+  { id: 'brinquedo', label: '🎮 Brinquedos' },
 ];
 
 const PRODUCTS = [
   // BEBÊ
-  { id: 1,  category: 'bebe',     name: 'Placa Decorativa — Menina',         price: 89.90,  tag: 'Mais Vendido', tagColor: 'bg-rose-500',    img: '/img/placa-menina.png',      hasImg: true,  description: 'Decoração com nome personalizado e elementos delicados para o quartinho da sua princesa.' },
-  { id: 2,  category: 'bebe',     name: 'Placa Decorativa — Menino',         price: 89.90,  tag: 'Mais Vendido', tagColor: 'bg-sky-500',     img: '/img/placa-menino.png',      hasImg: true,  description: 'Decoração personalizada com o nome do seu guerreiro e elementos divertidos.' },
-  { id: 3,  category: 'bebe',     name: 'Móbile Decorativo',                 price: 149.90, tag: 'Novo',         tagColor: 'bg-emerald-500', img: '/img/mobile-3d.png',         hasImg: true,  description: 'Móbile com estrelas, lua e nuvens. Leve, seguro e encantador para o quarto do bebê.' },
+  { id: 1, category: 'bebe', name: 'Placa Decorativa — Menina', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-rose-500', img: '/img/placa-menina.png', hasImg: true, description: 'Decoração com nome personalizado e elementos delicados para o quartinho da sua princesa.' },
+  { id: 2, category: 'bebe', name: 'Placa Decorativa — Menino', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-sky-500', img: '/img/placa-menino.png', hasImg: true, description: 'Decoração personalizada com o nome do seu guerreiro e elementos divertidos.' },
+  { id: 3, category: 'bebe', name: 'Móbile Decorativo', price: 149.90, tag: 'Novo', tagColor: 'bg-emerald-500', img: '/img/mobile-3d.png', hasImg: true, description: 'Móbile com estrelas, lua e nuvens. Leve, seguro e encantador para o quarto do bebê.' },
   // FUTEBOL
-  { id: 4,  category: 'futebol',  name: 'Mascote Flamengo — Urubu',          price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-red-600',     img: '/img/mascote-flamengo.png',  hasImg: true,  gradient: 'from-red-900 to-black',           description: 'Mascote colecionável do Mengão, nas cores vermelho e preto. Perfeito para torcedores.' },
-  { id: 5,  category: 'futebol',  name: 'Mascote Vasco — Almirante',         price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-neutral-800', hasImg: false, emoji: '⚓', gradient: 'from-neutral-900 to-neutral-600',    description: 'Mascote do Gigante da Colina em preto e branco. Para o torcedor vascaíno raiz.' },
-  { id: 6,  category: 'futebol',  name: 'Mascote Palmeiras — Porco',         price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-green-700',   hasImg: false, emoji: '🐷', gradient: 'from-green-900 to-green-600',        description: 'Mascote do Verdão em verde e branco. Decoração para o palmeirense apaixonado.' },
-  { id: 7,  category: 'futebol',  name: 'Mascote Corinthians — Mosqueteiro', price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-neutral-900', hasImg: false, emoji: '⚔️', gradient: 'from-neutral-800 to-neutral-500',   description: 'Mascote alvinegro do Timão. Colecionável para o fiel torcedor corintiano.' },
-  { id: 8,  category: 'futebol',  name: 'Mascote Vitória — Leão',            price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-red-700',     hasImg: false, emoji: '🦁', gradient: 'from-red-800 to-red-500',            description: 'Mascote do Leão da Barra em vermelho e preto. Para o torcedor baiano!' },
-  { id: 9,  category: 'futebol',  name: 'Mascote São Paulo — Tricolor',      price: 79.90,  tag: 'Exclusivo',    tagColor: 'bg-red-500',     hasImg: false, emoji: '🦅', gradient: 'from-red-700 via-neutral-800 to-gray-200', description: 'Mascote tricolor do SPFC nas cores vermelho, preto e branco.' },
-  { id: 10, category: 'futebol',  name: 'Mascote do Seu Time',               price: 120.00, tag: 'Personalizado',tagColor: 'bg-violet-600',  hasImg: false, emoji: '🎨', gradient: 'from-violet-900 to-violet-600',      description: 'Não encontrou seu time? Criamos mascotes de qualquer clube sob encomenda!' },
+  { id: 4, category: 'futebol', name: 'Mascote Flamengo — Urubu', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-600', img: '/img/mascote-flamengo.png', hasImg: true, gradient: 'from-red-900 to-black', description: 'Mascote colecionável do Mengão, nas cores vermelho e preto. Perfeito para torcedores.' },
+  { id: 5, category: 'futebol', name: 'Mascote Vasco — Almirante', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-800', hasImg: false, emoji: '⚓', gradient: 'from-neutral-900 to-neutral-600', description: 'Mascote do Gigante da Colina em preto e branco. Para o torcedor vascaíno raiz.' },
+  { id: 6, category: 'futebol', name: 'Mascote Palmeiras — Porco', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-green-700', hasImg: false, emoji: '🐷', gradient: 'from-green-900 to-green-600', description: 'Mascote do Verdão em verde e branco. Decoração para o palmeirense apaixonado.' },
+  { id: 7, category: 'futebol', name: 'Mascote Corinthians — Mosqueteiro', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-900', hasImg: false, emoji: '⚔️', gradient: 'from-neutral-800 to-neutral-500', description: 'Mascote alvinegro do Timão. Colecionável para o fiel torcedor corintiano.' },
+  { id: 8, category: 'futebol', name: 'Mascote Vitória — Leão', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-700', hasImg: false, emoji: '🦁', gradient: 'from-red-800 to-red-500', description: 'Mascote do Leão da Barra em vermelho e preto. Para o torcedor baiano!' },
+  { id: 9, category: 'futebol', name: 'Mascote São Paulo — Tricolor', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-500', hasImg: false, emoji: '🦅', gradient: 'from-red-700 via-neutral-800 to-gray-200', description: 'Mascote tricolor do SPFC nas cores vermelho, preto e branco.' },
+  { id: 10, category: 'futebol', name: 'Mascote do Seu Time', price: 120.00, tag: 'Personalizado', tagColor: 'bg-violet-600', hasImg: false, emoji: '🎨', gradient: 'from-violet-900 to-violet-600', description: 'Não encontrou seu time? Criamos mascotes de qualquer clube sob encomenda!' },
   // COPA
-  { id: 11, category: 'copa',     name: 'Taça da Copa do Mundo',             price: 129.90, tag: 'Colecionável', tagColor: 'bg-yellow-600',  hasImg: false, emoji: '🏆', gradient: 'from-yellow-700 to-yellow-400',      description: 'Réplica fiel da Taça Jules Rimet da FIFA com acabamento dourado. 25cm de altura.' },
-  { id: 12, category: 'copa',     name: 'Chaveiro — Taça da Copa',           price: 29.90,  tag: 'Mini',         tagColor: 'bg-yellow-500',  hasImg: false, emoji: '🔑', gradient: 'from-amber-600 to-yellow-400',       description: 'Mini réplica da Taça do Mundo em chaveiro com acabamento dourado metálico. 6cm.' },
-  { id: 13, category: 'copa',     name: 'Bola Oficial — Decorativa',         price: 59.90,  tag: 'Novo',         tagColor: 'bg-emerald-500', hasImg: false, emoji: '⚽', gradient: 'from-neutral-700 to-neutral-400',    description: 'Réplica decorativa da bola oficial da Copa. Ótima para presentes e coleções.' },
+  { id: 11, category: 'copa', name: 'Taça da Copa do Mundo', price: 129.90, tag: 'Colecionável', tagColor: 'bg-yellow-600', hasImg: false, emoji: '🏆', gradient: 'from-yellow-700 to-yellow-400', description: 'Réplica fiel da Taça Jules Rimet da FIFA com acabamento dourado. 25cm de altura.' },
+  { id: 12, category: 'copa', name: 'Chaveiro — Taça da Copa', price: 29.90, tag: 'Mini', tagColor: 'bg-yellow-500', hasImg: false, emoji: '🔑', gradient: 'from-amber-600 to-yellow-400', description: 'Mini réplica da Taça do Mundo em chaveiro com acabamento dourado metálico. 6cm.' },
+  { id: 13, category: 'copa', name: 'Bola Oficial — Decorativa', price: 59.90, tag: 'Novo', tagColor: 'bg-emerald-500', hasImg: false, emoji: '⚽', gradient: 'from-neutral-700 to-neutral-400', description: 'Réplica decorativa da bola oficial da Copa. Ótima para presentes e coleções.' },
   // SUPORTES
-  { id: 14, category: 'suporte',  name: 'Suporte para Celular — Mesa',       price: 34.90,  tag: 'Útil',         tagColor: 'bg-slate-600',   hasImg: false, emoji: '📱', gradient: 'from-slate-700 to-slate-400',        description: 'Suporte ergonômico para celular na mesa. Design minimalista e moderno.' },
-  { id: 15, category: 'suporte',  name: 'Stand para Headphone',              price: 44.90,  tag: 'Gamer',        tagColor: 'bg-purple-600',  hasImg: false, emoji: '🎧', gradient: 'from-purple-900 to-purple-500',      description: 'Stand elegante para fone de ouvido. Compatível com qualquer modelo.' },
-  { id: 16, category: 'suporte',  name: 'Suporte para Controle',             price: 39.90,  tag: 'Gamer',        tagColor: 'bg-indigo-600',  hasImg: false, emoji: '🎮', gradient: 'from-indigo-900 to-indigo-500',      description: 'Suporte de parede para PS5, Xbox ou Nintendo Switch. Sem parafusos.' },
-  { id: 17, category: 'suporte',  name: 'Organizador de Cabos',              price: 24.90,  tag: 'Kit c/ 5',     tagColor: 'bg-teal-600',    hasImg: false, emoji: '🔌', gradient: 'from-teal-700 to-teal-400',          description: 'Clipes organizadores de cabos para mesa limpa e organizada. Pacote com 5.' },
-  { id: 18, category: 'suporte',  name: 'Modelagem Personalizada',           price: 299.00, tag: 'Premium',      tagColor: 'bg-violet-600',  img: '/img/modeling_service.png', hasImg: true, description: 'Você imagina, a gente cria. Ideal para presentes únicos, empresas e projetos especiais.' },
+  { id: 14, category: 'suporte', name: 'Suporte para Celular — Mesa', price: 34.90, tag: 'Útil', tagColor: 'bg-slate-600', hasImg: false, emoji: '📱', gradient: 'from-slate-700 to-slate-400', description: 'Suporte ergonômico para celular na mesa. Design minimalista e moderno.' },
+  { id: 15, category: 'suporte', name: 'Stand para Headphone', price: 44.90, tag: 'Gamer', tagColor: 'bg-purple-600', hasImg: false, emoji: '🎧', gradient: 'from-purple-900 to-purple-500', description: 'Stand elegante para fone de ouvido. Compatível com qualquer modelo.' },
+  { id: 16, category: 'suporte', name: 'Suporte para Controle', price: 39.90, tag: 'Gamer', tagColor: 'bg-indigo-600', hasImg: false, emoji: '🎮', gradient: 'from-indigo-900 to-indigo-500', description: 'Suporte de parede para PS5, Xbox ou Nintendo Switch. Sem parafusos.' },
+  { id: 17, category: 'suporte', name: 'Organizador de Cabos', price: 24.90, tag: 'Kit c/ 5', tagColor: 'bg-teal-600', hasImg: false, emoji: '🔌', gradient: 'from-teal-700 to-teal-400', description: 'Clipes organizadores de cabos para mesa limpa e organizada. Pacote com 5.' },
+  { id: 18, category: 'suporte', name: 'Modelagem Personalizada', price: 299.00, tag: 'Premium', tagColor: 'bg-violet-600', img: '/img/modeling_service.png', hasImg: true, description: 'Você imagina, a gente cria. Ideal para presentes únicos, empresas e projetos especiais.' },
   // BRINQUEDOS
-  { id: 19, category: 'brinquedo',name: 'Dinossauro Articulado',             price: 69.90,  tag: 'Articulado',   tagColor: 'bg-green-600',   hasImg: false, emoji: '🦕', gradient: 'from-green-800 to-lime-500',         description: 'T-Rex com juntas totalmente móveis e detalhes realistas. Seguro para +3 anos.' },
-  { id: 20, category: 'brinquedo',name: 'Robô Articulado',                   price: 79.90,  tag: 'Articulado',   tagColor: 'bg-cyan-600',    hasImg: false, emoji: '🤖', gradient: 'from-cyan-900 to-cyan-500',          description: 'Robô futurista colecionável com braços, pernas e cabeça totalmente articulados.' },
-  { id: 21, category: 'brinquedo',name: 'Dragão Articulado',                 price: 99.90,  tag: 'Premium',      tagColor: 'bg-orange-500',  hasImg: false, emoji: '🐉', gradient: 'from-orange-900 to-red-600',         description: 'Dragão com asas, cauda e pescoço articulados. Uma peça de colecionador impressionante.' },
+  { id: 19, category: 'brinquedo', name: 'Dinossauro Articulado', price: 69.90, tag: 'Articulado', tagColor: 'bg-green-600', hasImg: false, emoji: '🦕', gradient: 'from-green-800 to-lime-500', description: 'T-Rex com juntas totalmente móveis e detalhes realistas. Seguro para +3 anos.' },
+  { id: 20, category: 'brinquedo', name: 'Robô Articulado', price: 79.90, tag: 'Articulado', tagColor: 'bg-cyan-600', hasImg: false, emoji: '🤖', gradient: 'from-cyan-900 to-cyan-500', description: 'Robô futurista colecionável com braços, pernas e cabeça totalmente articulados.' },
+  { id: 21, category: 'brinquedo', name: 'Dragão Articulado', price: 99.90, tag: 'Premium', tagColor: 'bg-orange-500', hasImg: false, emoji: '🐉', gradient: 'from-orange-900 to-red-600', description: 'Dragão com asas, cauda e pescoço articulados. Uma peça de colecionador impressionante.' },
 ];
 
 function ProductCard({ product, onAddToCart, isAdded }) {
@@ -93,11 +93,10 @@ function ProductCard({ product, onAddToCart, isAdded }) {
         <div className="flex gap-2">
           <button
             onClick={() => onAddToCart(product)}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${
-              isAdded
+            className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${isAdded
                 ? 'border-green-500 bg-green-50 text-green-600'
                 : 'border-neutral-200 hover:border-rose-400 hover:bg-rose-50 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-rose-400'
-            }`}
+              }`}
             style={!isAdded ? { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' } : {}}
           >
             {isAdded ? '✓ Adicionado' : '+ Carrinho'}
@@ -226,7 +225,7 @@ export default function CatalogPage() {
             >
               Finalizar via WhatsApp
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
               </svg>
             </button>
           </div>
