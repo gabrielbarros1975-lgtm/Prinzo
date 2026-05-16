@@ -46,7 +46,7 @@ export default function PlacasPersonalizadas() {
     const height = mount.clientHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e);
+    scene.background = new THREE.Color(0x0a0f1a);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
@@ -209,9 +209,9 @@ export default function PlacasPersonalizadas() {
     <main className="max-w-6xl mx-auto px-4 py-10 w-full flex-1">
       {/* Header */}
       <div className="mb-8 text-center">
-        <p className="text-rose-500 font-semibold uppercase tracking-widest text-sm mb-2">Personalização Exclusiva</p>
+        <p className="font-semibold uppercase tracking-widest text-sm mb-2 drop-shadow-[0_0_8px_rgba(0,229,255,0.1)]" style={{ color: 'var(--accent)' }}>Personalização Exclusiva</p>
         <h1 className="text-3xl md:text-4xl font-black mb-2" style={{ color: 'var(--text-primary)' }}>
-          Criar Placa <span className="text-rose-500">Personalizada</span>
+          Criar Placa <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)]">Personalizada</span>
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>Visualize em 3D antes de encomendar. Gire e explore sua placa.</p>
       </div>
@@ -241,7 +241,7 @@ export default function PlacasPersonalizadas() {
             </button>
             <button
               onClick={handleOrder}
-              className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-sm transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1 text-white shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] hover:scale-[1.02] active:scale-95 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
             >
               Encomendar via WhatsApp
             </button>
@@ -263,7 +263,7 @@ export default function PlacasPersonalizadas() {
                   onClick={() => { setCategory(cat); setSelectedModel(CATEGORIES[cat][0]); }}
                   className="flex-1 py-3 rounded-xl font-semibold text-sm transition-all"
                   style={category === cat
-                    ? { backgroundColor: '#e11d48', color: '#fff', boxShadow: '0 4px 12px rgba(225,29,72,0.3)' }
+                    ? { backgroundColor: 'var(--accent)', color: 'var(--cart-text)', boxShadow: '0 4px 15px rgba(0,229,255,0.2)' }
                     : { backgroundColor: 'var(--bg-page)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }
                   }
                 >
@@ -285,7 +285,7 @@ export default function PlacasPersonalizadas() {
                   onClick={() => setSelectedModel(model)}
                   className="py-2 px-3 text-sm rounded-xl border text-left font-medium transition-all"
                   style={selectedModel === model
-                    ? { borderColor: '#e11d48', backgroundColor: 'rgba(225,29,72,0.06)', color: '#e11d48' }
+                    ? { borderColor: 'var(--accent)', backgroundColor: 'rgba(0,229,255,0.06)', color: 'var(--accent)' }
                     : { borderColor: 'var(--border-color)', color: 'var(--text-secondary)', backgroundColor: 'transparent' }
                   }
                 >
@@ -304,8 +304,8 @@ export default function PlacasPersonalizadas() {
               onChange={e => setBabyName(e.target.value)}
               maxLength={15}
               placeholder="Digite o nome..."
-              className="w-full rounded-xl px-4 py-3 text-lg outline-none transition-all border focus:ring-2 focus:ring-rose-500"
-              style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              className="w-full rounded-xl px-4 py-3 text-lg outline-none transition-all border focus:ring-2"
+              style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent)' }}
             />
             <p className="text-right text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{babyName.length}/15</p>
           </div>
@@ -322,9 +322,9 @@ export default function PlacasPersonalizadas() {
                   className="w-11 h-11 rounded-full transition-all hover:scale-110"
                   style={{
                     backgroundColor: color.hex,
-                    border: selectedColor.id === color.id ? '3px solid #e11d48' : '2px solid var(--border-color)',
+                    border: selectedColor.id === color.id ? '3px solid var(--accent)' : '2px solid var(--border-color)',
                     transform: selectedColor.id === color.id ? 'scale(1.15)' : '',
-                    boxShadow: selectedColor.id === color.id ? '0 4px 12px rgba(0,0,0,0.2)' : '',
+                    boxShadow: selectedColor.id === color.id ? '0 4px 12px rgba(0,229,255,0.2)' : '',
                   }}
                 />
               ))}
@@ -346,7 +346,7 @@ export default function PlacasPersonalizadas() {
             </div>
             <button
               onClick={handleOrder}
-              className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-rose-500/30"
+              className="w-full font-bold py-3.5 rounded-xl transition-all text-white shadow-[0_10px_20px_-5px_rgba(0,145,255,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(0,145,255,0.5)] hover:scale-[1.01] active:scale-95 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
             >
               Encomendar via WhatsApp ✨
             </button>

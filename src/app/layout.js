@@ -24,25 +24,30 @@ export default function RootLayout({ children }) {
           style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}
         >
           <div className="max-w-6xl mx-auto flex justify-between items-center gap-4">
-            <Link href="/" className="text-2xl font-black tracking-tighter text-rose-500 hover:opacity-80 transition-opacity">
-              LJVision
+            <Link href="/" className="text-2xl font-black tracking-tighter group flex items-center">
+              <span className="bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(0,229,255,0.2)] dark:drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]">
+                LJ
+              </span>
+              <span className="ml-0.5 group-hover:text-[var(--accent)] transition-colors" style={{ color: 'var(--logo-text)' }}>
+                Vision
+              </span>
             </Link>
 
             <nav className="flex items-center gap-3 sm:gap-5">
               <Link
                 href="/"
-                className="text-sm font-semibold transition-colors hidden sm:block"
+                className="text-sm font-semibold transition-colors hidden sm:block hover:text-[#00E5FF]"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Catálogo
               </Link>
               <Link
                 href="/placas-personalizadas"
-                className="text-sm font-bold px-4 py-2 rounded-full transition-colors border"
+                className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)]"
                 style={{
-                  backgroundColor: 'rgba(244,63,94,0.08)',
-                  color: '#e11d48',
-                  borderColor: 'rgba(244,63,94,0.2)',
+                  backgroundColor: 'rgba(0,229,255,0.05)',
+                  color: 'var(--accent)',
+                  borderColor: 'rgba(0,229,255,0.2)',
                 }}
               >
                 Personalizar ✨

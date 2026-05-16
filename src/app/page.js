@@ -6,26 +6,38 @@ const WHATSAPP_NUMBER = '5598984809302';
 
 const CATEGORIES = [
   { id: 'todos', label: 'Todos' },
-  { id: 'bebe', label: '👶 Bebê' },
-  { id: 'futebol', label: '⚽ Times' },
+  { id: 'mascote', label: '🦊 Mascotes' },
+  { id: 'decorativo', label: '✨ Decorativos' },
   { id: 'copa', label: '🏆 Copa do Mundo' },
   { id: 'suporte', label: '🔧 Suportes' },
   { id: 'brinquedo', label: '🎮 Brinquedos' },
+  { id: 'maternidade', label: '🍼 Maternidade' },
 ];
 
 const PRODUCTS = [
-  // BEBÊ
-  { id: 1, category: 'bebe', name: 'Placa Decorativa — Menina', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-rose-500', img: '/img/placa-menina.png', hasImg: true, description: 'Decoração com nome personalizado e elementos delicados para o quartinho da sua princesa.' },
-  { id: 2, category: 'bebe', name: 'Placa Decorativa — Menino', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-sky-500', img: '/img/placa-menino.png', hasImg: true, description: 'Decoração personalizada com o nome do seu guerreiro e elementos divertidos.' },
-  { id: 3, category: 'bebe', name: 'Móbile Decorativo', price: 149.90, tag: 'Novo', tagColor: 'bg-emerald-500', img: '/img/mobile-3d.png', hasImg: true, description: 'Móbile com estrelas, lua e nuvens. Leve, seguro e encantador para o quarto do bebê.' },
-  // FUTEBOL
-  { id: 4, category: 'futebol', name: 'Mascote Flamengo — Urubu', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-600', img: '/img/mascote-flamengo.png', hasImg: true, gradient: 'from-red-900 to-black', description: 'Mascote colecionável do Mengão, nas cores vermelho e preto. Perfeito para torcedores.' },
-  { id: 5, category: 'futebol', name: 'Mascote Vasco — Almirante', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-800', hasImg: false, emoji: '⚓', gradient: 'from-neutral-900 to-neutral-600', description: 'Mascote do Gigante da Colina em preto e branco. Para o torcedor vascaíno raiz.' },
-  { id: 6, category: 'futebol', name: 'Mascote Palmeiras — Porco', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-green-700', hasImg: false, emoji: '🐷', gradient: 'from-green-900 to-green-600', description: 'Mascote do Verdão em verde e branco. Decoração para o palmeirense apaixonado.' },
-  { id: 7, category: 'futebol', name: 'Mascote Corinthians — Mosqueteiro', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-900', hasImg: false, emoji: '⚔️', gradient: 'from-neutral-800 to-neutral-500', description: 'Mascote alvinegro do Timão. Colecionável para o fiel torcedor corintiano.' },
-  { id: 8, category: 'futebol', name: 'Mascote Vitória — Leão', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-700', hasImg: false, emoji: '🦁', gradient: 'from-red-800 to-red-500', description: 'Mascote do Leão da Barra em vermelho e preto. Para o torcedor baiano!' },
-  { id: 9, category: 'futebol', name: 'Mascote São Paulo — Tricolor', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-500', hasImg: false, emoji: '🦅', gradient: 'from-red-700 via-neutral-800 to-gray-200', description: 'Mascote tricolor do SPFC nas cores vermelho, preto e branco.' },
-  { id: 10, category: 'futebol', name: 'Mascote do Seu Time', price: 120.00, tag: 'Personalizado', tagColor: 'bg-violet-600', hasImg: false, emoji: '🎨', gradient: 'from-violet-900 to-violet-600', description: 'Não encontrou seu time? Criamos mascotes de qualquer clube sob encomenda!' },
+  // MASCOTES
+  { id: 4, category: 'mascote', name: 'Mascote Flamengo — Urubu', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-600', img: '/img/mascote-flamengo.png', hasImg: true, gradient: 'from-red-900 to-black', description: 'Mascote colecionável do Mengão, nas cores vermelho e preto. Perfeito para torcedores.' },
+  { id: 5, category: 'mascote', name: 'Mascote Vasco — Almirante', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-800', hasImg: false, emoji: '⚓', gradient: 'from-neutral-900 to-neutral-600', description: 'Mascote do Gigante da Colina em preto e branco. Para o torcedor vascaíno raiz.' },
+  { id: 6, category: 'mascote', name: 'Mascote Palmeiras — Porco', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-green-700', hasImg: false, emoji: '🐷', gradient: 'from-green-900 to-green-600', description: 'Mascote do Verdão em verde e branco. Decoração para o palmeirense apaixonado.' },
+  { id: 7, category: 'mascote', name: 'Mascote Corinthians — Mosqueteiro', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-900', hasImg: false, emoji: '⚔️', gradient: 'from-neutral-800 to-neutral-500', description: 'Mascote alvinegro do Timão. Colecionável para o fiel torcedor corintiano.' },
+  { id: 8, category: 'mascote', name: 'Mascote Vitória — Leão', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-700', hasImg: false, emoji: '🦁', gradient: 'from-red-800 to-red-500', description: 'Mascote do Leão da Barra em vermelho e preto. Para o torcedor baiano!' },
+  { id: 9, category: 'mascote', name: 'Mascote São Paulo — Tricolor', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-500', hasImg: false, emoji: '🦅', gradient: 'from-red-700 via-neutral-800 to-gray-200', description: 'Mascote tricolor do SPFC nas cores vermelho, preto e branco.' },
+  { id: 10, category: 'mascote', name: 'Mascote Santos — Baleia', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-100', hasImg: false, emoji: '🐳', gradient: 'from-neutral-100 to-neutral-400', description: 'Mascote do Peixe em branco e preto. Para o torcedor santista de coração.' },
+  { id: 22, category: 'mascote', name: 'Mascote Botafogo — Biriba', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-900', hasImg: false, emoji: '🐶', gradient: 'from-neutral-900 to-neutral-600', description: 'O lendário cachorrinho Biriba do Glorioso. Um clássico alvinegro.' },
+  { id: 23, category: 'mascote', name: 'Mascote Fluminense — Guerreirinho', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-900', hasImg: false, emoji: '🛡️', gradient: 'from-red-900 via-green-800 to-neutral-100', description: 'Mascote do Tricolor das Laranjeiras. Identidade e tradição carioca.' },
+  { id: 24, category: 'mascote', name: 'Mascote Atlético MG — Galo', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-neutral-900', hasImg: false, emoji: '🐓', gradient: 'from-neutral-900 to-neutral-500', description: 'O Galo Doido em preto e branco. Decoração para o torcedor atleticano.' },
+  { id: 25, category: 'mascote', name: 'Mascote Cruzeiro — Raposa', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-blue-800', hasImg: false, emoji: '🦊', gradient: 'from-blue-900 to-blue-600', description: 'A Raposa celeste do Cabuloso. Perfeito para decorar o ambiente do cruzeirense.' },
+  { id: 26, category: 'mascote', name: 'Mascote Grêmio — Mosqueteiro', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-sky-600', hasImg: false, emoji: '🤺', gradient: 'from-sky-800 via-neutral-100 to-black', description: 'Mascote Imortal do Grêmio. Cores vibrantes e design detalhado.' },
+  { id: 27, category: 'mascote', name: 'Mascote Internacional — Saci', price: 79.90, tag: 'Exclusivo', tagColor: 'bg-red-600', hasImg: false, emoji: '🌪️', gradient: 'from-red-900 to-red-500', description: 'O icônico Saci do Colorado. Peça única para o torcedor do Inter.' },
+  { id: 28, category: 'mascote', name: 'Mascote do Seu Time', price: 120.00, tag: 'Personalizado', tagColor: 'bg-violet-600', hasImg: false, emoji: '🎨', gradient: 'from-violet-900 to-violet-600', description: 'Não encontrou seu time? Criamos mascotes de qualquer clube sob encomenda!' },
+  // DECORATIVOS
+  { id: 29, category: 'decorativo', name: 'Logo 3D Personalizada', price: 199.90, tag: 'Premium', tagColor: 'bg-cyan-500', hasImg: false, emoji: '🏢', gradient: 'from-cyan-900 to-blue-600', description: 'Sua logo transformada em uma peça 3D de alta qualidade para escritório ou home office.' },
+  { id: 30, category: 'decorativo', name: 'Letreiro Retroiluminado', price: 259.90, tag: 'Destaque', tagColor: 'bg-yellow-500', hasImg: false, emoji: '💡', gradient: 'from-neutral-800 to-neutral-600', description: 'Nome ou palavra personalizada com iluminação LED integrada. Efeito neon futurista.' },
+  { id: 31, category: 'decorativo', name: 'Quadro 3D Minimalista', price: 119.90, tag: 'Arte', tagColor: 'bg-purple-500', hasImg: false, emoji: '🖼️', gradient: 'from-purple-900 to-indigo-600', description: 'Arte geométrica em camadas 3D. Um toque moderno para qualquer ambiente.' },
+  // MATERNIDADE
+  { id: 1, category: 'maternidade', name: 'Placa Decorativa — Menina', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-rose-500', img: '/img/placa-menina.png', hasImg: true, description: 'Decoração com nome personalizado e elementos delicados para o quartinho da sua princesa.' },
+  { id: 2, category: 'maternidade', name: 'Placa Decorativa — Menino', price: 89.90, tag: 'Mais Vendido', tagColor: 'bg-sky-500', img: '/img/placa-menino.png', hasImg: true, description: 'Decoração personalizada com o nome do seu guerreiro e elementos divertidos.' },
+  { id: 3, category: 'maternidade', name: 'Móbile Decorativo', price: 149.90, tag: 'Novo', tagColor: 'bg-emerald-500', img: '/img/mobile-3d.png', hasImg: true, description: 'Móbile com estrelas, lua e nuvens. Leve, seguro e encantador para o quarto do bebê.' },
   // COPA
   { id: 11, category: 'copa', name: 'Taça da Copa do Mundo', price: 129.90, tag: 'Colecionável', tagColor: 'bg-yellow-600', hasImg: false, emoji: '🏆', gradient: 'from-yellow-700 to-yellow-400', description: 'Réplica fiel da Taça Jules Rimet da FIFA com acabamento dourado. 25cm de altura.' },
   { id: 12, category: 'copa', name: 'Chaveiro — Taça da Copa', price: 29.90, tag: 'Mini', tagColor: 'bg-yellow-500', hasImg: false, emoji: '🔑', gradient: 'from-amber-600 to-yellow-400', description: 'Mini réplica da Taça do Mundo em chaveiro com acabamento dourado metálico. 6cm.' },
@@ -94,8 +106,8 @@ function ProductCard({ product, onAddToCart, isAdded }) {
           <button
             onClick={() => onAddToCart(product)}
             className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${isAdded
-                ? 'border-green-500 bg-green-50 text-green-600'
-                : 'border-neutral-200 hover:border-rose-400 hover:bg-rose-50 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-rose-400'
+                ? 'border-green-500 bg-green-50/10 text-green-400'
+                : 'border-neutral-200 hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[var(--accent)]'
               }`}
             style={!isAdded ? { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' } : {}}
           >
@@ -103,7 +115,7 @@ function ProductCard({ product, onAddToCart, isAdded }) {
           </button>
           <button
             onClick={handleWA}
-            className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-rose-500 hover:bg-rose-600 text-white transition-colors"
+            className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 text-white shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
           >
             Encomendar
           </button>
@@ -149,12 +161,12 @@ export default function CatalogPage() {
 
       {/* Hero */}
       <section className="text-center mb-12">
-        <p className="font-semibold uppercase tracking-widest text-sm mb-3 text-rose-500">Produtos Exclusivos</p>
+        <p className="font-semibold uppercase tracking-widest text-sm mb-3 drop-shadow-[0_0_10px_rgba(0,229,255,0.1)]" style={{ color: 'var(--accent)' }}>Produtos Exclusivos</p>
         <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight" style={{ color: 'var(--text-primary)' }}>
-          Coleção <span className="text-rose-500">Personalizada</span>
+          Coleção <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)]">Personalizada</span>
         </h1>
         <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-          Decoração infantil, mascotes de times, colecionáveis da Copa, suportes e brinquedos articulados. Cada peça feita sob encomenda, com cuidado e atenção aos detalhes.
+          Mascotes de times, decoração de maternidade, colecionáveis da Copa, suportes e brinquedos articulados. Cada peça feita sob encomenda, com cuidado e atenção aos detalhes.
         </p>
       </section>
 
@@ -167,7 +179,7 @@ export default function CatalogPage() {
             className="px-4 py-2 rounded-full text-sm font-semibold transition-all border"
             style={
               activeCategory === cat.id
-                ? { backgroundColor: '#e11d48', color: '#fff', borderColor: '#e11d48', boxShadow: '0 4px 12px rgba(225,29,72,0.3)' }
+                ? { backgroundColor: 'var(--accent)', color: 'var(--cart-text)', borderColor: 'var(--accent)', boxShadow: '0 4px 15px rgba(0,229,255,0.2)' }
                 : { backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border-color)' }
             }
           >
@@ -198,11 +210,11 @@ export default function CatalogPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-lg">🛒 Carrinho</span>
-                <span className="bg-rose-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="bg-[var(--accent)] text-[var(--cart-text)] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(0,229,255,0.3)]">
                   {totalQty}
                 </span>
               </div>
-              <span className="font-black text-rose-400 text-xl">
+              <span className="font-black text-xl drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]" style={{ color: 'var(--accent)' }}>
                 R$ {totalPrice.toFixed(2).replace('.', ',')}
               </span>
             </div>
