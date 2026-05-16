@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Light theme (default) */
+:root {
+  --bg-page: #f9f9f9;
+  --bg-card: #ffffff;
+  --bg-header: #ffffff;
+  --border-color: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 10px 30px rgba(0,0,0,0.12);
+  --cart-bg: #111827;
+  --cart-text: #ffffff;
+}
+
+/* Dark theme */
+html.dark {
+  --bg-page: #0c0c0f;
+  --bg-card: #16161a;
+  --bg-header: #111115;
+  --border-color: #2a2a35;
+  --text-primary: #f1f1f3;
+  --text-secondary: #a0a0b0;
+  --text-muted: #60607a;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-card-hover: 0 10px 30px rgba(0,0,0,0.5);
+  --cart-bg: #1e1e28;
+  --cart-text: #f1f1f3;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
