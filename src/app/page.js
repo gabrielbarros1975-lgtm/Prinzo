@@ -2,18 +2,9 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { fetchProducts } from '@/lib/fetchProducts';
+import { fetchCategories } from '@/lib/fetchCategories';
 
 const WHATSAPP_NUMBER = '5598984809302';
-
-const CATEGORIES = [
-  { id: 'todos', label: 'Todos' },
-  { id: 'mascote', label: '🦊 Mascotes' },
-  { id: 'decorativo', label: '✨ Decorativos' },
-  { id: 'copa', label: '🏆 Copa do Mundo' },
-  { id: 'suporte', label: '🔧 Suportes' },
-  { id: 'brinquedo', label: '🎮 Brinquedos' },
-  { id: 'maternidade', label: '🍼 Maternidade' },
-];
 
 function ProductCard({ product, onAddToCart, isAdded }) {
   const handleWA = () => {
@@ -88,11 +79,18 @@ function ProductCard({ product, onAddToCart, isAdded }) {
 
 export default function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState('todos');
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [cart, setCart] = useState([]);
   const [addedId, setAddedId] = useState(null);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Erro ao carregar categorias:', error));
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -103,6 +101,14 @@ export default function CatalogPage() {
       .catch((error) => setLoadError(error.message || 'Erro ao carregar produtos'))
       .finally(() => setIsLoading(false));
   }, [activeCategory]);
+
+  const filterButtons = [
+    { id: 'todos', label: 'Todos' },
+    ...categories.map(c => ({
+      id: c.slug,
+      label: [c.emoji, c.name].filter(Boolean).join(' '),
+    })),
+  ];
 
   const filtered = products;
 
@@ -144,7 +150,7 @@ export default function CatalogPage() {
 
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap justify-center mb-10">
-        {CATEGORIES.map(cat => (
+        {filterButtons.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
