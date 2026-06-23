@@ -9,7 +9,12 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { data, error } = await supabaseAdmin.from('products').insert([body]).select().single();
+    const { category, name, description, price, tag, tag_color, img, emoji, gradient, has_img } = body;
+    const { data, error } = await supabaseAdmin
+      .from('products')
+      .insert([{ category, name, description, price, tag, tag_color, img, emoji, gradient, has_img }])
+      .select()
+      .single();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     return new Response(JSON.stringify(data), { status: 201, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {

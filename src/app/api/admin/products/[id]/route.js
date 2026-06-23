@@ -4,7 +4,13 @@ export async function PUT(request, { params }) {
   try {
     const id = params.id;
     const body = await request.json();
-    const { data, error } = await supabaseAdmin.from('products').update(body).eq('id', id).select().single();
+    const { category, name, description, price, tag, tag_color, img, emoji, gradient, has_img } = body;
+    const { data, error } = await supabaseAdmin
+      .from('products')
+      .update({ category, name, description, price, tag, tag_color, img, emoji, gradient, has_img })
+      .eq('id', id)
+      .select()
+      .single();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
