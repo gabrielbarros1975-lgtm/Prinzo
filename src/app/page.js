@@ -1,82 +1,315 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { fetchProducts } from '@/lib/fetchProducts';
 import { fetchCategories } from '@/lib/fetchCategories';
 
 const WHATSAPP_NUMBER = '5598984809302';
 
+/* ─── Lightbox ─────────────────────────────────────────────────── */
+function Lightbox({ images, startIndex, onClose }) {
+  const [idx, setIdx] = useState(startIndex ?? 0);
+
+  const prev = useCallback(() => setIdx(i => (i - 1 + images.length) % images.length), [images.length]);
+  const next = useCallback(() => setIdx(i => (i + 1) % images.length), [images.length]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, prev, next]);
+
+  if (!images?.length) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}
+    >
+      {/* Main image */}
+      <div
+        className="relative flex items-center justify-center"
+        style={{ maxWidth: '90vw', maxHeight: '90vh', width: '100%', height: '100%' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <img
+          src={images[idx]}
+          alt={`Imagem ${idx + 1}`}
+          style={{
+            maxWidth: '90vw',
+            maxHeight: '80vh',
+            objectFit: 'contain',
+            borderRadius: '1rem',
+            boxShadow: '0 30px 80px rgba(0,0,0,0.8)',
+          }}
+        />
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '-2.5rem',
+            right: 0,
+            background: 'rgba(255,255,255,0.12)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '2.2rem',
+            height: '2.2rem',
+            cursor: 'pointer',
+            color: '#fff',
+            fontSize: '1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          aria-label="Fechar"
+        >✕</button>
+
+        {/* Prev / Next */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              style={{
+                position: 'absolute',
+                left: '-3.5rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.12)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '2.8rem',
+                height: '2.8rem',
+                cursor: 'pointer',
+                color: '#fff',
+                fontSize: '1.3rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(4px)',
+              }}
+              aria-label="Anterior"
+            >‹</button>
+            <button
+              onClick={next}
+              style={{
+                position: 'absolute',
+                right: '-3.5rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.12)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '2.8rem',
+                height: '2.8rem',
+                cursor: 'pointer',
+                color: '#fff',
+                fontSize: '1.3rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(4px)',
+              }}
+              aria-label="Próxima"
+            >›</button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnails */}
+      {images.length > 1 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '1.5rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '0.5rem',
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {images.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              style={{
+                width: '3rem',
+                height: '3rem',
+                borderRadius: '0.5rem',
+                overflow: 'hidden',
+                border: i === idx ? '2px solid var(--accent)' : '2px solid rgba(255,255,255,0.2)',
+                cursor: 'pointer',
+                padding: 0,
+                background: 'none',
+                flexShrink: 0,
+              }}
+            >
+              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── ProductCard ───────────────────────────────────────────────── */
 function ProductCard({ product, onAddToCart, isAdded }) {
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+
+  // Build full image list: primary img + extra images[]
+  const allImages = [];
+  if (product.img) allImages.push(product.img);
+  if (Array.isArray(product.images)) {
+    product.images.forEach(u => { if (u && !allImages.includes(u)) allImages.push(u); });
+  }
+
+  const hasImages = allImages.length > 0;
+
   const handleWA = () => {
     const msg = `Olá! Tenho interesse em: *${product.name}* — R$ ${product.price.toFixed(2).replace('.', ',')}. Pode me passar mais informações?`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
-    <div
-      className="rounded-3xl overflow-hidden border flex flex-col group transition-all duration-300 hover:-translate-y-1"
-      style={{
-        backgroundColor: 'var(--bg-card)',
-        borderColor: 'var(--border-color)',
-        boxShadow: 'var(--shadow-card)',
-      }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
-    >
-      {/* Visual */}
-      <div className="relative w-full overflow-hidden" style={{ height: '13rem' }}>
-        {product.has_img || product.hasImg ? (
-          <Image
-            src={product.img}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
-            <span className="text-7xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
-          </div>
-        )}
-        <span className={`absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || product.tagColor || ''}`}>
-          {product.tag}
-        </span>
-        <span className="absolute top-3 right-3 bg-black/70 text-white text-sm font-black px-3 py-1 rounded-full backdrop-blur-sm">
-          R$ {Number(product.price || 0).toFixed(2).replace('.', ',')}
-        </span>
-      </div>
+    <>
+      {lightboxIndex !== null && (
+        <Lightbox images={allImages} startIndex={lightboxIndex} onClose={() => setLightboxIndex(null)} />
+      )}
 
-      {/* Info */}
-      <div className="p-5 flex flex-col flex-1">
-        <h2 className="text-base font-bold mb-2 leading-snug" style={{ color: 'var(--text-primary)' }}>
-          {product.name}
-        </h2>
-        <p className="text-sm leading-relaxed flex-1 mb-5" style={{ color: 'var(--text-secondary)' }}>
-          {product.description}
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => onAddToCart(product)}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${isAdded
-                ? 'border-green-500 bg-green-50/10 text-green-400'
-                : 'border-neutral-200 hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[var(--accent)]'
-              }`}
-            style={!isAdded ? { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' } : {}}
-          >
-            {isAdded ? '✓ Adicionado' : '+ Carrinho'}
-          </button>
-          <button
-            onClick={handleWA}
-            className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 text-white shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
-          >
-            Encomendar
-          </button>
+      <div
+        className="rounded-3xl overflow-hidden border flex flex-col group transition-all duration-300 hover:-translate-y-1"
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          borderColor: 'var(--border-color)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+        onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'}
+        onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+      >
+        {/* Visual */}
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ height: '13rem', cursor: hasImages ? 'zoom-in' : 'default' }}
+          onClick={() => hasImages && setLightboxIndex(0)}
+        >
+          {hasImages ? (
+            <>
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{ background: 'var(--bg-card)' }}
+              >
+                <img
+                  src={allImages[0]}
+                  alt={product.name}
+                  className="group-hover:scale-105 transition-transform duration-500"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
+                />
+              </div>
+              {/* Multi-image indicator */}
+              {allImages.length > 1 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '0.5rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: '4px',
+                  }}
+                >
+                  {allImages.map((_, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        width: i === 0 ? '1.5rem' : '0.4rem',
+                        height: '0.4rem',
+                        borderRadius: '9999px',
+                        background: i === 0 ? 'var(--accent)' : 'rgba(255,255,255,0.5)',
+                        transition: 'width 0.2s',
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              {/* Zoom hint overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0)',
+                  transition: 'background 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '1.5rem',
+                  opacity: 0,
+                }}
+                className="group-hover:opacity-100 group-hover:!bg-black/20"
+              >
+                🔍
+              </div>
+            </>
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
+              <span className="text-7xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
+            </div>
+          )}
+          <span className={`absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || product.tagColor || ''}`}>
+            {product.tag}
+          </span>
+          <span className="absolute top-3 right-3 bg-black/70 text-white text-sm font-black px-3 py-1 rounded-full backdrop-blur-sm">
+            R$ {Number(product.price || 0).toFixed(2).replace('.', ',')}
+          </span>
+        </div>
+
+        {/* Info */}
+        <div className="p-5 flex flex-col flex-1">
+          <h2 className="text-base font-bold mb-2 leading-snug" style={{ color: 'var(--text-primary)' }}>
+            {product.name}
+          </h2>
+          <p className="text-sm leading-relaxed flex-1 mb-5" style={{ color: 'var(--text-secondary)' }}>
+            {product.description}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onAddToCart(product)}
+              className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${isAdded
+                  ? 'border-green-500 bg-green-50/10 text-green-400'
+                  : 'border-neutral-200 hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[var(--accent)]'
+                }`}
+              style={!isAdded ? { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' } : {}}
+            >
+              {isAdded ? '✓ Adicionado' : '+ Carrinho'}
+            </button>
+            <button
+              onClick={handleWA}
+              className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 text-white shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
+            >
+              Encomendar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
+/* ─── CatalogPage ───────────────────────────────────────────────── */
 export default function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState('todos');
   const [categories, setCategories] = useState([]);
@@ -143,9 +376,7 @@ export default function CatalogPage() {
         <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight" style={{ color: 'var(--text-primary)' }}>
           Coleção <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)]">Personalizada</span>
         </h1>
-        <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-          Mascotes de times, decoração de maternidade, colecionáveis da Copa, suportes e brinquedos articulados. Cada peça feita sob encomenda, com cuidado e atenção aos detalhes.
-        </p>
+
       </section>
 
       {/* Filtros */}

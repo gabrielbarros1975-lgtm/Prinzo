@@ -9,10 +9,10 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { category, name, description, price, tag, tag_color, img, emoji, gradient, has_img } = body;
+    const { category, name, description, price, tag, tag_color, img, images, emoji, gradient, has_img } = body;
     const { data, error } = await supabaseAdmin
       .from('products')
-      .insert([{ category, name, description, price, tag, tag_color, img, emoji, gradient, has_img }])
+      .insert([{ category, name, description, price, tag, tag_color, img, images: images || [], emoji, gradient, has_img }])
       .select()
       .single();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
