@@ -28,7 +28,7 @@ export async function POST(req) {
 
     const buffer = Buffer.from(arrayBuffer);
     const ext = file.name?.split('.').pop() || 'jpg';
-    const filename = `product-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from('product-images')
