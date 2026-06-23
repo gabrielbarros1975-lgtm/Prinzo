@@ -28,11 +28,12 @@ export async function POST(req) {
     const preferenceData = {
       items: items.map(item => ({
         id: String(item.id),
-        title: item.name,
+        title: item.customName ? `${item.name} (Base: ${item.customName})` : item.name,
         quantity: item.qty,
         unit_price: Number(item.price),
         currency_id: 'BRL',
       })),
+
       back_urls: {
         success: `${mpBaseUrl}/pagamento?status=approved`,
         failure: `${mpBaseUrl}/pagamento?status=failure`,

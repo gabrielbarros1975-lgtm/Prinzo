@@ -1,6 +1,7 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+
 
 const STATUS_CONFIG = {
   approved: {
@@ -33,6 +34,40 @@ function PaymentContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get('status') || 'pending';
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+
+  const [lastCart, setLastCart] = useState([]);
+  const [paymentId, setPaymentId] = useState('');
+
+  useEffect(() => {
+    const cartData = localStorage.getItem('ljvision_last_cart');
+    if (cartData) {
+      try {
+        setLastCart(JSON.parse(cartData));
+      } catch (e) {
+        console.error('Erro ao ler carrinho do localStorage:', e);
+      }
+    }
+    // O Mercado Pago retorna collection_id ou payment_id na URL
+    const pid = searchParams.get('payment_id') || searchParams.get('collection_id');
+    if (pid) setPaymentId(pid);
+  }, [searchParams]);
+
+  const handleNotifyWA = () => {
+    const WHATSAPP_NUMBER = '5598984809302';
+    const totalPrice = lastCart.reduce((acc, p) => acc + p.price * p.qty, 0);
+    const lines = lastCart.map(p => {
+      const customText = p.customName ? ` (Base: ${p.customName})` : '';
+      return `• ${p.name}${customText} (×${p.qty})`;
+    });
+
+    const msg = `Olá! Realizei o pagamento do meu pedido via Mercado Pago!\n\n` +
+      `*ID do Pagamento:* ${paymentId || 'N/A'}\n` +
+      `*Valor Total:* R$ ${totalPrice.toFixed(2).replace('.', ',')}\n\n` +
+      `*Itens do Pedido:*\n${lines.join('\n')}\n\n` +
+      `Pode confirmar o recebimento e me passar os detalhes da entrega?`;
+
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   return (
     <main
@@ -81,14 +116,73 @@ function PaymentContent() {
             fontSize: '0.95rem',
             lineHeight: 1.6,
             color: 'var(--text-secondary, #94a3b8)',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
           }}
         >
           {config.message}
         </p>
 
+        {/* Resumo do Pedido */}
+        {status === 'approved' && lastCart.length > 0 && (
+          <div
+            style={{
+              textAlign: 'left',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '1rem',
+              padding: '1.25rem',
+              marginBottom: '2rem',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff', marginBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.5rem' }}>
+              Resumo do Pedido
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '150px', overflowY: 'auto' }}>
+              {lastCart.map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '240px' }}>
+                    {item.name} {item.customName ? `(Base: ${item.customName})` : ''}
+                  </span>
+                  <span>
+                    {item.qty}x - R$ {(item.price * item.qty).toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {paymentId && (
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
+                Mercado Pago ID: <code style={{ color: 'var(--accent, #00e5ff)' }}>{paymentId}</code>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {status === 'approved' && lastCart.length > 0 && (
+            <button
+              onClick={handleNotifyWA}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '0.85rem 1.5rem',
+                borderRadius: '0.875rem',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                border: 'none',
+                color: '#fff',
+                background: 'linear-gradient(135deg, #25d366 0%, #128c7e 100%)',
+                boxShadow: '0 5px 20px rgba(37,211,102,0.3)',
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
+              🟢 Confirmar no WhatsApp
+            </button>
+          )}
+
           <a
             href="/"
             style={{

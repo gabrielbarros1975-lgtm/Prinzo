@@ -163,6 +163,7 @@ function Lightbox({ images, startIndex, onClose }) {
 /* ─── ProductCard ───────────────────────────────────────────────── */
 function ProductCard({ product, onAddToCart, isAdded }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [customName, setCustomName] = useState('');
 
   // Build full image list: primary img + extra images[]
   const allImages = [];
@@ -174,8 +175,15 @@ function ProductCard({ product, onAddToCart, isAdded }) {
   const hasImages = allImages.length > 0;
 
   const handleWA = () => {
-    const msg = `Olá! Tenho interesse em: *${product.name}* — R$ ${product.price.toFixed(2).replace('.', ',')}. Pode me passar mais informações?`;
+    const trimmed = customName.trim();
+    const customText = trimmed ? ` (Personalização da base: "${trimmed}")` : '';
+    const msg = `Olá! Tenho interesse em: *${product.name}*${customText} — R$ ${product.price.toFixed(2).replace('.', ',')}. Pode me passar mais informações?`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const handleAdd = () => {
+    onAddToCart(product, customName);
+    setCustomName('');
   };
 
   return (
@@ -282,12 +290,36 @@ function ProductCard({ product, onAddToCart, isAdded }) {
           <h2 className="text-base font-bold mb-2 leading-snug" style={{ color: 'var(--text-primary)' }}>
             {product.name}
           </h2>
-          <p className="text-sm leading-relaxed flex-1 mb-5" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm leading-relaxed flex-1 mb-4" style={{ color: 'var(--text-secondary)' }}>
             {product.description}
           </p>
+
+          {/* Campo de Personalização (Mascotes) */}
+          {product.category === 'Mascotes de Times' && (
+            <div className="mb-4">
+              <label className="block text-xs font-bold mb-1 opacity-70" style={{ color: 'var(--text-secondary)' }}>
+                Nome na base (opcional):
+              </label>
+              <input
+                type="text"
+                placeholder="Ex: Gabriel, Arthur..."
+                value={customName}
+                onChange={e => setCustomName(e.target.value)}
+                maxLength={15}
+                className="w-full text-xs p-2 rounded-xl outline-none border transition-all"
+                style={{
+                  backgroundColor: 'var(--bg-page)',
+                  borderColor: 'var(--border-color)',
+                  color: 'var(--text-primary)',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)'
+                }}
+              />
+            </div>
+          )}
+
           <div className="flex gap-2">
             <button
-              onClick={() => onAddToCart(product)}
+              onClick={handleAdd}
               className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${isAdded
                   ? 'border-green-500 bg-green-50/10 text-green-400'
                   : 'border-neutral-200 hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[var(--accent)]'
@@ -346,24 +378,34 @@ export default function CatalogPage() {
 
   const filtered = products;
 
-  const addToCart = (product) => {
+  const addToCart = (product, customName = '') => {
+    const trimmedCustom = customName.trim();
+    const cartItemId = `${product.id}_${trimmedCustom}`;
+
     setCart(prev => {
-      const exists = prev.find(p => p.id === product.id);
+      const exists = prev.find(p => p.cartItemId === cartItemId);
       return exists
-        ? prev.map(p => p.id === product.id ? { ...p, qty: p.qty + 1 } : p)
-        : [...prev, { ...product, qty: 1 }];
+        ? prev.map(p => p.cartItemId === cartItemId ? { ...p, qty: p.qty + 1 } : p)
+        : [...prev, { ...product, cartItemId, customName: trimmedCustom, qty: 1 }];
     });
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1500);
   };
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(p => p.id !== id));
+  const removeFromCart = (cartItemId) => setCart(prev => prev.filter(p => p.cartItemId !== cartItemId));
   const totalQty = cart.reduce((acc, p) => acc + p.qty, 0);
   const totalPrice = cart.reduce((acc, p) => acc + p.price * p.qty, 0);
 
   const handleCheckout = () => {
     if (!cart.length) return;
-    const lines = cart.map(p => `• ${p.name} (×${p.qty}) — R$ ${(p.price * p.qty).toFixed(2).replace('.', ',')}`);
+
+    // Salvar no localStorage antes do checkout
+    localStorage.setItem('ljvision_last_cart', JSON.stringify(cart));
+
+    const lines = cart.map(p => {
+      const customText = p.customName ? ` (Base: ${p.customName})` : '';
+      return `• ${p.name}${customText} (×${p.qty}) — R$ ${(p.price * p.qty).toFixed(2).replace('.', ',')}`;
+    });
     const msg = `Olá! Gostaria de encomendar os seguintes itens da *LJVision*:\n\n${lines.join('\n')}\n\n*Total: R$ ${totalPrice.toFixed(2).replace('.', ',')}*\n\nPor favor, me informe prazo e forma de pagamento!`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -371,11 +413,23 @@ export default function CatalogPage() {
   const handleMercadoPago = async () => {
     if (!cart.length || mpLoading) return;
     setMpLoading(true);
+
+    // Salvar no localStorage antes do checkout
+    localStorage.setItem('ljvision_last_cart', JSON.stringify(cart));
+
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart.map(p => ({ id: p.id, name: p.name, price: p.price, qty: p.qty })) }),
+        body: JSON.stringify({
+          items: cart.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            qty: p.qty,
+            customName: p.customName
+          }))
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Erro ao criar pagamento');
@@ -460,10 +514,12 @@ export default function CatalogPage() {
 
             <div className="space-y-2 mb-4 max-h-28 overflow-y-auto">
               {cart.map(item => (
-                <div key={item.id} className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
-                  <span className="truncate flex-1">{item.name} × {item.qty}</span>
+                <div key={item.cartItemId} className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
+                  <span className="truncate flex-1">
+                    {item.name} {item.customName ? `(Base: ${item.customName})` : ''} × {item.qty}
+                  </span>
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.cartItemId)}
                     className="ml-3 hover:text-red-400 transition-colors"
                   >✕</button>
                 </div>
