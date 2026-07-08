@@ -7,6 +7,8 @@ const SUPPORT_WA = '5598984809302';
 const SUPPORT_WA_LINK = `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent('Olá! Tenho interesse no Prinzo e gostaria de mais informações.')}`;
 
 export default function SaaSLandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <main className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-page)' }}>
       {/* Header */}
@@ -21,7 +23,7 @@ export default function SaaSLandingPage() {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-4">
+          <nav className="hidden sm:flex items-center gap-4">
             <Link
               href="/admin"
               className="text-sm font-semibold transition-colors hover:text-[#00E5FF] text-slate-600 dark:text-slate-400"
@@ -36,7 +38,49 @@ export default function SaaSLandingPage() {
             </Link>
             <ThemeToggle />
           </nav>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="sm:hidden inline-flex items-center justify-center rounded-xl border bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm p-3 border-[var(--border-color)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-slate-800"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          >
+            <span className="sr-only">{mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}</span>
+            <div className="space-y-1.5">
+              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
+              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
+              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
+            </div>
+          </button>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="sm:hidden mt-4 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-sm dark:border-slate-800 dark:bg-[var(--bg-card)]">
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/admin"
+                className="block rounded-2xl px-4 py-3 text-sm font-semibold transition-colors text-[var(--text-primary)] hover:bg-slate-100 dark:text-[var(--text-primary)] dark:hover:bg-slate-800"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Recursos
+              </Link>
+              <Link
+                href="/admin"
+                className="block rounded-2xl px-4 py-3 text-sm font-bold transition-all bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-slate-50 dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-slate-700 dark:hover:bg-slate-800"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Painel Administrativo 🔑
+              </Link>
+              <div className="rounded-2xl px-4 py-3 bg-slate-50 dark:bg-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Tema</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -114,10 +158,10 @@ export default function SaaSLandingPage() {
       <section className="py-20 px-4 text-center">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-black mb-4 text-slate-900 dark:text-white">
-            Planos Simples e Transparentes
+            Assinatura Premium
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mb-16">
-            Comece grátis, configure tudo e ative seu plano quando estiver pronto para vender.
+            R$ 9,90 no 1º mês. Depois apenas R$ 15,00/mês fixo.
           </p>
 
           <div className="max-w-md mx-auto p-8 rounded-3xl border-2 border-cyan-500 bg-white dark:bg-slate-900 shadow-xl relative overflow-hidden">
@@ -126,9 +170,8 @@ export default function SaaSLandingPage() {
             </div>
             <span className="text-sm font-black uppercase text-cyan-500 tracking-wider">Assinatura Premium</span>
             <h3 className="text-4xl font-black mt-4 mb-2 text-slate-900 dark:text-white">
-              R$ 9,90 <span className="text-sm font-normal text-slate-400">no 1º mês</span>
+              R$ 15,00 <span className="text-sm font-normal text-slate-400">/mês fixo</span>
             </h3>
-            <p className="text-xs text-slate-400 mb-2 font-bold">Depois apenas R$ 15,00/mês fixo!</p>
             <p className="text-[11px] text-slate-400 mb-8">Experimente grátis por 5 dias antes de ativar. Cancele quando quiser.</p>
 
             <ul className="text-left space-y-4 mb-8 text-sm text-slate-700 dark:text-slate-300">

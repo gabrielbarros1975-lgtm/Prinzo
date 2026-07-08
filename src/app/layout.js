@@ -20,12 +20,21 @@ export default function RootLayout({ children }) {
             __html: `
               (function() {
                 const saved = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const isDark = saved === 'dark' || (!saved && prefersDark);
-                if (isDark) {
-                  document.documentElement.classList.add('dark');
+                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                const setTheme = (dark) => {
+                  document.documentElement.classList.toggle('dark', dark);
+                };
+
+                if (saved === 'dark' || saved === 'light') {
+                  setTheme(saved === 'dark');
                 } else {
-                  document.documentElement.classList.remove('dark');
+                  setTheme(mediaQuery.matches);
+                }
+
+                if (!saved) {
+                  const handleChange = (event) => setTheme(event.matches);
+                  mediaQuery.addEventListener?.('change', handleChange);
+                  mediaQuery.addListener?.(handleChange);
                 }
               })();
             `,

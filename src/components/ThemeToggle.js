@@ -10,6 +10,23 @@ export function ThemeToggle() {
     const dark = saved === 'dark' || (!saved && prefersDark);
     setIsDark(dark);
     document.documentElement.classList.toggle('dark', dark);
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (event) => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return;
+      const nextDark = event.matches;
+      setIsDark(nextDark);
+      document.documentElement.classList.toggle('dark', nextDark);
+    };
+
+    mediaQuery.addEventListener?.('change', handleChange);
+    mediaQuery.addListener?.(handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener?.('change', handleChange);
+      mediaQuery.removeListener?.(handleChange);
+    };
   }, []);
 
   const toggle = () => {
