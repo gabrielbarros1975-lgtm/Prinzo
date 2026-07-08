@@ -31,7 +31,8 @@ export async function POST(req) {
     const preference = new Preference(client);
 
     const requestUrl = new URL(req.url);
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || requestUrl.origin;
+    const envBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = envBaseUrl && !envBaseUrl.includes('localhost') ? envBaseUrl : requestUrl.origin;
     const returnBase = `${baseUrl}/admin`;
 
     const preferenceData = {
