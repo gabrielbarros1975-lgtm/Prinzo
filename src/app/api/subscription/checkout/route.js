@@ -30,10 +30,9 @@ export async function POST(req) {
     const client = new MercadoPagoConfig({ accessToken });
     const preference = new Preference(client);
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const isLocal = baseUrl.includes('localhost') || baseUrl.startsWith('http://');
-    const mpBaseUrl = isLocal ? 'https://example.com' : baseUrl;
-    const returnBase = `${mpBaseUrl}/admin`;
+    const requestUrl = new URL(req.url);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || requestUrl.origin;
+    const returnBase = `${baseUrl}/admin`;
 
     const preferenceData = {
       items: [

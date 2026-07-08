@@ -42,14 +42,11 @@ export async function POST(req) {
     const client = new MercadoPagoConfig({ accessToken });
     const preference = new Preference(client);
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-    // Mercado Pago exige HTTPS para back_urls em produção
-    const isLocal = baseUrl.includes('localhost') || baseUrl.startsWith('http://');
-    const mpBaseUrl = isLocal ? 'https://example.com' : baseUrl;
+    const requestUrl = new URL(req.url);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || requestUrl.origin;
 
     // O slug de retorno vai para /[storeSlug]/pagamento ou /pagamento genérico
-    const returnBase = store_slug ? `${mpBaseUrl}/${store_slug}/pagamento` : `${mpBaseUrl}/pagamento`;
+    const returnBase = store_slug ? `${baseUrl}/${store_slug}/pagamento` : `${baseUrl}/pagamento`;
 
     const preferenceData = {
       items: items.map(item => ({
