@@ -23,9 +23,9 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Payload inválido' }, { status: 400 });
     }
 
-    const dataId = payload?.data?.id;
+    const dataId = payload?.data?.id || payload?.id;
     if (!dataId) {
-      return NextResponse.json({ error: 'ID do pagamento não encontrado no webhook' }, { status: 400 });
+      return NextResponse.json({ error: 'ID do recurso não encontrado no webhook' }, { status: 400 });
     }
 
     try {
@@ -41,8 +41,14 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
     }
 
-    if (!payload.type?.toString().startsWith('payment')) {
-      return NextResponse.json({ status: 'ignored', message: 'Webhook ignored, not a payment event.' });
+    const eventType = payload.type?.toString() || '';
+    if (!eventType.startsWith('payment')) {
+      if (eventType.includes('merchant_order')) {
+        console.info('[MP Webhook] Ignoring merchant_order event', eventType, dataId);
+        return NextResponse.json({ status: 'ignored', message: 'Merchant order event ignored.' });
+      }
+
+      return NextResponse.json({ status: 'ignored', message: 'Webhook ignored, unsupported event type.' });
     }
 
     const accessToken = process.env.MP_ACCESS_TOKEN;
