@@ -31,8 +31,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Payload inválido' }, { status: 400 });
     }
 
-    const dataId = payload?.data?.id || payload?.id;
+    const eventType = String(payload.type || payload.topic || payload.event || '').toLowerCase();
+    const dataId = payload?.data?.id || payload?.id || payload?.resource?.id || payload?.data?.resource?.id;
     if (!dataId) {
+      console.error('[MP Webhook] Missing resource id in webhook payload', payload);
       return NextResponse.json({ error: 'ID do recurso não encontrado no webhook' }, { status: 400 });
     }
 
@@ -45,17 +47,22 @@ export async function POST(req) {
         toleranceSeconds: 300,
       });
     } catch (err) {
-      console.error('[MP Webhook] Signature validation failed', err);
+      console.error('[MP Webhook] Signature validation failed', {
+        error: err,
+        signature,
+        requestId,
+        dataId,
+      });
       return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
     }
 
-    const eventType = payload.type?.toString() || '';
-    if (!eventType.startsWith('payment')) {
-      if (eventType.includes('merchant_order')) {
-        console.info('[MP Webhook] Ignoring merchant_order event', eventType, dataId);
-        return NextResponse.json({ status: 'ignored', message: 'Merchant order event ignored.' });
-      }
+    if (eventType.includes('merchant_order') || (eventType === 'update' && String(payload.topic || '').includes('merchant_order'))) {
+      console.info('[MP Webhook] Ignoring merchant_order event', eventType, payload.topic, dataId);
+      return NextResponse.json({ status: 'ignored', message: 'Merchant order event ignored.' });
+    }
 
+    if (!eventType.startsWith('payment')) {
+      console.info('[MP Webhook] Ignoring unsupported event type', eventType, payload.topic, dataId);
       return NextResponse.json({ status: 'ignored', message: 'Webhook ignored, unsupported event type.' });
     }
 
@@ -74,9 +81,24 @@ export async function POST(req) {
       return NextResponse.json({ status: 'ignored', message: 'Pagamento não aprovado ou não encontrado.' });
     }
 
-    const storeId = payment?.metadata?.store_id || payment?.order?.metadata?.store_id;
+    let storeId = payment?.metadata?.store_id || payment?.order?.metadata?.store_id;
+    const externalReference = payment?.external_reference || payment?.order?.external_reference;
+
+    if (!storeId && externalReference) {
+      try {
+        const parsed = JSON.parse(externalReference);
+        if (parsed?.store_id) storeId = parsed.store_id;
+      } catch (parseError) {
+        const match = String(externalReference).match(/store[:\-](\d+)/);
+        if (match) storeId = match[1];
+      }
+    }
+
     if (!storeId) {
-      console.error('[MP Webhook] store_id not present in payment metadata', payment);
+      console.error('[MP Webhook] store_id not present in payment metadata or external_reference', {
+        payment,
+        externalReference,
+      });
       return NextResponse.json({ error: 'store_id ausente no metadata do pagamento.' }, { status: 400 });
     }
 

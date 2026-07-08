@@ -62,6 +62,11 @@ export async function POST(req) {
         store_slug: store.slug,
         plan: 'monthly',
       },
+      external_reference: JSON.stringify({
+        source: 'prinzo_subscription',
+        store_id: store.id,
+        store_slug: store.slug,
+      }),
     };
 
     const result = await preference.create({ body: preferenceData });
