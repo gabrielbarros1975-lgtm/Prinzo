@@ -477,12 +477,17 @@ export default function ShopPage({ params }) {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10 w-full flex-1">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full flex-1">
       {/* Hero */}
-      <section className="text-center mb-12">
-        <p className="font-semibold uppercase tracking-widest text-sm mb-3 text-[var(--accent)]">{store.description || 'Seja bem-vindo!'}</p>
-        <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight" style={{ color: 'var(--text-primary)' }}>
-          Catálogo <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)]">{store.name}</span>
+      <section className="text-center mb-12 px-2 sm:px-0">
+        <p className="font-semibold uppercase tracking-widest text-xs sm:text-sm mb-3 text-[var(--accent)] max-w-xl mx-auto truncate">
+          {store.description || 'Seja bem-vindo!'}
+        </p>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight sm:leading-snug" style={{ color: 'var(--text-primary)' }}>
+          Catálogo{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] break-words">
+            {store.name}
+          </span>
         </h1>
       </section>
 
