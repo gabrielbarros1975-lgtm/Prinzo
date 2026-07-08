@@ -707,9 +707,9 @@ export default function AdminPage() {
       {/* Header Info */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4 mb-8">
         {/* Top Row: Store name + link + logout/theme */}
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div className="min-w-0 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white truncate">{store.name}</h1>
               {store.subscription_active ? (
                 <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Ativo</span>
@@ -718,12 +718,12 @@ export default function AdminPage() {
               )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-              <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-500 font-semibold hover:underline">
+              <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-500 font-semibold hover:underline inline-block max-w-full truncate">
                 prinzo.com/{store.slug}
               </a>
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 justify-end w-full sm:w-auto">
             <ThemeToggle />
             <button
               onClick={handleLogout}
@@ -734,23 +734,23 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Tab Navigation Row: scrollable on mobile */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Tab Navigation Row: wraps on mobile for smaller screens */}
+        <div className="flex flex-wrap gap-2 justify-center pb-1 w-full">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0 ${activeTab === 'products' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'products' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
           >
             📦 Produtos
           </button>
           <button
             onClick={() => setActiveTab('categories')}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0 ${activeTab === 'categories' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'categories' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
           >
             🗂️ Categorias
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0 ${activeTab === 'settings' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'settings' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
           >
             ⚙️ Configurações
           </button>
