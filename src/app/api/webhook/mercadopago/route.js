@@ -13,6 +13,14 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Webhook signature secret não configurada.' }, { status: 500 });
     }
 
+    if (!signature || !requestId) {
+      console.error('[MP Webhook] Missing x-signature or x-request-id header', { signature, requestId });
+      return NextResponse.json(
+        { error: 'Headers x-signature e x-request-id são obrigatórios para autenticação do webhook.' },
+        { status: 400 }
+      );
+    }
+
     const bodyText = await req.text();
     let payload;
 

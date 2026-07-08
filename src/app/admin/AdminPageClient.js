@@ -657,7 +657,7 @@ export default function AdminPage() {
 
           <div className="bg-slate-800 p-4 rounded-2xl mb-6 text-left">
             <span className="text-xs uppercase font-extrabold text-cyan-500 tracking-wider">Assinatura Premium</span>
-            <div className="text-3xl font-black my-2">R$ 9,90 <span className="text-xs font-normal text-slate-400">no 1º mês</span></div>
+            <div className="text-3xl font-black my-2">R$ 1,00 <span className="text-xs font-normal text-slate-400">no 1º mês</span></div>
             <p className="text-xs text-slate-400">Depois R$ 15,00/mês fixo. Libera acesso total e vendas no Mercado Pago e WhatsApp.</p>
           </div>
 
