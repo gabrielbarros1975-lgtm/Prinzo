@@ -1,6 +1,82 @@
-import { MercadoPagoConfig, Payment, WebhookSignatureValidator } from 'mercadopago';
+import crypto from 'crypto';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
+
+function normaliseHeaderValue(value) {
+  if (value === undefined || value === null) return undefined;
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === undefined || raw === null) return undefined;
+  const trimmed = String(raw).trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function parseMpSignatureHeader(header) {
+  const hashes = {};
+  let ts;
+  for (const part of String(header).split(',')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    const key = part.substring(0, eq).trim().toLowerCase();
+    const value = part.substring(eq + 1).trim();
+    if (!key || !value) continue;
+    if (key === 'ts') {
+      ts = value;
+    } else if (/^v\d+$/.test(key)) {
+      hashes[key] = value;
+    }
+  }
+  return { ts, hashes };
+}
+
+function constantTimeEquals(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(Buffer.from(a, 'hex'), Buffer.from(b, 'hex'));
+}
+
+function validateMpWebhookSignature({ xSignature, xRequestId, dataId, secret, toleranceSeconds = 300 }) {
+  if (!xSignature) {
+    const error = new Error('Missing signature header');
+    error.reason = 'MissingSignatureHeader';
+    throw error;
+  }
+
+  const { ts, hashes } = parseMpSignatureHeader(xSignature);
+  if (!ts || !/^[0-9]+$/.test(ts)) {
+    const error = new Error('Malformed or missing timestamp in signature header');
+    error.reason = 'MalformedSignatureHeader';
+    throw error;
+  }
+
+  const version = Object.keys(hashes).find(key => /^v\d+$/.test(key));
+  if (!version) {
+    const error = new Error('Missing hash version in signature header');
+    error.reason = 'MissingHash';
+    throw error;
+  }
+
+  const receivedHash = hashes[version];
+  const manifest = [`id:${String(dataId).toLowerCase()}`, `request-id:${xRequestId}`, `ts:${ts}`].filter(Boolean).join(';') + ';';
+  const computedHash = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+
+  if (!constantTimeEquals(computedHash, receivedHash)) {
+    const error = new Error('Signature mismatch');
+    error.reason = 'SignatureMismatch';
+    throw error;
+  }
+
+  const tsNum = Number(ts);
+  const tsMs = tsNum > 1e12 ? tsNum : tsNum * 1000;
+  const driftSeconds = Math.abs(Date.now() - tsMs) / 1000;
+  if (driftSeconds > toleranceSeconds) {
+    const error = new Error('Timestamp out of tolerance');
+    error.reason = 'TimestampOutOfTolerance';
+    error.timestamp = ts;
+    throw error;
+  }
+}
 
 export async function POST(req) {
   try {
@@ -51,7 +127,7 @@ export async function POST(req) {
     const toleranceSeconds = 900; // 15 minutes tolerance to absorb small clock drift
 
     try {
-      WebhookSignatureValidator.validate({
+      validateMpWebhookSignature({
         xSignature: signature,
         xRequestId: requestId,
         dataId: String(dataId),
@@ -64,9 +140,6 @@ export async function POST(req) {
         signature,
         requestId,
         dataId,
-        signatureTimestamp,
-        currentUnix,
-        diffSeconds: signatureTimestamp ? Math.abs(currentUnix - signatureTimestamp) : null,
         toleranceSeconds,
       });
       return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
