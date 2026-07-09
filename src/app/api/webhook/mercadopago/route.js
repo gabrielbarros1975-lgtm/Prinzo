@@ -4,8 +4,12 @@ import { supabaseAdmin } from '@/lib/supabaseServer';
 
 export async function POST(req) {
   try {
-    const signature = req.headers.get('x-signature');
-    const requestId = req.headers.get('x-request-id');
+    const signature =
+      req.headers.get('x-signature') ||
+      req.headers.get('x-hub-signature') ||
+      req.headers.get('x-mp-signature') ||
+      req.headers.get('x-mercadopago-signature');
+    const requestId = req.headers.get('x-request-id') || req.headers.get('x-mp-request-id');
     const secret = process.env.MP_WEBHOOK_SIGNATURE;
 
     if (!secret) {
@@ -14,9 +18,13 @@ export async function POST(req) {
     }
 
     if (!signature || !requestId) {
-      console.error('[MP Webhook] Missing x-signature or x-request-id header', { signature, requestId });
+      console.error('[MP Webhook] Missing webhook auth headers', {
+        signature,
+        requestId,
+        headers: Object.fromEntries(req.headers.entries()),
+      });
       return NextResponse.json(
-        { error: 'Headers x-signature e x-request-id são obrigatórios para autenticação do webhook.' },
+        { error: 'Headers de autenticação do webhook não foram encontrados.' },
         { status: 400 }
       );
     }
@@ -102,9 +110,18 @@ export async function POST(req) {
       return NextResponse.json({ error: 'store_id ausente no metadata do pagamento.' }, { status: 400 });
     }
 
+    const subscriptionStartedAt = new Date().toISOString();
+    const subscriptionExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
     const { data: store, error } = await supabaseAdmin
       .from('stores')
-      .update({ subscription_active: true })
+      .update({
+        subscription_active: true,
+        subscription_plan: 'monthly',
+        subscription_started_at: subscriptionStartedAt,
+        subscription_expires_at: subscriptionExpiresAt,
+        mp_subscription_payment_id: String(payment?.id || dataId),
+      })
       .eq('id', storeId)
       .select()
       .single();
