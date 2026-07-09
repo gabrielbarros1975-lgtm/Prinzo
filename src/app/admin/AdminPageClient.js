@@ -495,6 +495,12 @@ export default function AdminPage() {
   const isTrialActive = store?.created_at ? timeDiff < trialDurationMs : false;
   const remainingDays = store?.created_at ? Math.max(0, Math.ceil((trialDurationMs - timeDiff) / (1000 * 60 * 60 * 24))) : 0;
 
+  // Subscription expiration countdown
+  const subscriptionExpiresAt = store?.subscription_expires_at ? new Date(store.subscription_expires_at) : null;
+  const remainingSubscriptionMs = subscriptionExpiresAt ? subscriptionExpiresAt.getTime() - Date.now() : 0;
+  const remainingSubscriptionDays = subscriptionExpiresAt ? Math.max(0, Math.ceil(remainingSubscriptionMs / (1000 * 60 * 60 * 24))) : 0;
+  const remainingSubscriptionText = subscriptionExpiresAt && remainingSubscriptionMs > 0 ? `${remainingSubscriptionDays} dias restantes` : null;
+
   if (sessionLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[70vh]">
@@ -717,11 +723,18 @@ export default function AdminPage() {
                 <span className="bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Avaliação</span>
               )}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-              <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-500 font-semibold hover:underline inline-block max-w-full truncate">
-                prinzo.com/{store.slug}
-              </a>
-            </p>
+            <div className="space-y-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-500 font-semibold hover:underline inline-block max-w-full truncate">
+                  prinzo.com/{store.slug}
+                </a>
+              </p>
+              {store.subscription_active && remainingSubscriptionText ? (
+                <p className="text-xs text-emerald-400 dark:text-emerald-300">
+                  Plano ativo — <strong>{remainingSubscriptionText}</strong>
+                </p>
+              ) : null}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 justify-end w-full sm:w-auto">
             <ThemeToggle />
