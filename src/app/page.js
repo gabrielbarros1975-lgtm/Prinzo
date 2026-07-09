@@ -32,7 +32,7 @@ export default function SaaSLandingPage() {
             </Link>
             <Link
               href="/admin"
-              className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] bg-slate-900 text-white dark:bg-white dark:text-black border-none"
+              className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] bg-[var(--text-primary)] text-white dark:bg-white dark:text-black border-none"
             >
               Painel Administrativo 🔑
             </Link>
@@ -42,7 +42,7 @@ export default function SaaSLandingPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(prev => !prev)}
-            className="sm:hidden inline-flex items-center justify-center rounded-xl border bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm p-3 border-[var(--border-color)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-slate-800"
+            className="sm:hidden inline-flex items-center justify-center rounded-xl border bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm p-3 border-[var(--border-color)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-[var(--border-color)]"
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
           >
@@ -60,21 +60,21 @@ export default function SaaSLandingPage() {
             <div className="flex flex-col gap-3">
               <Link
                 href="/admin"
-                className="block rounded-2xl px-4 py-3 text-sm font-semibold transition-colors text-[var(--text-primary)] hover:bg-slate-100 dark:text-[var(--text-primary)] dark:hover:bg-slate-800"
+                className="block rounded-2xl px-4 py-3 text-sm font-semibold transition-colors text-[var(--text-primary)] hover:bg-[var(--bg-header)] dark:text-[var(--text-primary)] dark:hover:bg-[var(--bg-header)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Recursos
               </Link>
               <Link
                 href="/admin"
-                className="block rounded-2xl px-4 py-3 text-sm font-bold transition-all bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-slate-50 dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-slate-700 dark:hover:bg-slate-800"
+                className="block rounded-2xl px-4 py-3 text-sm font-bold transition-all bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-header)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-[var(--border-color)] dark:hover:bg-[var(--bg-header)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Painel Administrativo 🔑
               </Link>
-              <div className="rounded-2xl px-4 py-3 bg-slate-50 dark:bg-slate-800">
+              <div className="rounded-2xl px-4 py-3 bg-[var(--bg-card)]">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Tema</span>
+                  <span className="text-sm font-semibold text-[var(--text-secondary)]">Tema</span>
                   <ThemeToggle />
                 </div>
               </div>
@@ -123,30 +123,30 @@ export default function SaaSLandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-slate-50/50 dark:bg-slate-950/20 border-t border-b border-slate-100 dark:border-slate-800">
+      <section className="py-20 px-4 bg-[var(--bg-header)] border-t border-b border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-black text-center mb-16 text-slate-900 dark:text-white">
             Recursos Premium para Potencializar suas Vendas
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col items-start">
+            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
               <span className="text-4xl mb-4">🔗</span>
               <h3 className="text-xl font-bold mb-2">Seu Link Próprio</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                 URL personalizada e exclusiva para sua loja (ex: <code className="text-cyan-500">prinzo.com/sualoja</code>) para compartilhar no Instagram, TikTok e enviar para clientes.
               </p>
             </div>
-            <div className="p-8 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col items-start">
+            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
               <span className="text-4xl mb-4">⚡</span>
               <h3 className="text-xl font-bold mb-2">Pix Direto Sem Taxas</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                 Configure sua chave Pix e gere QR Codes e códigos Copia e Cola dinâmicos automaticamente. O valor cai na hora na sua conta bancária sem tarifas ou intermediários.
               </p>
             </div>
-            <div className="p-8 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col items-start">
+            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
               <span className="text-4xl mb-4">💬</span>
               <h3 className="text-xl font-bold mb-2">Vendas Integradas ao WhatsApp</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                 Os pedidos do carrinho e os comprovantes de pagamento do Pix são enviados formatados diretamente para o seu contato de WhatsApp para facilitar o atendimento.
               </p>
             </div>
@@ -164,13 +164,13 @@ export default function SaaSLandingPage() {
             R$ 9,90 no 1º mês. Depois apenas R$ 15,00/mês fixo.
           </p>
 
-          <div className="max-w-md mx-auto p-8 rounded-3xl border-2 border-cyan-500 bg-white dark:bg-slate-900 shadow-xl relative overflow-hidden">
+          <div className="max-w-md mx-auto p-8 rounded-3xl border-2 border-cyan-500 bg-[var(--bg-card)] shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-cyan-500 text-white font-extrabold text-xs px-4 py-1.5 rounded-bl-2xl uppercase">
               Avaliação Gratuita
             </div>
             <span className="text-sm font-black uppercase text-cyan-500 tracking-wider">Assinatura Premium</span>
-            <h3 className="text-4xl font-black mt-4 mb-2 text-slate-900 dark:text-white">
-              R$ 15,00 <span className="text-sm font-normal text-slate-400">/mês fixo</span>
+            <h3 className="text-4xl font-black mt-4 mb-2 text-[var(--text-primary)]">
+              R$ 15,00 <span className="text-sm font-normal text-[var(--text-muted)]">/mês fixo</span>
             </h3>
             <p className="text-[11px] text-slate-400 mb-8">Experimente grátis por 5 dias antes de ativar. Cancele quando quiser.</p>
 

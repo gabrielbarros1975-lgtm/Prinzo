@@ -517,14 +517,14 @@ export default function AdminPage() {
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-        <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl p-8 shadow-2xl">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <span className="text-4xl">🚀</span>
             <h1 className="text-2xl font-black mt-2">Painel do Lojista</h1>
-            <p className="text-slate-400 text-xs mt-1">Configure seus produtos, categorias e Pix direto</p>
+            <p className="text-[var(--text-secondary)] text-xs mt-1">Configure seus produtos, categorias e Pix direto</p>
           </div>
 
-          <div className="flex bg-slate-800 rounded-xl p-1 mb-6">
+          <div className="flex bg-[var(--bg-header)] rounded-xl p-1 mb-6">
             <button
               onClick={() => { setAuthMode('login'); setAuthError(''); setAuthInfo(''); }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'login' ? 'bg-cyan-500 text-white' : 'text-slate-400'}`}
@@ -557,39 +557,39 @@ export default function AdminPage() {
             {authMode === 'register' && (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">Nome da Loja</label>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Nome da Loja</label>
                   <input
                     type="text"
                     required
                     placeholder="Ex: Minha Loja de Decoração"
                     value={authForm.name}
                     onChange={e => setAuthForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-sm focus:border-cyan-500 focus:outline-none"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">Link Exclusivo (slug da URL)</label>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Link Exclusivo (slug da URL)</label>
                   <div className="flex items-center">
-                    <span className="bg-slate-800 border border-slate-700 border-r-0 px-3 py-3 rounded-l-xl text-slate-500 text-sm">prinzo.com/</span>
+                    <span className="bg-[var(--bg-header)] border border-[var(--border-color)] border-r-0 px-3 py-3 rounded-l-xl text-[var(--text-secondary)] text-sm">prinzo.com/</span>
                     <input
                       type="text"
                       required
                       placeholder="minhaloja"
                       value={authForm.slug}
                       onChange={e => setAuthForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
-                      className="w-full p-3 rounded-r-xl bg-slate-800 border border-slate-700 text-sm focus:border-cyan-500 focus:outline-none"
+                      className="w-full p-3 rounded-r-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">WhatsApp para Vendas</label>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">WhatsApp para Vendas</label>
                   <input
                     type="text"
                     required
                     placeholder="Ex: 5598984809302"
                     value={authForm.whatsapp_number}
                     onChange={e => setAuthForm(f => ({ ...f, whatsapp_number: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-sm focus:border-cyan-500 focus:outline-none"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </>
