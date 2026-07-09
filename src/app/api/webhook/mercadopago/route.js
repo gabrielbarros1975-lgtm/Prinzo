@@ -163,10 +163,22 @@ export async function POST(req) {
 
     const client = new MercadoPagoConfig({ accessToken });
     const paymentClient = new Payment(client);
-    const paymentResponse = await paymentClient.get({ id: String(dataId) });
-    const payment = paymentResponse?.body || paymentResponse;
 
+    let paymentResponse;
+    try {
+      paymentResponse = await paymentClient.get({ id: String(dataId) });
+    } catch (err) {
+      console.error('[MP Webhook] Failed to fetch payment', { error: err, dataId, requestId });
+      return NextResponse.json({ status: 'ignored', message: 'Falha ao buscar pagamento; webhook ignorado.' });
+    }
+
+    const payment = paymentResponse?.body || paymentResponse;
     if (!payment || payment.status !== 'approved') {
+      console.info('[MP Webhook] Payment not approved or not found', {
+        dataId,
+        paymentStatus: payment?.status,
+        payment,
+      });
       return NextResponse.json({ status: 'ignored', message: 'Pagamento não aprovado ou não encontrado.' });
     }
 
