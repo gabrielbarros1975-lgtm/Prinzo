@@ -46,13 +46,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'ID do recurso não encontrado no webhook' }, { status: 400 });
     }
 
+    const signatureTimestamp = signature ? parseInt(String(signature).match(/ts=(\d+)/)?.[1], 10) : null;
+    const currentUnix = Math.floor(Date.now() / 1000);
+    const toleranceSeconds = 900; // 15 minutes tolerance to absorb small clock drift
+
     try {
       WebhookSignatureValidator.validate({
         xSignature: signature,
         xRequestId: requestId,
         dataId: String(dataId),
         secret,
-        toleranceSeconds: 300,
+        toleranceSeconds,
       });
     } catch (err) {
       console.error('[MP Webhook] Signature validation failed', {
@@ -60,6 +64,10 @@ export async function POST(req) {
         signature,
         requestId,
         dataId,
+        signatureTimestamp,
+        currentUnix,
+        diffSeconds: signatureTimestamp ? Math.abs(currentUnix - signatureTimestamp) : null,
+        toleranceSeconds,
       });
       return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
     }
