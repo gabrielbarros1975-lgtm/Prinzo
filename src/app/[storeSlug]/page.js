@@ -1,4 +1,6 @@
 'use client';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState, useCallback, use } from 'react';
 import { fetchProducts } from '@/lib/fetchProducts';
 import { fetchCategories } from '@/lib/fetchCategories';
@@ -34,17 +36,22 @@ function Lightbox({ images, startIndex, onClose }) {
         style={{ maxWidth: '90vw', maxHeight: '90vh', width: '100%', height: '100%' }}
         onClick={e => e.stopPropagation()}
       >
-        <img
-          src={images[idx]}
-          alt={`Imagem ${idx + 1}`}
-          style={{
+        <div style={{
             maxWidth: '90vw',
             maxHeight: '80vh',
-            objectFit: 'contain',
+            width: '100%',
+            position: 'relative',
             borderRadius: '1rem',
             boxShadow: '0 30px 80px rgba(0,0,0,0.8)',
-          }}
-        />
+          }}>
+          <Image
+            src={images[idx]}
+            alt={`Imagem ${idx + 1}`}
+            fill
+            sizes="(max-width: 768px) 90vw, 90vw"
+            style={{ objectFit: 'contain', borderRadius: '1rem' }}
+          />
+        </div>
 
         <button
           onClick={onClose}
@@ -145,7 +152,9 @@ function Lightbox({ images, startIndex, onClose }) {
                 flexShrink: 0,
               }}
             >
-              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                <Image src={src} alt="" fill style={{ objectFit: 'cover' }} />
+              </div>
             </button>
           ))}
         </div>
@@ -199,18 +208,14 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
           {hasImages ? (
             <>
               <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--bg-card)' }}>
-                <img
-                  src={allImages[0]}
-                  alt={product.name}
-                  className="group-hover:scale-105 transition-transform duration-500"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                  }}
-                />
+                <div className="group-hover:scale-105 transition-transform duration-500" style={{ width: '100%', height: '100%' }}>
+                  <Image
+                    src={allImages[0]}
+                    alt={product.name}
+                    fill
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
               </div>
               {allImages.length > 1 && (
                 <div style={{ position: 'absolute', bottom: '0.5rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
@@ -219,7 +224,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
                   ))}
                 </div>
               )}
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyWindow: 'center', color: '#fff', fontSize: '1.5rem', opacity: 0 }} className="group-hover:opacity-100 group-hover:!bg-black/20 flex items-center justify-center">🔍</div>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyWindow: 'center', color: '#fff', fontSize: '1.5rem', opacity: 0 }} className="group-hover:opacity-100 group-hover:!bg-black/20 flex items-center justify-center dark:group-hover:!bg-white/30 dark:text-black">🔍</div>
             </>
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
@@ -227,11 +232,11 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
             </div>
           )}
           {product.tag && (
-            <span className={`absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || 'bg-blue-600'}`}>
+            <span className={`absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || 'bg-blue-600'}`} style={{ color: '#ffffff' }}>
               {product.tag}
             </span>
           )}
-          <span className="absolute top-3 right-3 bg-black/70 text-white text-sm font-black px-3 py-1 rounded-full backdrop-blur-sm">
+          <span className="absolute top-3 right-3 bg-black/70 text-white text-sm font-black px-3 py-1 rounded-full backdrop-blur-sm dark:bg-white/80 dark:text-black">
             R$ {Number(product.price || 0).toFixed(2).replace('.', ',')}
           </span>
         </div>
@@ -254,7 +259,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
             </button>
             <button
               onClick={handleBuy}
-              className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 text-white shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
+              className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
             >
               Comprar ⚡
             </button>
@@ -291,18 +296,28 @@ export default function ShopPage({ params }) {
   // Fetch Store Details
   useEffect(() => {
     if (!storeSlug) return;
-    setStoreLoading(true);
-    fetch(`/api/stores?slug=${storeSlug}`)
-      .then(res => res.json())
-      .then(data => {
+
+    const loadStore = async () => {
+      try {
+        setStoreLoading(true);
+        setStoreError(null);
+
+        const res = await fetch(`/api/stores?slug=${storeSlug}`);
+        const data = await res.json();
+
         if (data.error) {
           setStoreError(data.error);
         } else {
           setStore(data);
         }
-      })
-      .catch(err => setStoreError(err.message))
-      .finally(() => setStoreLoading(false));
+      } catch (err) {
+        setStoreError(err.message);
+      } finally {
+        setStoreLoading(false);
+      }
+    };
+
+    loadStore();
   }, [storeSlug]);
 
   // Fetch Categories
@@ -316,13 +331,22 @@ export default function ShopPage({ params }) {
   // Fetch Products
   useEffect(() => {
     if (!store) return;
-    setIsLoading(true);
-    setLoadError(null);
 
-    fetchProducts(activeCategory, store.id)
-      .then(setProducts)
-      .catch((error) => setLoadError(error.message || 'Erro ao carregar produtos'))
-      .finally(() => setIsLoading(false));
+    const loadProducts = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+
+        const result = await fetchProducts(activeCategory, store.id);
+        setProducts(result);
+      } catch (error) {
+        setLoadError(error.message || 'Erro ao carregar produtos');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProducts();
   }, [activeCategory, store]);
 
   const filterButtons = [
@@ -451,8 +475,8 @@ export default function ShopPage({ params }) {
       <div className="flex-1 flex flex-col items-center justify-center py-40 px-4 text-center">
         <span className="text-6xl mb-4">🏪</span>
         <h1 className="text-2xl font-black mb-2">Loja Não Encontrada</h1>
-        <p className="text-slate-500 dark:text-slate-400 max-w-md">O catálogo solicitado não está disponível ou a URL está incorreta.</p>
-        <a href="/" className="mt-6 px-6 py-3 rounded-full bg-blue-600 text-white font-bold">Criar minha própria loja</a>
+        <p className="max-w-md" style={{ color: 'var(--text-secondary)' }}>O catálogo solicitado não está disponível ou a URL está incorreta.</p>
+        <Link href="/" className="mt-6 px-6 py-3 rounded-full font-bold" style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-page)' }}>Criar minha própria loja</Link>
       </div>
     );
   }
@@ -469,9 +493,9 @@ export default function ShopPage({ params }) {
       <div className="flex-1 flex flex-col items-center justify-center py-40 px-4 text-center">
         <span className="text-6xl mb-4">⚠️</span>
         <h1 className="text-2xl font-black mb-2">Período de Avaliação Expirado</h1>
-        <p className="text-slate-500 dark:text-slate-400 max-w-md">Esta loja ({store.name}) está temporariamente inativa. Ative sua assinatura Premium no painel para continuar vendendo.</p>
-        <p className="text-sm mt-1 text-slate-400">Se você é o proprietário, acesse o painel administrativo para reativar.</p>
-        <a href="/admin" className="mt-6 px-6 py-3 rounded-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold">Ir para o Painel</a>
+        <p className="max-w-md" style={{ color: 'var(--text-secondary)' }}>Esta loja ({store.name}) está temporariamente inativa. Ative sua assinatura Premium no painel para continuar vendendo.</p>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Se você é o proprietário, acesse o painel administrativo para reativar.</p>
+        <Link href="/admin" className="mt-6 px-6 py-3 rounded-full font-bold" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }}>Ir para o Painel</Link>
       </div>
     );
   }
@@ -493,12 +517,12 @@ export default function ShopPage({ params }) {
       </header>
 
       {/* Filtros */}
-      <div className="hidden sm:flex gap-2 flex-wrap justify-center mb-10">
+      <div className="flex flex-wrap justify-center gap-2 mb-10 overflow-x-auto px-2">
         {filterButtons.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className="px-4 py-2 rounded-full text-sm font-semibold transition-all border"
+            className="px-4 py-2 rounded-full text-sm font-semibold transition-all border whitespace-nowrap"
             style={
               activeCategory === cat.id
                 ? { backgroundColor: 'var(--accent)', color: 'var(--cart-text)', borderColor: 'var(--accent)', boxShadow: '0 4px 15px rgba(0,229,255,0.2)' }
@@ -558,7 +582,7 @@ export default function ShopPage({ params }) {
 
             <div className="space-y-2 mb-4 max-h-28 overflow-y-auto">
               {cart.map(item => (
-                <div key={item.cartItemId} className="flex items-center justify-between text-sm text-slate-400">
+                <div key={item.cartItemId} className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
                   <span className="truncate flex-1">
                     {item.name} × {item.qty}
                   </span>
@@ -602,7 +626,7 @@ export default function ShopPage({ params }) {
                   }}
                 >
                   Pagar com Pix Direto
-                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded">Código/QR</span>
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>Código/QR</span>
                 </button>
               )}
 
@@ -638,48 +662,52 @@ export default function ShopPage({ params }) {
 
       {/* Pix Modal */}
       {pixModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
+          <div className="rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
             <button
               onClick={() => setPixModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg"
+              className="absolute top-4 right-4 text-lg transition-colors"
+              style={{ color: 'var(--text-muted)' }}
             >✕</button>
 
             <span className="text-4xl mb-2 inline-block">📱</span>
             <h3 className="text-xl font-black mb-1">Pagamento via Pix</h3>
-            <p className="text-xs text-slate-400 mb-4">Escaneie o QR Code abaixo ou copie o código para pagar</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Escaneie o QR Code abaixo ou copie o código para pagar</p>
 
             {/* QR Code Container */}
-            <div className="bg-white p-3 rounded-2xl inline-block mb-4 shadow">
-              <img
+            <div className="p-3 rounded-2xl inline-block mb-4 shadow" style={{ backgroundColor: 'var(--bg-card)', position: 'relative', width: '12rem', height: '12rem' }}>
+              <Image
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixPayload)}`}
                 alt="Pix QR Code"
-                className="w-48 h-48 mx-auto"
+                fill
+                style={{ objectFit: 'contain' }}
               />
             </div>
 
             {/* Valor total do Pix */}
-            <div className="mb-4 bg-slate-800/50 py-2 rounded-xl border border-slate-700">
-              <span className="text-xs text-slate-400 block">Valor a Pagar:</span>
-              <span className="text-xl font-black text-[#00E5FF]">R$ {totalPrice.toFixed(2).replace('.', ',')}</span>
+            <div className="mb-4 py-2 rounded-xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
+              <span className="text-xs block" style={{ color: 'var(--text-muted)' }}>Valor a Pagar:</span>
+              <span className="text-xl font-black" style={{ color: 'var(--accent-hover)' }}>R$ {totalPrice.toFixed(2).replace('.', ',')}</span>
             </div>
 
             <div className="flex flex-col gap-3">
               <button
                 onClick={handleCopyPix}
-                className="w-full py-2.5 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
+                className="w-full py-2.5 rounded-xl font-bold text-sm transition-colors border"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               >
                 {copied ? '✓ Código Copiado!' : 'Copiar Código Pix'}
               </button>
 
               <button
                 onClick={handleSendReceipt}
-                className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-green-500 to-green-600 hover:opacity-95 text-white shadow-lg"
+                className="w-full py-3 rounded-xl font-bold text-sm shadow-lg transition-opacity hover:opacity-95 text-white"
+                style={{ background: 'linear-gradient(to right, #22c55e, #16a34a)' }}
               >
                 Confirmar & Enviar Comprovante
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 mt-3 leading-relaxed">
+            <p className="text-[10px] mt-3 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               *Importante: O comprovante de pagamento deverá ser enviado no WhatsApp do vendedor clicando no botão acima.
             </p>
           </div>

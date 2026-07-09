@@ -7,45 +7,96 @@
 
 /* Light theme (default) */
 :root {
-  --bg-page: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-header: #ffffff;
-  --border-color: #e2e8f0;
-  --text-primary: #0a0f1a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --cart-bg: #1e293b;
+  color-scheme: light;
+  --bg-page: #dbe5fb;
+  --bg-card: #f7fbff;
+  --bg-header: #eef5ff;
+  --border-color: #9bb0d4;
+  --text-primary: #031026;
+  --text-secondary: #1f3a5f;
+  --text-muted: #364b71;
+  --shadow-card: 0 10px 26px rgba(15, 23, 42, 0.14);
+  --shadow-card-hover: 0 14px 40px rgba(15, 23, 42, 0.2);
+  --cart-bg: #16223f;
   --cart-text: #f8fafc;
-  --accent: #0070f3;
-  --accent-hover: #0056b3;
-  --logo-primary: #0070f3;
-  --logo-secondary: #00c2ff;
-  --logo-text: #0a0f1a;
+  --accent: #0c4a9f;
+  --accent-hover: #093e82;
+  --logo-primary: #0c4a9f;
+  --logo-secondary: #1092e0;
+  --logo-text: #031026;
+  --toggle-track: #9fb5d4;
+  --toggle-thumb: #ffffff;
 }
 
-html:not(.dark) {
+/* The default theme is light. Dark mode is controlled via html.dark in the page script.
+   This avoids conflicting with a saved user preference when the OS theme changes. */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg-page: #061122;
+    --bg-card: #111826;
+    --bg-header: #071022;
+    --border-color: #1d2a45;
+    --text-primary: #f8fbff;
+    --text-secondary: #d8e7ff;
+    --text-muted: #9fb8d3;
+    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.55);
+    --shadow-card-hover: 0 10px 40px rgba(0, 145, 255, 0.22);
+    --cart-bg: #17213a;
+    --cart-text: #ffffff;
+    --accent: #0ea5ff;
+    --accent-hover: #00c7ff;
+    --logo-primary: #0ea5ff;
+    --logo-secondary: #22d3ee;
+    --logo-text: #f8fbff;
+    --toggle-track: #1f2e4d;
+    --toggle-thumb: #e2f3ff;
+  }
+}
+
+html.light {
   color-scheme: light;
+  --bg-page: #dbe5fb;
+  --bg-card: #f7fbff;
+  --bg-header: #eef5ff;
+  --border-color: #9bb0d4;
+  --text-primary: #031026;
+  --text-secondary: #1f3a5f;
+  --text-muted: #364b71;
+  --shadow-card: 0 10px 26px rgba(15, 23, 42, 0.14);
+  --shadow-card-hover: 0 14px 40px rgba(15, 23, 42, 0.2);
+  --cart-bg: #16223f;
+  --cart-text: #f8fafc;
+  --accent: #0c4a9f;
+  --accent-hover: #093e82;
+  --logo-primary: #0c4a9f;
+  --logo-secondary: #1092e0;
+  --logo-text: #031026;
+  --toggle-track: #9fb5d4;
+  --toggle-thumb: #ffffff;
 }
 
 html.dark {
-  --bg-page: #0a0f1a;
-  --bg-card: #121926;
-  --bg-header: #0a0f1a;
-  --border-color: #1e293b;
-  --text-primary: #e6f3ff;
-  --text-secondary: #bde6ff;
-  --text-muted: #94cfff;
-  --shadow-card: 0 4px 20px rgba(0,0,0,0.6);
-  --shadow-card-hover: 0 10px 40px rgba(0,145,255,0.15);
-  --cart-bg: #1e293b;
+  --bg-page: #061122;
+  --bg-card: #111826;
+  --bg-header: #071022;
+  --border-color: #1d2a45;
+  --text-primary: #f8fbff;
+  --text-secondary: #d8e7ff;
+  --text-muted: #9fb8d3;
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-card-hover: 0 10px 40px rgba(0, 145, 255, 0.22);
+  --cart-bg: #17213a;
   --cart-text: #ffffff;
-  --accent: #0091ff;
-  --accent-hover: #00e5ff;
-  --logo-primary: #0091ff;
-  --logo-secondary: #00e5ff;
-  --logo-text: #e6f3ff;
+  --accent: #0ea5ff;
+  --accent-hover: #00c7ff;
+  --logo-primary: #0ea5ff;
+  --logo-secondary: #22d3ee;
+  --logo-text: #f8fbff;
+  --toggle-track: #1f2e4d;
+  --toggle-thumb: #e2f3ff;
+  color-scheme: dark;
 }
 
 body {

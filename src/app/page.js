@@ -26,13 +26,13 @@ export default function SaaSLandingPage() {
           <nav className="hidden sm:flex items-center gap-4">
             <Link
               href="/admin"
-              className="text-sm font-semibold transition-colors hover:text-[#00E5FF] text-slate-600 dark:text-slate-400"
+              className="text-sm font-semibold transition-colors hover:text-[#00E5FF]" style={{ color: 'var(--text-secondary)' }}
             >
               Recursos
             </Link>
             <Link
               href="/admin"
-              className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] bg-[var(--text-primary)] text-white dark:bg-white dark:text-black border-none"
+              className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] border-none" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }}
             >
               Painel Administrativo 🔑
             </Link>
@@ -56,7 +56,7 @@ export default function SaaSLandingPage() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="sm:hidden mt-4 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-sm dark:border-slate-800 dark:bg-[var(--bg-card)]">
+          <div className="sm:hidden mt-4 rounded-3xl border p-4 shadow-sm" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
             <div className="flex flex-col gap-3">
               <Link
                 href="/admin"
@@ -90,22 +90,23 @@ export default function SaaSLandingPage() {
         <div className="absolute bottom-[-10%] right-[-20%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-15" style={{ background: 'radial-gradient(circle, var(--logo-secondary) 0%, transparent 70%)' }}></div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] text-white shadow-lg shadow-cyan-500/20">
+          <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] shadow-lg shadow-cyan-500/20" style={{ color: '#ffffff' }}>
             Nova Era de Catálogos Digitais
           </span>
-          <h1 className="text-5xl md:text-7xl font-black mt-6 mb-8 leading-tight tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-5xl md:text-7xl font-black mt-6 mb-8 leading-tight tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Crie seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#0091FF]">Catálogo Digital</span> em minutos e venda no Pix
           </h1>
-          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
+          <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10" style={{ color: 'var(--text-secondary)' }}>
             Transforme suas vendas online. Tenha uma loja própria e configurável com link exclusivo, recebimento direto no seu WhatsApp e checkout via Pix automático sem intermediários.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/admin"
-              className="px-8 py-4 rounded-full font-extrabold text-white shadow-xl hover:scale-105 active:scale-98 transition-all text-center"
+              className="px-8 py-4 rounded-full font-extrabold shadow-xl hover:scale-105 active:scale-98 transition-all text-center"
               style={{
                 background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)',
+                color: '#ffffff',
                 boxShadow: '0 10px 30px rgba(0,229,255,0.3)',
               }}
             >
@@ -113,8 +114,8 @@ export default function SaaSLandingPage() {
             </Link>
             <Link
               href="/ljvision"
-              className="px-8 py-4 rounded-full font-bold border hover:bg-slate-100 dark:hover:bg-slate-900 text-center transition-all text-slate-800 dark:text-slate-200"
-              style={{ borderColor: 'var(--border-color)' }}
+              className="px-8 py-4 rounded-full font-bold border text-center transition-all"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               Ver Exemplo de Catálogo
             </Link>
@@ -125,7 +126,7 @@ export default function SaaSLandingPage() {
       {/* Features Section */}
       <section className="py-20 px-4 bg-[var(--bg-header)] border-t border-b border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-black text-center mb-16 text-slate-900 dark:text-white">
+          <h2 className="text-3xl font-black text-center mb-16" style={{ color: 'var(--text-primary)' }}>
             Recursos Premium para Potencializar suas Vendas
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -157,24 +158,24 @@ export default function SaaSLandingPage() {
       {/* Pricing Section */}
       <section className="py-20 px-4 text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-black mb-4 text-slate-900 dark:text-white">
+          <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: 'var(--text-primary)' }}>
             Assinatura Premium
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mb-16">
+          <p className="mb-16" style={{ color: 'var(--text-secondary)' }}>
             R$ 9,90 no 1º mês. Depois apenas R$ 15,00/mês fixo.
           </p>
 
-          <div className="max-w-md mx-auto p-8 rounded-3xl border-2 border-cyan-500 bg-[var(--bg-card)] shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-cyan-500 text-white font-extrabold text-xs px-4 py-1.5 rounded-bl-2xl uppercase">
+          <div className="max-w-md mx-auto p-8 rounded-3xl border-2 shadow-xl relative overflow-hidden" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--accent)' }}>
+            <div className="absolute top-0 right-0 font-extrabold text-xs px-4 py-1.5 rounded-bl-2xl uppercase" style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}>
               Avaliação Gratuita
             </div>
-            <span className="text-sm font-black uppercase text-cyan-500 tracking-wider">Assinatura Premium</span>
+            <span className="text-sm font-black uppercase tracking-wider" style={{ color: 'var(--accent)' }}>Assinatura Premium</span>
             <h3 className="text-4xl font-black mt-4 mb-2 text-[var(--text-primary)]">
               R$ 15,00 <span className="text-sm font-normal text-[var(--text-muted)]">/mês fixo</span>
             </h3>
-            <p className="text-[11px] text-slate-400 mb-8">Experimente grátis por 5 dias antes de ativar. Cancele quando quiser.</p>
+            <p className="text-[11px] mb-8" style={{ color: 'var(--text-muted)' }}>Experimente grátis por 5 dias antes de ativar. Cancele quando quiser.</p>
 
-            <ul className="text-left space-y-4 mb-8 text-sm text-slate-700 dark:text-slate-300">
+            <ul className="text-left space-y-4 mb-8 text-sm" style={{ color: 'var(--text-secondary)' }}>
               <li className="flex items-center gap-2">✓ <strong>5 Dias de Teste Grátis</strong> (liberação imediata)</li>
               <li className="flex items-center gap-2">✓ <strong>Catálogo Ilimitado</strong> de Produtos</li>
               <li className="flex items-center gap-2">✓ Painel administrativo completo</li>

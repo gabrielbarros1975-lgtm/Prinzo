@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState, useEffect, use } from 'react';
+import { Suspense, useState, useEffect, useMemo, use } from 'react';
 
 const STATUS_CONFIG = {
   approved: {
@@ -34,18 +34,22 @@ function PaymentContent({ storeSlug }) {
   const status = searchParams.get('status') || 'pending';
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
 
-  const [lastCart, setLastCart] = useState([]);
-  const [paymentId, setPaymentId] = useState('');
+  const [lastCart, setLastCart] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cartData = localStorage.getItem('ljvision_last_cart');
+      return cartData ? JSON.parse(cartData) : [];
+    } catch (e) {
+      console.error('Erro ao ler carrinho do localStorage:', e);
+      return [];
+    }
+  });
   const [store, setStore] = useState(null);
 
-  useEffect(() => {
-    const cartData = localStorage.getItem('ljvision_last_cart');
-    if (cartData) {
-      try { setLastCart(JSON.parse(cartData)); } catch (e) {}
-    }
-    const pid = searchParams.get('payment_id') || searchParams.get('collection_id');
-    if (pid) setPaymentId(pid);
-  }, [searchParams]);
+  const paymentId = useMemo(
+    () => searchParams.get('payment_id') || searchParams.get('collection_id') || '',
+    [searchParams]
+  );
 
   useEffect(() => {
     if (!storeSlug) return;

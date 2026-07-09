@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -66,25 +67,26 @@ export default function AdminPage() {
   const [catForm, setCatForm] = useState({ id: null, name: '', slug: '', emoji: '' });
 
   // Mock Pix Subscription state
-  const [subscriptionMessage, setSubscriptionMessage] = useState('');
+  const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [now] = useState(() => Date.now());
   const searchParams = useSearchParams();
+  const subscriptionStatus = searchParams.get('subscription');
 
-  useEffect(() => {
-    const status = searchParams.get('subscription');
-    if (!status) return;
-
-    if (status === 'success') {
-      setSubscriptionMessage('Assinatura concluída com sucesso! Atualizando o painel...');
-      refreshStore();
-    } else if (status === 'failure') {
-      setSubscriptionMessage('Pagamento não aprovado. Tente novamente ou use outro método.');
-    } else if (status === 'pending') {
-      setSubscriptionMessage('Pagamento pendente. Aguardando confirmação do Mercado Pago.');
+  const subscriptionMessage = useMemo(() => {
+    if (checkoutMessage) return checkoutMessage;
+    if (!subscriptionStatus) return '';
+    if (subscriptionStatus === 'success') {
+      return 'Assinatura concluída com sucesso! Atualizando o painel...';
     }
-  }, [searchParams]);
+    if (subscriptionStatus === 'failure') {
+      return 'Pagamento não aprovado. Tente novamente ou use outro método.';
+    }
+    return 'Pagamento pendente. Aguardando confirmação do Mercado Pago.';
+  }, [checkoutMessage, subscriptionStatus]);
 
-  async function refreshStore() {
+  const refreshStore = useCallback(async () => {
     if (!store?.slug) return;
+
     try {
       const res = await fetch(`/api/stores?slug=${encodeURIComponent(store.slug)}`);
       const data = await res.json();
@@ -94,12 +96,64 @@ export default function AdminPage() {
     } catch (err) {
       console.error('[Admin] refreshStore failed', err);
     }
-  }
+  }, [store]);
+
+  const fetchCategories = useCallback(async () => {
+    if (!store) return;
+    try {
+      const res = await fetch(`/api/admin/categories?store_id=${store.id}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Erro');
+      setCategories(data || []);
+      if (data?.length) {
+        setForm(current => current.category ? current : ({ ...current, category: data[0].slug }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [store]);
+
+  const fetchList = useCallback(async () => {
+    if (!store) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/products?store_id=${store.id}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Erro');
+      setProducts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [store]);
+
+  useEffect(() => {
+    if (subscriptionStatus !== 'success') {
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      refreshStore();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [subscriptionStatus, refreshStore]);
+
+  useEffect(() => {
+    if (!store || !store.subscription_active) {
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      fetchList();
+      fetchCategories();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [store, fetchCategories, fetchList]);
 
   async function handleSubscriptionCheckout() {
     if (!store) return;
     setLoading(true);
-    setSubscriptionMessage('Redirecionando para Mercado Pago...');
+    setCheckoutMessage('Redirecionando para Mercado Pago...');
     try {
       const res = await fetch('/api/subscription/checkout', {
         method: 'POST',
@@ -158,87 +212,6 @@ export default function AdminPage() {
     restoreSession();
   }, []);
 
-  // Fetch Lists when store changes or tab changes
-  useEffect(() => {
-    if (store && store.subscription_active) {
-      fetchList();
-      fetchCategories();
-    }
-  }, [store]);
-
-  async function fetchCategories() {
-    if (!store) return;
-    try {
-      const res = await fetch(`/api/admin/categories?store_id=${store.id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Erro');
-      setCategories(data || []);
-      if (!form.category && data?.length) setForm(f => ({ ...f, category: data[0].slug }));
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function fetchList() {
-    if (!store) return;
-    setLoading(true); setError(null);
-    try {
-      const res = await fetch(`/api/admin/products?store_id=${store.id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Erro');
-      setProducts(data);
-    } catch (err) {
-      setError(err.message);
-    } finally { setLoading(false); }
-  }
-
-  // Auth Handlers
-  async function handleLogin(e) {
-    e.preventDefault();
-    setLoading(true); setAuthError(''); setAuthInfo('');
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: authForm.owner_email,
-        password: authForm.owner_password,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      const userId = data.user?.id;
-      let res = await fetch(`/api/stores?user_id=${encodeURIComponent(userId)}`);
-      let storeData = await res.json();
-      if (!res.ok) {
-        const emailRes = await fetch(`/api/stores?email=${encodeURIComponent(authForm.owner_email)}`);
-        res = emailRes;
-        storeData = await emailRes.json();
-        if (!emailRes.ok) {
-          throw new Error('Loja não encontrada para este e-mail.');
-        }
-      }
-      if (!res.ok || storeData.error) {
-        throw new Error('Loja não encontrada para este e-mail.');
-      }
-
-      setStore(storeData);
-      localStorage.setItem('saas_current_store', JSON.stringify(storeData));
-      setSettingsForm({
-        name: storeData.name || '',
-        description: storeData.description || '',
-        whatsapp_number: storeData.whatsapp_number || '',
-        pix_key: storeData.pix_key || '',
-        pix_name: storeData.pix_name || '',
-        pix_city: storeData.pix_city || '',
-        mp_access_token: storeData.mp_access_token || '',
-        payment_methods: storeData.payment_methods || 'whatsapp',
-      });
-    } catch (err) {
-      setAuthError(err.message || 'E-mail ou senha incorretos.');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleRegister(e) {
     e.preventDefault();
@@ -290,6 +263,53 @@ export default function AdminPage() {
       });
     } catch (err) {
       setAuthError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setLoading(true); setAuthError(''); setAuthInfo('');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authForm.owner_email,
+        password: authForm.owner_password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const userId = data?.user?.id;
+      if (!userId) {
+        throw new Error('Não foi possível autenticar o usuário.');
+      }
+
+      let res = await fetch(`/api/stores?user_id=${encodeURIComponent(userId)}`);
+      if (!res.ok) {
+        res = await fetch(`/api/stores?email=${encodeURIComponent(authForm.owner_email)}`);
+      }
+
+      const storeData = await res.json();
+      if (!res.ok || storeData.error) {
+        throw new Error(storeData?.error || 'Erro ao carregar os dados da loja.');
+      }
+
+      setStore(storeData);
+      localStorage.setItem('saas_current_store', JSON.stringify(storeData));
+      setSettingsForm({
+        name: storeData.name || '',
+        description: storeData.description || '',
+        whatsapp_number: storeData.whatsapp_number || '',
+        pix_key: storeData.pix_key || '',
+        pix_name: storeData.pix_name || '',
+        pix_city: storeData.pix_city || '',
+        mp_access_token: storeData.mp_access_token || '',
+        payment_methods: storeData.payment_methods || 'whatsapp',
+      });
+    } catch (err) {
+      setAuthError(err.message || 'Não foi possível entrar.');
     } finally {
       setLoading(false);
     }
@@ -497,7 +517,7 @@ export default function AdminPage() {
 
   // Subscription expiration countdown
   const subscriptionExpiresAt = store?.subscription_expires_at ? new Date(store.subscription_expires_at) : null;
-  const remainingSubscriptionMs = subscriptionExpiresAt ? subscriptionExpiresAt.getTime() - Date.now() : 0;
+  const remainingSubscriptionMs = subscriptionExpiresAt && now ? subscriptionExpiresAt.getTime() - now : 0;
   const remainingSubscriptionDays = subscriptionExpiresAt ? Math.max(0, Math.ceil(remainingSubscriptionMs / (1000 * 60 * 60 * 24))) : 0;
   const remainingSubscriptionText = subscriptionExpiresAt && remainingSubscriptionMs > 0 ? `${remainingSubscriptionDays} dias restantes` : null;
 
@@ -527,13 +547,13 @@ export default function AdminPage() {
           <div className="flex bg-[var(--bg-header)] rounded-xl p-1 mb-6">
             <button
               onClick={() => { setAuthMode('login'); setAuthError(''); setAuthInfo(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'login' ? 'bg-cyan-500 text-white' : 'text-slate-400'}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'login' ? 'bg-cyan-500 text-white' : ''}`}
             >
               Entrar
             </button>
             <button
               onClick={() => { setAuthMode('register'); setAuthError(''); setAuthInfo(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'register' ? 'bg-cyan-500 text-white' : 'text-slate-400'}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'register' ? 'bg-cyan-500 text-white' : ''}`} style={{ color: authMode === 'register' ? '#ffffff' : 'var(--text-muted)' }}
             >
               Criar Loja
             </button>
@@ -596,37 +616,40 @@ export default function AdminPage() {
             )}
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1">E-mail</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>E-mail</label>
               <input
                 type="email"
                 required
                 placeholder="Ex: lojista@exemplo.com"
                 value={authForm.owner_email}
                 onChange={e => setAuthForm(f => ({ ...f, owner_email: e.target.value }))}
-                className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-sm focus:border-cyan-500 focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:border-cyan-500 focus:outline-none"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               />
             </div>
 
             {authMode !== 'forgot' && (
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">Senha</label>
+                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Senha</label>
                 <input
                   type="password"
                   required
                   placeholder="Sua senha"
                   value={authForm.owner_password}
                   onChange={e => setAuthForm(f => ({ ...f, owner_password: e.target.value }))}
-                  className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-sm focus:border-cyan-500 focus:outline-none"
+                  className="w-full p-3 rounded-xl text-sm focus:border-cyan-500 focus:outline-none"
+                  style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
             )}
 
             {authMode === 'login' && (
-              <div className="text-right text-xs text-slate-400">
+              <div className="text-right text-xs" style={{ color: 'var(--text-muted)' }}>
                 <button
                   type="button"
                   onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthInfo(''); }}
-                  className="underline text-slate-300 hover:text-white"
+                  className="underline transition-colors"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   Esqueci a senha
                 </button>
@@ -636,7 +659,8 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold bg-cyan-500 hover:bg-cyan-600 transition-colors text-sm text-white shadow-lg"
+              className="w-full py-3 rounded-xl font-bold transition-colors text-sm shadow-lg"
+              style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}
             >
               {loading
                 ? 'Processando...'
@@ -656,15 +680,15 @@ export default function AdminPage() {
   if (!store.subscription_active && !isTrialActive) {
     return (
       <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center">
-        <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl p-8 shadow-2xl text-center">
+        <div className="rounded-3xl p-8 shadow-2xl text-center" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
           <span className="text-5xl mb-3 inline-block">👑</span>
           <h2 className="text-2xl font-black mb-1">Período de Teste Expirado</h2>
-          <p className="text-slate-400 text-xs mb-6">Ative seu plano para colocar seu catálogo online de volta e continuar vendendo.</p>
+          <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>Ative seu plano para colocar seu catálogo online de volta e continuar vendendo.</p>
 
-          <div className="bg-slate-800 p-4 rounded-2xl mb-6 text-left">
-            <span className="text-xs uppercase font-extrabold text-cyan-500 tracking-wider">Assinatura Premium</span>
-            <div className="text-3xl font-black my-2">R$ 1,00 <span className="text-xs font-normal text-slate-400">no 1º mês</span></div>
-            <p className="text-xs text-slate-400">Depois R$ 15,00/mês fixo. Libera acesso total e vendas no Mercado Pago e WhatsApp.</p>
+          <div className="p-4 rounded-2xl mb-6 text-left" style={{ backgroundColor: 'var(--bg-header)' }}>
+            <span className="text-xs uppercase font-extrabold tracking-wider" style={{ color: 'var(--accent)' }}>Assinatura Premium</span>
+            <div className="text-3xl font-black my-2">R$ 1,00 <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>no 1º mês</span></div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Depois R$ 15,00/mês fixo. Libera acesso total e vendas no Mercado Pago e WhatsApp.</p>
           </div>
 
           <div className="space-y-4">
@@ -676,13 +700,15 @@ export default function AdminPage() {
             <button
               onClick={handleSubscriptionCheckout}
               disabled={loading}
-              className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 text-white shadow-lg"
+              className="w-full py-3.5 rounded-xl font-bold text-sm hover:opacity-95 shadow-lg"
+              style={{ background: 'linear-gradient(to right, var(--accent), #2563eb)', color: '#ffffff' }}
             >
               {loading ? 'Redirecionando...' : 'Assinar com Mercado Pago'}
             </button>
             <button
               onClick={handleLogout}
-              className="text-xs text-slate-500 hover:text-slate-400 block mx-auto mt-4"
+              className="text-xs block mx-auto mt-4 transition-colors"
+              style={{ color: 'var(--text-muted)' }}
             >
               Sair da Conta
             </button>
@@ -703,7 +729,8 @@ export default function AdminPage() {
           </div>
           <button
             onClick={handleSubscriptionCheckout}
-            className="px-4 py-1.5 rounded-xl bg-cyan-500 text-slate-900 font-bold hover:bg-cyan-400 transition-colors text-[11px]"
+            className="px-4 py-1.5 rounded-xl font-bold transition-colors text-[11px]"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-page)' }}
           >
             Assinar com Mercado Pago
           </button>
@@ -711,26 +738,26 @@ export default function AdminPage() {
       )}
 
       {/* Header Info */}
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4 mb-8">
+      <div className="border-b pb-4 mb-8" style={{ borderColor: 'var(--border-color)' }}>
         {/* Top Row: Store name + link + logout/theme */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="min-w-0 w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white truncate">{store.name}</h1>
+              <h1 className="text-xl sm:text-3xl font-black truncate" style={{ color: 'var(--text-primary)' }}>{store.name}</h1>
               {store.subscription_active ? (
-                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Ativo</span>
+                <span className="bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Ativo</span>
               ) : (
-                <span className="bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Avaliação</span>
+                <span className="bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Avaliação</span>
               )}
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-500 font-semibold hover:underline inline-block max-w-full truncate">
+              <p className="text-xs truncate" style={{ color: 'var(--text-primary)' }}>
+                <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-slate-950 dark:text-cyan-200 font-semibold hover:text-slate-700 inline-block max-w-full truncate" style={{ textDecoration: 'none' }}>
                   prinzo.com/{store.slug}
                 </a>
               </p>
               {store.subscription_active && remainingSubscriptionText ? (
-                <p className="text-xs text-emerald-400 dark:text-emerald-300">
+                <p className="text-xs text-slate-950 dark:text-emerald-200 font-semibold">
                   Plano ativo — <strong>{remainingSubscriptionText}</strong>
                 </p>
               ) : null}
@@ -740,7 +767,8 @@ export default function AdminPage() {
             <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="px-3 py-2 rounded-xl text-xs font-black bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+              className="px-3 py-2 rounded-xl text-xs font-black transition-colors"
+              style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
             >
               Sair
             </button>
@@ -751,19 +779,31 @@ export default function AdminPage() {
         <div className="flex flex-wrap gap-2 justify-center pb-1 w-full">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'products' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 whitespace-normal sm:whitespace-nowrap ${activeTab === 'products' ? 'shadow-lg' : ''}`}
+            style={{
+              backgroundColor: activeTab === 'products' ? 'var(--accent)' : 'var(--bg-header)',
+              color: activeTab === 'products' ? '#ffffff' : 'var(--text-secondary)'
+            }}
           >
             📦 Produtos
           </button>
           <button
             onClick={() => setActiveTab('categories')}
-            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'categories' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 whitespace-normal sm:whitespace-nowrap ${activeTab === 'categories' ? 'shadow-lg' : ''}`}
+            style={{
+              backgroundColor: activeTab === 'categories' ? 'var(--accent)' : 'var(--bg-header)',
+              color: activeTab === 'categories' ? '#ffffff' : 'var(--text-secondary)'
+            }}
           >
             🗂️ Categorias
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 ${activeTab === 'settings' ? 'bg-cyan-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} whitespace-normal sm:whitespace-nowrap`}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 whitespace-normal sm:whitespace-nowrap ${activeTab === 'settings' ? 'shadow-lg' : ''}`}
+            style={{
+              backgroundColor: activeTab === 'settings' ? 'var(--accent)' : 'var(--bg-header)',
+              color: activeTab === 'settings' ? '#ffffff' : 'var(--text-secondary)'
+            }}
           >
             ⚙️ Configurações
           </button>
@@ -776,47 +816,48 @@ export default function AdminPage() {
       {activeTab === 'products' && (
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Meus Produtos</h2>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Meus Produtos</h2>
             <button
               onClick={() => { resetForm(); setShowProductForm(!showProductForm); }}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-black text-xs font-bold"
+              className="px-4 py-2 rounded-xl text-xs font-bold"
+              style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }}
             >
               {showProductForm ? '✕ Cancelar' : '+ Cadastrar Produto'}
             </button>
           </div>
 
           {showProductForm && (
-            <form onSubmit={submit} className="space-y-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 mb-8">
+            <form onSubmit={submit} className="space-y-4 p-6 rounded-2xl border mb-8" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Nome do Produto</label>
-                  <input placeholder="Ex: Mascote do Flamengo" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" required />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome do Produto</label>
+                  <input placeholder="Ex: Mascote do Flamengo" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} required />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Categoria</label>
-                  <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900">
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Categoria</label>
+                  <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
                     {categories.map(c => <option key={c.slug} value={c.slug}>{c.emoji} {c.name}</option>)}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Descrição</label>
-                <textarea placeholder="Descrição do produto..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" rows={3} />
+                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Descrição</label>
+                <textarea placeholder="Descrição do produto..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} rows={3} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Preço (R$)</label>
-                  <input type="number" step="0.01" placeholder="Ex: 29.90" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value || 0) }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Preço (R$)</label>
+                  <input type="number" step="0.01" placeholder="Ex: 29.90" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value || 0) }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Imagem Principal (URL)</label>
-                  <input placeholder="https://..." value={form.img} onChange={e => setForm(f => ({ ...f, img: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Imagem Principal (URL)</label>
+                  <input placeholder="https://..." value={form.img} onChange={e => setForm(f => ({ ...f, img: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Upload de Imagem</label>
-                  <label className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center cursor-pointer text-xs hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Upload de Imagem</label>
+                  <label className="w-full p-2.5 rounded-xl border flex items-center justify-center cursor-pointer text-xs transition-colors" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
                     Clique para selecionar imagem
                     <input
                       type="file"
@@ -841,30 +882,32 @@ export default function AdminPage() {
               </div>
 
               {form.img && (
-                <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 p-2 rounded-xl w-fit">
-                  <img src={form.img} alt="preview" className="w-16 h-12 object-contain rounded bg-white" />
-                  <span className="text-xs text-slate-400">Visualização da Imagem</span>
+                <div className="flex items-center gap-3 p-2 rounded-xl w-fit" style={{ backgroundColor: 'var(--bg-header)' }}>
+                  <div className="relative w-16 h-12 rounded overflow-hidden" style={{ backgroundColor: 'var(--bg-card)' }}>
+                    <Image src={form.img} alt="preview" fill style={{ objectFit: 'contain' }} />
+                  </div>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Visualização da Imagem</span>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Tag (opcional)</label>
-                  <input placeholder="Ex: Lançamento" value={form.tag} onChange={e => setForm(f => ({ ...f, tag: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Tag (opcional)</label>
+                  <input placeholder="Ex: Lançamento" value={form.tag} onChange={e => setForm(f => ({ ...f, tag: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Cor da Tag (tailwind)</label>
-                  <input placeholder="Ex: bg-rose-600" value={form.tag_color} onChange={e => setForm(f => ({ ...f, tag_color: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cor da Tag (tailwind)</label>
+                  <input placeholder="Ex: bg-rose-600" value={form.tag_color} onChange={e => setForm(f => ({ ...f, tag_color: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Emoji Alternativo</label>
-                  <input placeholder="Ex: 🏆" value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Emoji Alternativo</label>
+                  <input placeholder="Ex: 🏆" value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-cyan-500 text-white font-bold text-xs">{form.id ? 'Atualizar' : 'Salvar Produto'}</button>
-                <button type="button" onClick={resetForm} className="px-5 py-2.5 rounded-xl border dark:border-slate-800 text-xs">Limpar</button>
+                <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl font-bold text-xs" style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}>{form.id ? 'Atualizar' : 'Salvar Produto'}</button>
+                <button type="button" onClick={resetForm} className="px-5 py-2.5 rounded-xl border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Limpar</button>
               </div>
             </form>
           )}
@@ -874,25 +917,29 @@ export default function AdminPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {products.map(p => (
-                <div key={p.id} className="flex items-center justify-between p-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
+                <div key={p.id} className="flex items-center justify-between p-4 rounded-2xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-12 bg-white flex items-center justify-center rounded-xl overflow-hidden border dark:border-slate-800">
-                      {p.img ? <img src={p.img} alt={p.name} className="w-full h-full object-contain" /> : <span className="text-xl">{p.emoji}</span>}
+                    <div className="w-16 h-12 flex items-center justify-center rounded-xl overflow-hidden border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                      {p.img ? (
+                        <div className="relative w-full h-full">
+                          <Image src={p.img} alt={p.name} fill style={{ objectFit: 'contain' }} />
+                        </div>
+                      ) : <span className="text-xl">{p.emoji}</span>}
                     </div>
                     <div>
-                      <div className="font-bold text-sm">{p.name}</div>
-                      <div className="text-xs text-slate-400">
+                      <div className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{p.name}</div>
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         {p.category} — R$ {Number(p.price || 0).toFixed(2)}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => edit(p)} className="px-3 py-1.5 rounded-lg border dark:border-slate-800 text-xs">Editar</button>
-                    <button onClick={() => remove(p.id)} className="px-3 py-1.5 rounded-lg bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white transition-all text-xs">Excluir</button>
+                    <button onClick={() => edit(p)} className="px-3 py-1.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Editar</button>
+                    <button onClick={() => remove(p.id)} className="px-3 py-1.5 rounded-lg transition-all text-xs hover:bg-rose-600 hover:text-white" style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444' }}>Excluir</button>
                   </div>
                 </div>
               ))}
-              {products.length === 0 && <div className="text-slate-400 text-center py-8">Nenhum produto cadastrado.</div>}
+              {products.length === 0 && <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>Nenhum produto cadastrado.</div>}
             </div>
           )}
         </section>
@@ -902,55 +949,56 @@ export default function AdminPage() {
       {activeTab === 'categories' && (
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Minhas Categorias</h2>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Minhas Categorias</h2>
             <button
               onClick={() => { resetCatForm(); setShowCatForm(!showCatForm); }}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-black text-xs font-bold"
+              className="px-4 py-2 rounded-xl text-xs font-bold"
+              style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }}
             >
               {showCatForm ? '✕ Cancelar' : '+ Cadastrar Categoria'}
             </button>
           </div>
 
           {showCatForm && (
-            <form onSubmit={submitCategory} className="space-y-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 mb-8">
+            <form onSubmit={submitCategory} className="space-y-4 p-6 rounded-2xl border mb-8" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Nome</label>
-                  <input placeholder="Ex: Decorativos" value={catForm.name} onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" required />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome</label>
+                  <input placeholder="Ex: Decorativos" value={catForm.name} onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} required />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Slug identificador</label>
-                  <input placeholder="Ex: decorativos" value={catForm.slug} onChange={e => setCatForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" required />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Slug identificador</label>
+                  <input placeholder="Ex: decorativos" value={catForm.slug} onChange={e => setCatForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} required />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Emoji representativo</label>
-                  <input placeholder="Ex: ✨" value={catForm.emoji} onChange={e => setCatForm(f => ({ ...f, emoji: e.target.value }))} className="w-full p-2.5 rounded-xl border dark:border-slate-800 bg-white dark:bg-slate-900" />
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Emoji representativo</label>
+                  <input placeholder="Ex: ✨" value={catForm.emoji} onChange={e => setCatForm(f => ({ ...f, emoji: e.target.value }))} className="w-full p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
                 </div>
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="px-5 py-2.5 rounded-xl bg-cyan-500 text-white font-bold text-xs">{catForm.id ? 'Atualizar' : 'Salvar Categoria'}</button>
-                <button type="button" onClick={resetCatForm} className="px-5 py-2.5 rounded-xl border dark:border-slate-800 text-xs">Limpar</button>
+                <button type="submit" className="px-5 py-2.5 rounded-xl font-bold text-xs" style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}>{catForm.id ? 'Atualizar' : 'Salvar Categoria'}</button>
+                <button type="button" onClick={resetCatForm} className="px-5 py-2.5 rounded-xl border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Limpar</button>
               </div>
             </form>
           )}
 
           <div className="grid grid-cols-1 gap-3">
             {categories.map(c => (
-              <div key={c.id} className="flex items-center justify-between p-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
+              <div key={c.id} className="flex items-center justify-between p-4 rounded-2xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
                 <div className="flex items-center gap-3">
                   <div className="text-2xl">{c.emoji}</div>
                   <div>
-                    <div className="font-bold text-sm">{c.name}</div>
-                    <div className="text-xs text-slate-400">{c.slug}</div>
+                    <div className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{c.name}</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{c.slug}</div>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => editCategory(c)} className="px-3 py-1.5 rounded-lg border dark:border-slate-800 text-xs">Editar</button>
-                  <button onClick={() => removeCategory(c.id)} className="px-3 py-1.5 rounded-lg bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white transition-all text-xs">Excluir</button>
+                  <button onClick={() => editCategory(c)} className="px-3 py-1.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Editar</button>
+                  <button onClick={() => removeCategory(c.id)} className="px-3 py-1.5 rounded-lg transition-all text-xs hover:bg-rose-600 hover:text-white" style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444' }}>Excluir</button>
                 </div>
               </div>
             ))}
-            {categories.length === 0 && <div className="text-slate-400 text-center py-8">Nenhuma categoria cadastrada.</div>}
+            {categories.length === 0 && <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>Nenhuma categoria cadastrada.</div>}
           </div>
         </section>
       )}
@@ -958,97 +1006,105 @@ export default function AdminPage() {
       {/* ─── SETTINGS TAB ────────────────────────────────────────── */}
       {activeTab === 'settings' && (
         <section className="max-w-2xl">
-          <h2 className="text-xl font-bold mb-6">Configurações da Loja</h2>
+          <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Configurações da Loja</h2>
           <form onSubmit={handleUpdateSettings} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1">Nome da Loja</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome da Loja</label>
               <input
                 type="text"
                 required
                 value={settingsForm.name}
                 onChange={e => setSettingsForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1">Descrição / Slogan</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Descrição / Slogan</label>
               <input
                 type="text"
                 value={settingsForm.description}
                 onChange={e => setSettingsForm(f => ({ ...f, description: e.target.value }))}
-                className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1">WhatsApp para Vendas</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>WhatsApp para Vendas</label>
               <input
                 type="text"
                 required
                 value={settingsForm.whatsapp_number}
                 onChange={e => setSettingsForm(f => ({ ...f, whatsapp_number: e.target.value.replace(/[^0-9]/g, '') }))}
-                className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               />
             </div>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
-              <h3 className="text-md font-bold mb-2">Integração Pix Direto (Recebimento sem Intermediários)</h3>
-              <p className="text-xs text-slate-400 mb-4">Insira os dados do seu Pix para permitir que seus clientes paguem por Pix na loja e copiem o código/QR code.</p>
+            <div className="border-t pt-4 mt-6" style={{ borderColor: 'var(--border-color)' }}>
+              <h3 className="text-md font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Integração Pix Direto (Recebimento sem Intermediários)</h3>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Insira os dados do seu Pix para permitir que seus clientes paguem por Pix na loja e copiem o código/QR code.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">Chave Pix</label>
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Chave Pix</label>
                   <input
                     type="text"
                     placeholder="Chave Pix (Celular, E-mail, CPF, Chave Aleatória)"
                     value={settingsForm.pix_key}
                     onChange={e => setSettingsForm(f => ({ ...f, pix_key: e.target.value }))}
-                    className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                    className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                    style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">Nome do Titular do Pix</label>
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome do Titular do Pix</label>
                   <input
                     type="text"
                     placeholder="Nome igual cadastrado no banco"
                     value={settingsForm.pix_name}
                     onChange={e => setSettingsForm(f => ({ ...f, pix_name: e.target.value }))}
-                    className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                    className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                    style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   />
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-xs font-bold text-slate-400 mb-1">Cidade do Titular</label>
+                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cidade do Titular</label>
                 <input
                   type="text"
                   placeholder="Ex: Sao Paulo"
                   value={settingsForm.pix_city}
                   onChange={e => setSettingsForm(f => ({ ...f, pix_city: e.target.value }))}
-                  className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                  className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                  style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
             </div>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
-              <h3 className="text-md font-bold mb-2">Integração Mercado Pago</h3>
-              <p className="text-xs text-slate-400 mb-4">Insira o seu Access Token do Mercado Pago para permitir pagamentos online com cartão, Pix do MP, e outros métodos. Obtenha em: <a href="https://www.mercadopago.com.br/developers" target="_blank" rel="noreferrer" className="text-cyan-500 underline">mercadopago.com.br/developers</a></p>
+            <div className="border-t pt-4 mt-6" style={{ borderColor: 'var(--border-color)' }}>
+              <h3 className="text-md font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Integração Mercado Pago</h3>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Insira o seu Access Token do Mercado Pago para permitir pagamentos online com cartão, Pix do MP, e outros métodos. Obtenha em: <a href="https://www.mercadopago.com.br/developers" target="_blank" rel="noreferrer" className="underline" style={{ color: 'var(--accent)' }}>mercadopago.com.br/developers</a></p>
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">Access Token (MP_ACCESS_TOKEN)</label>
+                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Access Token (MP_ACCESS_TOKEN)</label>
                 <input
                   type="password"
                   placeholder="APP_USR-..."
                   value={settingsForm.mp_access_token}
                   onChange={e => setSettingsForm(f => ({ ...f, mp_access_token: e.target.value }))}
-                  className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none font-mono"
+                  className="w-full p-3 rounded-xl text-sm focus:outline-none font-mono"
+                  style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
-                <p className="text-[10px] text-slate-500 mt-1">Seu token é guardado com segurança e utilizado apenas para criar preferências de pagamento da sua loja.</p>
+                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Seu token é guardado com segurança e utilizado apenas para criar preferências de pagamento da sua loja.</p>
               </div>
             </div>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
-              <label className="block text-xs font-bold text-slate-400 mb-1">Meios de Pagamento Disponíveis na Loja</label>
+            <div className="border-t pt-4 mt-6" style={{ borderColor: 'var(--border-color)' }}>
+              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Meios de Pagamento Disponíveis na Loja</label>
               <select
                 value={settingsForm.payment_methods}
                 onChange={e => setSettingsForm(f => ({ ...f, payment_methods: e.target.value }))}
-                className="w-full p-3 rounded-xl bg-slate-900/20 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:outline-none"
+                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               >
                 <option value="whatsapp">Apenas Encomendar via WhatsApp</option>
                 <option value="pix_direct">Apenas Pix Direto com QR Code</option>
@@ -1061,16 +1117,17 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 rounded-xl font-bold bg-cyan-500 text-white shadow-lg text-xs"
+              className="px-6 py-3 rounded-xl font-bold shadow-lg text-xs"
+              style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}
             >
               {loading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </form>
 
           {/* Suporte */}
-          <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
-            <h3 className="text-md font-bold mb-1">Precisa de Ajuda?</h3>
-            <p className="text-xs text-slate-400 mb-4">Nossa equipe está pronta para te ajudar com qualquer dúvida sobre o Prinzo.</p>
+          <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--border-color)' }}>
+            <h3 className="text-md font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Precisa de Ajuda?</h3>
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Nossa equipe está pronta para te ajudar com qualquer dúvida sobre o Prinzo.</p>
             <a
               href={SUPPORT_LINK}
               target="_blank"

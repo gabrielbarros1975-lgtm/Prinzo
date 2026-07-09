@@ -1,6 +1,7 @@
 'use client';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 
 
 const STATUS_CONFIG = {
@@ -35,22 +36,20 @@ function PaymentContent() {
   const status = searchParams.get('status') || 'pending';
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
 
-  const [lastCart, setLastCart] = useState([]);
-  const [paymentId, setPaymentId] = useState('');
-
-  useEffect(() => {
-    const cartData = localStorage.getItem('ljvision_last_cart');
-    if (cartData) {
-      try {
-        setLastCart(JSON.parse(cartData));
-      } catch (e) {
-        console.error('Erro ao ler carrinho do localStorage:', e);
-      }
+  const [lastCart, setLastCart] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const data = localStorage.getItem('ljvision_last_cart');
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('Erro ao ler carrinho do localStorage:', e);
+      return [];
     }
-    // O Mercado Pago retorna collection_id ou payment_id na URL
-    const pid = searchParams.get('payment_id') || searchParams.get('collection_id');
-    if (pid) setPaymentId(pid);
-  }, [searchParams]);
+  });
+  const paymentId = useMemo(
+    () => searchParams.get('payment_id') || searchParams.get('collection_id') || '',
+    [searchParams]
+  );
 
   const handleNotifyWA = () => {
     const WHATSAPP_NUMBER = '5598984809302';
@@ -183,7 +182,7 @@ function PaymentContent() {
             </button>
           )}
 
-          <a
+          <Link
             href="/"
             style={{
               display: 'block',
@@ -199,10 +198,10 @@ function PaymentContent() {
             }}
           >
             Voltar ao Catálogo
-          </a>
+          </Link>
 
           {status === 'failure' && (
-            <a
+            <Link
               href="/"
               style={{
                 display: 'block',
@@ -217,7 +216,7 @@ function PaymentContent() {
               }}
             >
               Tentar Novamente
-            </a>
+            </Link>
           )}
         </div>
       </div>

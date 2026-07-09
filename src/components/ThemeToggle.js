@@ -1,39 +1,50 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme !== null) {
+      return savedTheme === 'dark';
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = saved === 'dark' || (!saved && prefersDark);
-    setIsDark(dark);
-    document.documentElement.classList.toggle('dark', dark);
+    if (isDark === null) return;
+
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+      themeColor.setAttribute('content', isDark ? '#0a0f1a' : '#f8fafc');
+    }
+  }, [isDark]);
+
+  useEffect(() => {
+    if (isDark === null) return;
+    if (localStorage.getItem('theme') !== null) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (event) => {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return;
-      const nextDark = event.matches;
-      setIsDark(nextDark);
-      document.documentElement.classList.toggle('dark', nextDark);
+      setIsDark(event.matches);
     };
 
-    mediaQuery.addEventListener?.('change', handleChange);
-    mediaQuery.addListener?.(handleChange);
-
+    mediaQuery.addEventListener('change', handleChange);
     return () => {
-      mediaQuery.removeEventListener?.('change', handleChange);
-      mediaQuery.removeListener?.(handleChange);
+      mediaQuery.removeEventListener('change', handleChange);
     };
-  }, []);
+  }, [isDark]);
 
   const toggle = () => {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
+    const nextTheme = !isDark;
+    setIsDark(nextTheme);
+    localStorage.setItem('theme', nextTheme ? 'dark' : 'light');
   };
 
   return (
@@ -42,14 +53,14 @@ export function ThemeToggle() {
       aria-label="Alternar tema"
       className="relative w-14 h-7 rounded-full border transition-all duration-300 flex items-center px-1"
       style={{
-        backgroundColor: isDark ? '#6d28d9' : '#e5e7eb',
-        borderColor: isDark ? '#7c3aed' : '#d1d5db',
+        backgroundColor: 'var(--toggle-track)',
+        borderColor: 'var(--border-color)',
       }}
     >
       <span
         className="w-5 h-5 rounded-full flex items-center justify-center text-xs transition-all duration-300 shadow-sm"
         style={{
-          backgroundColor: isDark ? '#a78bfa' : '#ffffff',
+          backgroundColor: 'var(--toggle-thumb)',
           transform: isDark ? 'translateX(28px)' : 'translateX(0)',
         }}
       >
