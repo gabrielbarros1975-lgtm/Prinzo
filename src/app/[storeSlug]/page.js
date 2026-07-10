@@ -180,21 +180,21 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
         }}
       >
         <div
-          className="relative overflow-hidden w-full"
-          style={{ height: '13rem', cursor: hasImages ? 'zoom-in' : 'default' }}
+          className="product-image-container group cursor-pointer"
           onClick={() => hasImages && setLightboxIndex(0)}
         >
           {hasImages ? (
             <>
-              <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--bg-card)' }}>
-                <div className="group-hover:scale-105 transition-transform duration-500" style={{ width: '100%', height: '100%' }}>
-                  <Image
-                    src={allImages[0]}
-                    alt={product.name}
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
-                </div>
+              <div className="product-image-wrapper group-hover:scale-105 transition-transform duration-500">
+                <Image
+                  src={allImages[0]}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  style={{ objectFit: 'contain', objectPosition: 'center' }}
+                  loading="eager"
+                  priority={false}
+                />
               </div>
               {allImages.length > 1 && (
                 <div style={{ position: 'absolute', bottom: '0.5rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
@@ -207,7 +207,7 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
             </>
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
-              <span className="text-7xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
+              <span className="text-6xl sm:text-7xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
             </div>
           )}
           {product.tag && (
@@ -215,7 +215,7 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
               {product.tag}
             </span>
           )}
-          <span className="absolute top-3 right-3 bg-black/70 text-white text-sm font-black px-3 py-1 rounded-full backdrop-blur-sm dark:bg-white/80 dark:text-black">
+          <span className="absolute bottom-3 right-3 bg-black/70 text-white text-sm sm:text-base font-black px-3 py-1.5 rounded-full backdrop-blur-sm dark:bg-white/80 dark:text-black">
             R$ {Number(product.price || 0).toFixed(2).replace('.', ',')}
           </span>
         </div>
@@ -224,7 +224,7 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
           <h2 className="text-base font-bold mb-2 leading-snug" style={{ color: 'var(--text-primary)' }}>
             {product.name}
           </h2>
-          <p className="text-sm leading-relaxed flex-1 mb-4" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
             {product.description}
           </p>
 
@@ -429,15 +429,23 @@ export default function ShopPage({ params }) {
 
   const handleCheckoutPix = () => {
     if (!cart.length) return;
-    const payload = generatePixPayload({
-      key: store.pix_key || '',
-      name: store.pix_name || store.name,
-      city: store.pix_city || 'Sao Paulo',
-      amount: totalPrice,
-      txid: `LOJA${store.slug.substring(0, 10).toUpperCase()}`
-    });
-    setPixPayload(payload);
-    setPixModalOpen(true);
+    if (!store.pix_key || !store.pix_name) {
+      alert('Chave Pix ou nome do titular não configurados. Verifique as configurações da loja.');
+      return;
+    }
+    try {
+      const payload = generatePixPayload({
+        key: store.pix_key.trim(),
+        name: store.pix_name.trim(),
+        city: (store.pix_city || 'Sao Paulo').trim(),
+        amount: totalPrice,
+        txid: `LOJA${store.slug.substring(0, 10).toUpperCase()}`
+      });
+      setPixPayload(payload);
+      setPixModalOpen(true);
+    } catch (err) {
+      alert(`Erro ao gerar QR Code Pix: ${err.message}`);
+    }
   };
 
   const handleCopyPix = () => {
@@ -669,64 +677,66 @@ export default function ShopPage({ params }) {
       )}
 
       {cartModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}>
-          <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl border bg-[var(--bg-card)] shadow-2xl" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}>
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border bg-[var(--bg-card)] shadow-2xl" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
             <button
               onClick={() => {
                 setCartModalOpen(false);
                 setSelectedProduct(null);
                 setCartModalStep('preview');
               }}
-              className="absolute right-4 top-4 z-10 text-xl font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="absolute right-2 top-2 sm:right-4 sm:top-4 z-10 text-lg sm:text-xl font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               aria-label="Fechar modal"
             >
               ✕
             </button>
 
-            <div className="max-h-[88vh] overflow-hidden">
-              <div className="overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(88vh - 3rem)' }}>
+            <div className="max-h-[95vh] sm:max-h-[88vh] overflow-hidden">
+              <div className="overflow-y-auto px-4 sm:px-6 py-4 sm:py-6" style={{ maxHeight: 'calc(95vh - 2rem)' }}>
                 {cartModalStep === 'preview' && selectedProduct && (
-                  <div className="space-y-5">
-                    <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Confirme seu pedido</div>
-                    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-                      <div className="relative h-56 w-full overflow-hidden rounded-3xl bg-neutral-100">
+                  <div className="space-y-4 sm:space-y-5">
+                    <div className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Confirme seu pedido</div>
+                    <div className="grid gap-4 sm:gap-6 sm:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[220px_minmax(0,1fr)]">
+                      <div className="relative h-40 sm:h-56 w-full overflow-hidden rounded-3xl bg-neutral-100 flex items-center justify-center">
                         <Image
                           src={selectedProduct.img || selectedProduct.images?.[0] || '/img/placeholder.png'}
                           alt={selectedProduct.name}
                           fill
-                          style={{ objectFit: 'cover' }}
+                          sizes="(max-width: 640px) 100%, (max-width: 1024px) 150px, 220px"
+                          style={{ objectFit: 'contain', objectPosition: 'center' }}
                         />
                       </div>
-                      <div className="flex flex-col justify-between gap-4">
+                      <div className="flex flex-col justify-between gap-3 sm:gap-4">
                         <div>
-                          <h2 className="text-2xl font-black">{selectedProduct.name}</h2>
-                          <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                          <h2 className="text-lg sm:text-2xl font-black">{selectedProduct.name}</h2>
+                          <p className="mt-2 sm:mt-3 text-xs sm:text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                             {selectedProduct.description}
                           </p>
                         </div>
-                        <div className="rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
-                          <div className="text-sm text-[var(--text-secondary)]">Preço</div>
-                          <div className="mt-2 text-2xl font-black">R$ {(selectedProduct.price || 0).toFixed(2).replace('.', ',')}</div>
+                        <div className="rounded-3xl border p-3 sm:p-4" style={{ borderColor: 'var(--border-color)' }}>
+                          <div className="text-xs sm:text-sm text-[var(--text-secondary)]">Preço</div>
+                          <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black">R$ {(selectedProduct.price || 0).toFixed(2).replace('.', ',')}</div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 sm:flex-row">
+                    <div className="flex flex-col gap-2 sm:gap-3">
                       <button
                         onClick={() => {
                           addToCart(selectedProduct);
                           setCartModalStep('summary');
                         }}
-                        className="flex-1 rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                        className="flex-1 rounded-2xl bg-[var(--accent)] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white transition hover:opacity-95"
                       >
                         Ir para o carrinho
                       </button>
                       <button
                         onClick={() => {
+                          addToCart(selectedProduct);
                           setCartModalOpen(false);
                           setSelectedProduct(null);
                         }}
-                        className="flex-1 rounded-2xl border border-[var(--border-color)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
+                        className="flex-1 rounded-2xl border border-[var(--border-color)] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
                       >
                         Continuar comprando
                       </button>
@@ -735,82 +745,81 @@ export default function ShopPage({ params }) {
                 )}
 
                 {cartModalStep === 'summary' && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Carrinho</div>
-                        <div className="mt-2 text-lg font-black">{cart.length} item{cart.length === 1 ? '' : 's'}</div>
+                        <div className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Carrinho</div>
+                        <div className="mt-1 sm:mt-2 text-base sm:text-lg font-black">{cart.length} item{cart.length === 1 ? '' : 's'}</div>
                       </div>
-                      <div className="text-right text-sm text-[var(--text-secondary)]">
+                      <div className="text-right text-xs sm:text-sm text-[var(--text-secondary)]">
                         Subtotal
-                        <div className="text-xl font-black text-[var(--accent)]">R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
+                        <div className="text-lg sm:text-xl font-black text-[var(--accent)]">R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
                       </div>
                     </div>
 
-                    <div className="rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
-                      <div className="space-y-4 max-h-[35vh] overflow-y-auto pr-2">
+                    <div className="rounded-3xl border p-3 sm:p-4" style={{ borderColor: 'var(--border-color)' }}>
+                      <div className="space-y-3 sm:space-y-4 max-h-[30vh] sm:max-h-[35vh] overflow-y-auto pr-2">
                         {cart.length > 0 ? cart.map(item => (
-                          <div key={item.cartItemId} className="flex flex-col gap-3 rounded-3xl border-b border-[var(--border-color)] pb-4 last:border-b-0 last:pb-0">
-                            <div className="flex items-center gap-4">
-                              <div className="relative h-16 w-16 overflow-hidden rounded-3xl bg-neutral-100">
+                          <div key={item.cartItemId} className="flex flex-col gap-2 sm:gap-3 rounded-3xl border-b border-[var(--border-color)] pb-3 sm:pb-4 last:border-b-0 last:pb-0">
+                            <div className="flex items-center gap-2 sm:gap-4">
+                              <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-3xl bg-neutral-100 shrink-0 flex items-center justify-center">
                                 <Image
                                   src={item.img || item.images?.[0] || '/img/placeholder.png'}
                                   alt={item.name}
                                   fill
-                                  style={{ objectFit: 'cover' }}
+                                  sizes="(max-width: 640px) 56px, 64px"
+                                  style={{ objectFit: 'contain', objectPosition: 'center' }}
                                 />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <div className="font-semibold">{item.name}</div>
-                                <div className="text-sm text-[var(--text-secondary)]">R$ {(item.price || 0).toFixed(2).replace('.', ',')} cada</div>
+                                <div className="font-semibold text-sm sm:text-base line-clamp-2">{item.name}</div>
+                                <div className="text-xs sm:text-sm text-[var(--text-secondary)]">R$ {(item.price || 0).toFixed(2).replace('.', ',')} cada</div>
                               </div>
-                              <div className="text-sm font-bold">R$ {(item.price * item.qty).toFixed(2).replace('.', ',')}</div>
+                              <div className="text-xs sm:text-sm font-bold whitespace-nowrap">R$ {(item.price * item.qty).toFixed(2).replace('.', ',')}</div>
                             </div>
-                            <div className="flex flex-wrap items-center justify-between gap-3">
-                              <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] px-2 py-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                              <div className="flex items-center gap-1 sm:gap-2 rounded-full border border-[var(--border-color)] px-1.5 py-1 sm:px-2 sm:py-1">
                                 <button
                                   onClick={() => updateCartQuantity(item.cartItemId, item.qty - 1)}
-                                  className="h-8 w-8 rounded-full bg-[var(--bg-card)] text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
+                                  className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-[var(--bg-card)] text-xs sm:text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
                                 >
                                   −
                                 </button>
-                                <span className="w-10 text-center text-sm font-semibold">{item.qty}</span>
+                                <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-semibold">{item.qty}</span>
                                 <button
                                   onClick={() => updateCartQuantity(item.cartItemId, item.qty + 1)}
-                                  className="h-8 w-8 rounded-full bg-[var(--bg-card)] text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
+                                  className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-[var(--bg-card)] text-xs sm:text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
                                 >
                                   +
                                 </button>
                               </div>
                               <button
                                 onClick={() => removeFromCart(item.cartItemId)}
-                                className="text-sm font-semibold text-rose-500"
+                                className="text-xs sm:text-sm font-semibold text-rose-500"
                               >
                                 Remover
                               </button>
                             </div>
                           </div>
                         )) : (
-                          <div className="text-sm text-[var(--text-secondary)]">Seu carrinho está vazio. Adicione um produto para continuar.</div>
+                          <div className="text-xs sm:text-sm text-[var(--text-secondary)]">Seu carrinho está vazio. Adicione um produto para continuar.</div>
                         )}
                       </div>
                     </div>
 
                     <button
                       onClick={() => {
-                        setSelectedProduct(null);
                         setCartModalOpen(false);
-                        setCartModalStep('preview');
                       }}
-                      className="w-full rounded-2xl border border-[var(--border-color)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
+                      className="w-full rounded-2xl border border-[var(--border-color)] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
                     >
-                      Adicionar mais itens
+                      Continuar comprando
                     </button>
 
-                    <div className="space-y-4 rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
-                      <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Entrega</div>
-                      <div className="flex flex-col gap-3">
-                        <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 cursor-pointer" style={{ borderColor: deliveryMethod === 'pickup' ? 'var(--accent)' : 'var(--border-color)' }}>
+                    <div className="space-y-3 sm:space-y-4 rounded-3xl border p-3 sm:p-4" style={{ borderColor: 'var(--border-color)' }}>
+                      <div className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Entrega</div>
+                      <div className="flex flex-col gap-2 sm:gap-3">
+                        <label className="flex items-center gap-3 rounded-2xl border px-3 sm:px-4 py-2 sm:py-3 cursor-pointer text-sm sm:text-base" style={{ borderColor: deliveryMethod === 'pickup' ? 'var(--accent)' : 'var(--border-color)' }}>
                           <input
                             type="radio"
                             name="delivery"
@@ -819,9 +828,9 @@ export default function ShopPage({ params }) {
                             onChange={() => setDeliveryMethod('pickup')}
                             className="h-4 w-4 accent-[var(--accent)]"
                           />
-                          <span className="text-sm font-medium">Retirar na loja</span>
+                          <span className="font-medium">Retirar na loja</span>
                         </label>
-                        <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 cursor-pointer" style={{ borderColor: deliveryMethod === 'delivery' ? 'var(--accent)' : 'var(--border-color)' }}>
+                        <label className="flex items-center gap-3 rounded-2xl border px-3 sm:px-4 py-2 sm:py-3 cursor-pointer text-sm sm:text-base" style={{ borderColor: deliveryMethod === 'delivery' ? 'var(--accent)' : 'var(--border-color)' }}>
                           <input
                             type="radio"
                             name="delivery"
@@ -830,17 +839,17 @@ export default function ShopPage({ params }) {
                             onChange={() => setDeliveryMethod('delivery')}
                             className="h-4 w-4 accent-[var(--accent)]"
                           />
-                          <span className="text-sm font-medium">Entregar no meu endereço</span>
+                          <span className="font-medium">Entregar no meu endereço</span>
                         </label>
                       </div>
 
                       <div>
-                        <label className="text-sm font-semibold">Observações (opcional)</label>
+                        <label className="text-xs sm:text-sm font-semibold">Observações (opcional)</label>
                         <textarea
                           value={orderNotes}
                           onChange={(e) => setOrderNotes(e.target.value)}
-                          rows={4}
-                          className="mt-2 w-full resize-none rounded-3xl border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]"
+                          rows={3}
+                          className="mt-2 w-full resize-none rounded-3xl border border-[var(--border-color)] bg-transparent px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]"
                           placeholder="Digite algo sobre entrega, cor ou outro pedido especial"
                         />
                       </div>
@@ -848,7 +857,7 @@ export default function ShopPage({ params }) {
 
                     <button
                       onClick={() => setCartModalStep('payment')}
-                      className="w-full rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                      className="w-full rounded-2xl bg-[var(--accent)] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white transition hover:opacity-95"
                     >
                       Avançar para pagamento
                     </button>
@@ -856,28 +865,28 @@ export default function ShopPage({ params }) {
                 )}
 
                 {cartModalStep === 'payment' && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Pagamento</div>
-                        <div className="mt-2 text-lg font-black">Total: R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
+                        <div className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Pagamento</div>
+                        <div className="mt-1 sm:mt-2 text-base sm:text-lg font-black">Total: R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
                       </div>
                       <button
                         onClick={() => setCartModalStep('summary')}
-                        className="rounded-2xl border border-[var(--border-color)] px-4 py-2 text-sm font-semibold"
+                        className="rounded-2xl border border-[var(--border-color)] px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold"
                       >
                         Voltar
                       </button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {(store.payment_methods === 'whatsapp' || store.payment_methods === 'both' || store.payment_methods === 'all') && (
                         <button
                           onClick={() => {
                             handleCheckoutWA();
                             setCartModalOpen(false);
                           }}
-                          className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                          className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white transition hover:opacity-95"
                         >
                           Pagar via WhatsApp
                         </button>
@@ -889,7 +898,7 @@ export default function ShopPage({ params }) {
                             handleCheckoutPix();
                             setCartModalOpen(false);
                           }}
-                          className="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                          className="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white transition hover:opacity-95"
                         >
                           Pagar com Pix Direto
                         </button>
@@ -901,7 +910,7 @@ export default function ShopPage({ params }) {
                             handleCheckoutMP();
                             setCartModalOpen(false);
                           }}
-                          className="w-full rounded-2xl bg-gradient-to-r from-cyan-600 to-sky-500 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95 disabled:opacity-60"
+                          className="w-full rounded-2xl bg-gradient-to-r from-cyan-600 to-sky-500 px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white transition hover:opacity-95 disabled:opacity-60"
                           disabled={mpLoading}
                         >
                           {mpLoading ? 'Processando pagamento...' : 'Pagar com Mercado Pago'}
@@ -910,7 +919,7 @@ export default function ShopPage({ params }) {
                     </div>
 
                     {(store.payment_methods !== 'whatsapp' && store.payment_methods !== 'pix_direct' && store.payment_methods !== 'mercadopago' && store.payment_methods !== 'both' && store.payment_methods !== 'all') && (
-                      <div className="rounded-3xl border border-rose-500 bg-rose-50 p-4 text-sm text-rose-700">
+                      <div className="rounded-3xl border border-rose-500 bg-rose-50 p-3 sm:p-4 text-xs sm:text-sm text-rose-700">
                         Nenhuma forma de pagamento disponível no momento.
                       </div>
                     )}
@@ -924,20 +933,20 @@ export default function ShopPage({ params }) {
 
       {/* Pix Modal */}
       {pixModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
+          <div className="rounded-3xl p-4 sm:p-6 max-w-sm w-full text-center relative shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
             <button
               onClick={() => setPixModalOpen(false)}
-              className="absolute top-4 right-4 text-lg transition-colors"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-base sm:text-lg transition-colors"
               style={{ color: 'var(--text-muted)' }}
             >✕</button>
 
-            <span className="text-4xl mb-2 inline-block">📱</span>
-            <h3 className="text-xl font-black mb-1">Pagamento via Pix</h3>
-            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Escaneie o QR Code abaixo ou copie o código para pagar</p>
+            <span className="text-3xl sm:text-4xl mb-2 inline-block">📱</span>
+            <h3 className="text-lg sm:text-xl font-black mb-1">Pagamento via Pix</h3>
+            <p className="text-xs mb-3 sm:mb-4" style={{ color: 'var(--text-muted)' }}>Escaneie o QR Code abaixo ou copie o código para pagar</p>
 
             {/* QR Code Container */}
-            <div className="p-3 rounded-2xl inline-block mb-4 shadow" style={{ backgroundColor: 'var(--bg-card)', position: 'relative', width: '12rem', height: '12rem' }}>
+            <div className="p-2 sm:p-3 rounded-2xl inline-block mb-3 sm:mb-4 shadow" style={{ backgroundColor: 'var(--bg-card)', position: 'relative', width: '10rem', height: '10rem' }}>
               <Image
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixPayload)}`}
                 alt="Pix QR Code"
@@ -947,15 +956,15 @@ export default function ShopPage({ params }) {
             </div>
 
             {/* Valor total do Pix */}
-            <div className="mb-4 py-2 rounded-xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
+            <div className="mb-3 sm:mb-4 py-2 rounded-xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
               <span className="text-xs block" style={{ color: 'var(--text-muted)' }}>Valor a Pagar:</span>
-              <span className="text-xl font-black" style={{ color: 'var(--accent-hover)' }}>R$ {totalPrice.toFixed(2).replace('.', ',')}</span>
+              <span className="text-lg sm:text-xl font-black" style={{ color: 'var(--accent-hover)' }}>R$ {totalPrice.toFixed(2).replace('.', ',')}</span>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 sm:gap-3">
               <button
                 onClick={handleCopyPix}
-                className="w-full py-2.5 rounded-xl font-bold text-sm transition-colors border"
+                className="w-full py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors border"
                 style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               >
                 {copied ? '✓ Código Copiado!' : 'Copiar Código Pix'}
@@ -963,13 +972,13 @@ export default function ShopPage({ params }) {
 
               <button
                 onClick={handleSendReceipt}
-                className="w-full py-3 rounded-xl font-bold text-sm shadow-lg transition-opacity hover:opacity-95 text-white"
+                className="w-full py-2 sm:py-3 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition-opacity hover:opacity-95 text-white"
                 style={{ background: 'linear-gradient(to right, #22c55e, #16a34a)' }}
               >
                 Confirmar & Enviar Comprovante
               </button>
             </div>
-            <p className="text-[10px] mt-3 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-[9px] sm:text-[10px] mt-2 sm:mt-3 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               *Importante: O comprovante de pagamento deverá ser enviado no WhatsApp do vendedor clicando no botão acima.
             </p>
           </div>

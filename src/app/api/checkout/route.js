@@ -63,7 +63,6 @@ export async function POST(req) {
         failure: `${returnBase}?status=failure`,
         pending: `${returnBase}?status=pending`,
       },
-      auto_return: 'approved',
       statement_descriptor: storeName.substring(0, 22),
       metadata: {
         store: store_slug || 'default',

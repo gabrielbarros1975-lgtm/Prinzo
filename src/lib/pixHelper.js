@@ -3,8 +3,30 @@
  * According to BACEN (Banco Central do Brasil) specifications.
  */
 export function generatePixPayload({ key, name, city, amount, txid = '***' }) {
+  // Validação básica
+  if (!key || typeof key !== 'string' || !key.trim()) {
+    throw new Error('Chave Pix inválida ou vazia');
+  }
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    throw new Error('Nome do titular inválido ou vazio');
+  }
+
+  // Formata chave de celular para o padrão Pix
+  const formatPixKey = (keyInput) => {
+    const cleaned = keyInput.replace(/\D/g, ''); // Remove tudo que não é dígito
+    
+    // Se for um número brasileiro (11 dígitos), formata como +55 DDD NÚMERO
+    if (cleaned.length === 11) {
+      return `+55${cleaned}`;
+    } else if (cleaned.length === 10) {
+      return `+55${cleaned}`;
+    }
+    // Caso contrário, retorna como está (pode ser email, CPF, ou chave aleatória)
+    return keyInput.trim();
+  };
+
   const formatField = (id, val) => {
-    const cleanVal = String(val);
+    const cleanVal = String(val).trim();
     const len = cleanVal.length.toString().padStart(2, '0');
     return `${id}${len}${cleanVal}`;
   };
@@ -15,18 +37,20 @@ export function generatePixPayload({ key, name, city, amount, txid = '***' }) {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '') // Remove accents
       .replace(/[^a-zA-Z0-9\s]/g, '')  // Remove non-alphanumeric except spaces
-      .toUpperCase();
+      .toUpperCase()
+      .trim();
   };
 
-  const cleanKey = key.trim();
-  const cleanName = sanitizeString(name).substring(0, 25);
-  const cleanCity = sanitizeString(city).substring(0, 15);
+  const cleanKey = formatPixKey(key);
+  const cleanName = sanitizeString(name).substring(0, 25) || 'PAGAMENTO';
+  const cleanCity = sanitizeString(city).substring(0, 15) || 'BRASIL';
   const cleanTxid = sanitizeString(txid).substring(0, 25) || '***';
 
-  // Merchant Account Info (GUI + key)
+  // Merchant Account Info (sub-campos: GUI + key)
   const gui = formatField('00', 'br.gov.bcb.pix');
   const keyField = formatField('01', cleanKey);
-  const merchantAccountInfo = formatField('26', `${gui}${keyField}`);
+  const merchantAccountInfoContent = `${gui}${keyField}`;
+  const merchantAccountInfo = formatField('26', merchantAccountInfoContent);
 
   const payloadParts = [
     formatField('00', '01'), // Payload Indicator
@@ -37,7 +61,8 @@ export function generatePixPayload({ key, name, city, amount, txid = '***' }) {
   ];
 
   if (amount > 0) {
-    payloadParts.push(formatField('54', Number(amount).toFixed(2)));
+    const formattedAmount = Number(amount).toFixed(2);
+    payloadParts.push(formatField('54', formattedAmount));
   }
 
   payloadParts.push(formatField('58', 'BR')); // Country Code

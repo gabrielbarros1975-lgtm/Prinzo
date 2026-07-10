@@ -143,3 +143,37 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ─── Product Image Container Styles ─────────────────────────────── */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.15;
+  overflow: hidden;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-card);
+}
+
+.product-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* Mobile responsiveness for product image */
+@media (max-width: 640px) {
+  .product-image-container {
+    aspect-ratio: 1 / 1.15;
+  }
+}
