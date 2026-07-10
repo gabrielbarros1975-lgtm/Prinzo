@@ -509,8 +509,8 @@ export default function AdminPage() {
     });
   }
 
-  // Cálculo da avaliação gratuita de 5 dias
-  const trialDurationMs = 5 * 24 * 60 * 60 * 1000;
+  // Cálculo da avaliação gratuita de 30 dias (1 mês)
+  const trialDurationMs = 30 * 24 * 60 * 60 * 1000;
   const timeDiff = store?.created_at ? (new Date() - new Date(store.created_at)) : 0;
   const isTrialActive = store?.created_at ? timeDiff < trialDurationMs : false;
   const remainingDays = store?.created_at ? Math.max(0, Math.ceil((trialDurationMs - timeDiff) / (1000 * 60 * 60 * 24))) : 0;
@@ -682,13 +682,13 @@ export default function AdminPage() {
       <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center">
         <div className="rounded-3xl p-8 shadow-2xl text-center" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
           <span className="text-5xl mb-3 inline-block">👑</span>
-          <h2 className="text-2xl font-black mb-1">Período de Teste Expirado</h2>
-          <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>Ative seu plano para colocar seu catálogo online de volta e continuar vendendo.</p>
+          <h2 className="text-2xl font-black mb-1">Período de Avaliação Encerrado</h2>
+          <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>Assine agora para continuar vendendo! Você já testou durante 1 mês.</p>
 
           <div className="p-4 rounded-2xl mb-6 text-left" style={{ backgroundColor: 'var(--bg-header)' }}>
-            <span className="text-xs uppercase font-extrabold tracking-wider" style={{ color: 'var(--accent)' }}>Assinatura Premium</span>
-            <div className="text-3xl font-black my-2">R$ 1,00 <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>no 1º mês</span></div>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Depois R$ 15,00/mês fixo. Libera acesso total e vendas no Mercado Pago e WhatsApp.</p>
+            <span className="text-xs uppercase font-extrabold tracking-wider" style={{ color: 'var(--accent)' }}>Plano Completo</span>
+            <div className="text-3xl font-black my-2">R$ 20,00 <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>/mês</span></div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Libera seu catálogo online com vendas ilimitadas via Pix e WhatsApp.</p>
           </div>
 
           <div className="space-y-4">

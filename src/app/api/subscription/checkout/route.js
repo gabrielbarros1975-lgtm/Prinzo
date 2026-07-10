@@ -2,7 +2,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-const PLAN_PRICE = 15.00; // R$ 15,00 mensalmente
+const PLAN_PRICE = 20.00; // R$ 20,00 mensalmente
 
 export async function POST(req) {
   try {
