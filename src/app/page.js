@@ -84,7 +84,7 @@ export default function SaaSLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden text-center flex flex-col items-center justify-center">
+      <section className="relative py-5 px-4 overflow-hidden text-center flex flex-col items-center justify-center">
         {/* Background Gradients */}
         <div className="absolute top-[-10%] left-[-20%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-15" style={{ background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)' }}></div>
         <div className="absolute bottom-[-10%] right-[-20%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-15" style={{ background: 'radial-gradient(circle, var(--logo-secondary) 0%, transparent 70%)' }}></div>

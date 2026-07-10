@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState, useCallback, use } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef, use } from 'react';
 import { fetchProducts } from '@/lib/fetchProducts';
 import { fetchCategories } from '@/lib/fetchCategories';
 import { generatePixPayload } from '@/lib/pixHelper';
@@ -27,146 +27,131 @@ function Lightbox({ images, startIndex, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
+      className="fixed inset-0 z-[100] flex items-center justify-center px-4 sm:px-8"
       style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(6px)' }}
       onClick={onClose}
     >
       <div
-        className="relative flex items-center justify-center"
-        style={{ maxWidth: '90vw', maxHeight: '90vh', width: '100%', height: '100%' }}
+        className="relative w-full max-w-4xl max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
-        <div style={{
-            maxWidth: '90vw',
-            maxHeight: '80vh',
-            width: '100%',
-            position: 'relative',
-            borderRadius: '1rem',
-            boxShadow: '0 30px 80px rgba(0,0,0,0.8)',
-          }}>
+        <div
+          className="relative mx-auto rounded-[1.25rem] overflow-hidden"
+          style={{ width: '100%', minHeight: '20rem', maxHeight: '80vh', background: 'rgba(15, 23, 42, 0.95)' }}
+        >
           <Image
             src={images[idx]}
             alt={`Imagem ${idx + 1}`}
             fill
-            sizes="(max-width: 768px) 90vw, 90vw"
-            style={{ objectFit: 'contain', borderRadius: '1rem' }}
+            sizes="(max-width: 768px) 100vw, 80vw"
+            style={{ objectFit: 'contain' }}
           />
-        </div>
 
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '-2.5rem',
-            right: 0,
-            background: 'rgba(255,255,255,0.12)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '2.2rem',
-            height: '2.2rem',
-            cursor: 'pointer',
-            color: '#fff',
-            fontSize: '1.1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          aria-label="Fechar"
-        >✕</button>
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'rgba(0,0,0,0.55)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '9999px',
+              width: '2.8rem',
+              height: '2.8rem',
+              cursor: 'pointer',
+              color: '#fff',
+              fontSize: '1.2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10,
+            }}
+            aria-label="Fechar"
+          >✕</button>
+
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(0,0,0,0.55)',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  width: '2.8rem',
+                  height: '2.8rem',
+                  cursor: 'pointer',
+                  color: '#fff',
+                  fontSize: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                }}
+                aria-label="Anterior"
+              >‹</button>
+              <button
+                onClick={next}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(0,0,0,0.55)',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  width: '2.8rem',
+                  height: '2.8rem',
+                  cursor: 'pointer',
+                  color: '#fff',
+                  fontSize: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                }}
+                aria-label="Próxima"
+              >›</button>
+            </>
+          )}
+        </div>
 
         {images.length > 1 && (
-          <>
-            <button
-              onClick={prev}
-              style={{
-                position: 'absolute',
-                left: '-3.5rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'rgba(255,255,255,0.12)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '2.8rem',
-                height: '2.8rem',
-                cursor: 'pointer',
-                color: '#fff',
-                fontSize: '1.3rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backdropFilter: 'blur(4px)',
-              }}
-              aria-label="Anterior"
-            >‹</button>
-            <button
-              onClick={next}
-              style={{
-                position: 'absolute',
-                right: '-3.5rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'rgba(255,255,255,0.12)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '2.8rem',
-                height: '2.8rem',
-                cursor: 'pointer',
-                color: '#fff',
-                fontSize: '1.3rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backdropFilter: 'blur(4px)',
-              }}
-              aria-label="Próxima"
-            >›</button>
-          </>
+          <div
+            className="mt-4 flex items-center justify-center gap-2 overflow-x-auto pb-2"
+            style={{ minWidth: 0 }}
+            onClick={e => e.stopPropagation()}
+          >
+            {images.map((src, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                className="shrink-0 rounded-2xl overflow-hidden"
+                style={{
+                  width: '3.5rem',
+                  height: '3.5rem',
+                  border: i === idx ? '2px solid var(--accent)' : '2px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(255,255,255,0.08)',
+                }}
+              >
+                <div className="relative w-full h-full">
+                  <Image src={src} alt={`Miniatura ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                </div>
+              </button>
+            ))}
+          </div>
         )}
       </div>
-
-      {images.length > 1 && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '1.5rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '0.5rem',
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          {images.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => setIdx(i)}
-              style={{
-                width: '3rem',
-                height: '3rem',
-                borderRadius: '0.5rem',
-                overflow: 'hidden',
-                border: i === idx ? '2px solid var(--accent)' : '2px solid rgba(255,255,255,0.2)',
-                cursor: 'pointer',
-                padding: 0,
-                background: 'none',
-                flexShrink: 0,
-              }}
-            >
-              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                <Image src={src} alt="" fill style={{ objectFit: 'cover' }} />
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
 
 /* ─── ProductCard ───────────────────────────────────────────────── */
-function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }) {
+function ProductCard({ product, onBuyNow, whatsappNumber }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [customName, setCustomName] = useState('');
 
   const allImages = [];
   if (product.img) allImages.push(product.img);
@@ -177,13 +162,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
   const hasImages = allImages.length > 0;
 
   const handleBuy = () => {
-    onBuyNow(product, customName);
-    setCustomName('');
-  };
-
-  const handleAdd = () => {
-    onAddToCart(product, customName);
-    setCustomName('');
+    onBuyNow(product);
   };
 
   return (
@@ -193,7 +172,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
       )}
 
       <div
-        className="rounded-3xl overflow-hidden border flex flex-col group transition-all duration-300 hover:-translate-y-1"
+        className="rounded-3xl overflow-hidden border flex flex-col group hover:-translate-y-1 transition-all duration-300"
         style={{
           backgroundColor: 'var(--bg-card)',
           borderColor: 'var(--border-color)',
@@ -201,7 +180,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
         }}
       >
         <div
-          className="relative w-full overflow-hidden"
+          className="relative overflow-hidden w-full"
           style={{ height: '13rem', cursor: hasImages ? 'zoom-in' : 'default' }}
           onClick={() => hasImages && setLightboxIndex(0)}
         >
@@ -224,7 +203,7 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
                   ))}
                 </div>
               )}
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyWindow: 'center', color: '#fff', fontSize: '1.5rem', opacity: 0 }} className="group-hover:opacity-100 group-hover:!bg-black/20 flex items-center justify-center dark:group-hover:!bg-white/30 dark:text-black">🔍</div>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.5rem', opacity: 0 }} className="group-hover:opacity-100 group-hover:!bg-black/20 flex items-center justify-center dark:group-hover:!bg-white/30 dark:text-black">🔍</div>
             </>
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
@@ -251,15 +230,8 @@ function ProductCard({ product, onAddToCart, onBuyNow, isAdded, whatsappNumber }
 
           <div className="flex gap-2">
             <button
-              onClick={handleAdd}
-              className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border-2 border-neutral-200 hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[var(--accent)]"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
-            >
-              {isAdded ? '✓ Adicionado' : '+ Carrinho'}
-            </button>
-            <button
               onClick={handleBuy}
-              className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]"
+              className="w-full py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] text-white"
             >
               Comprar ⚡
             </button>
@@ -287,6 +259,16 @@ export default function ShopPage({ params }) {
   const [cart, setCart] = useState([]);
   const [addedId, setAddedId] = useState(null);
   const [mpLoading, setMpLoading] = useState(false);
+  const [sortOption, setSortOption] = useState('az');
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortMenuRef = useRef(null);
+  const categoryScrollRef = useRef(null);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [cartModalStep, setCartModalStep] = useState('preview');
+  const [deliveryMethod, setDeliveryMethod] = useState('pickup');
+  const [orderNotes, setOrderNotes] = useState('');
 
   // Pix Modal state
   const [pixModalOpen, setPixModalOpen] = useState(false);
@@ -357,23 +339,73 @@ export default function ShopPage({ params }) {
     })),
   ];
 
-  const addToCart = (product, customName = '') => {
+  const addToCart = (product, customName = '', quantity = 1) => {
     const trimmedCustom = customName.trim();
     const cartItemId = `${product.id}_${trimmedCustom}`;
 
     setCart(prev => {
       const exists = prev.find(p => p.cartItemId === cartItemId);
       return exists
-        ? prev.map(p => p.cartItemId === cartItemId ? { ...p, qty: p.qty + 1 } : p)
-        : [...prev, { ...product, cartItemId, customName: trimmedCustom, qty: 1 }];
+        ? prev.map(p => p.cartItemId === cartItemId ? { ...p, qty: p.qty + quantity } : p)
+        : [...prev, { ...product, cartItemId, customName: trimmedCustom, qty: quantity }];
     });
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1500);
   };
 
+  const updateCartQuantity = (cartItemId, nextQty) => {
+    setCart(prev => {
+      if (nextQty < 1) {
+        return prev.filter(item => item.cartItemId !== cartItemId);
+      }
+      return prev.map(item => item.cartItemId === cartItemId ? { ...item, qty: nextQty } : item);
+    });
+  };
+
   const removeFromCart = (cartItemId) => setCart(prev => prev.filter(p => p.cartItemId !== cartItemId));
   const totalQty = cart.reduce((acc, p) => acc + p.qty, 0);
   const totalPrice = cart.reduce((acc, p) => acc + p.price * p.qty, 0);
+
+  const sortedProducts = useMemo(() => {
+    if (!products?.length) return [];
+
+    const copy = [...products];
+    const normalizeText = (value) => String(value || '').toLowerCase().trim();
+    const createdAt = (item) => item.created_at ? new Date(item.created_at).getTime() : 0;
+
+    switch (sortOption) {
+      case 'za':
+        return copy.sort((a, b) => normalizeText(b.name).localeCompare(normalizeText(a.name)));
+      case 'price_low':
+        return copy.sort((a, b) => (a.price || 0) - (b.price || 0));
+      case 'price_high':
+        return copy.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case 'newest':
+        return copy.sort((a, b) => createdAt(b) - createdAt(a) || (b.id || 0) - (a.id || 0));
+      default:
+        return copy.sort((a, b) => normalizeText(a.name).localeCompare(normalizeText(b.name)));
+    }
+  }, [products, sortOption]);
+
+  const sortOptions = [
+    { value: 'az', label: 'A - Z' },
+    { value: 'za', label: 'Z - A' },
+    { value: 'price_low', label: 'Menor Preço' },
+    { value: 'price_high', label: 'Maior Preço' },
+    { value: 'newest', label: 'Novidades' },
+  ];
+
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    const handleOutsideClick = (event) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(event.target)) {
+        setSortMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('mousedown', handleOutsideClick);
+    return () => window.removeEventListener('mousedown', handleOutsideClick);
+  }, [sortMenuOpen]);
 
   const getOrderSummaryText = () => {
     const lines = cart.map(p => {
@@ -383,24 +415,10 @@ export default function ShopPage({ params }) {
     return `Olá! Gostaria de encomendar os seguintes itens de *${store.name}*:\n\n${lines.join('\n')}\n\n*Total: R$ ${totalPrice.toFixed(2).replace('.', ',')}*`;
   };
 
-  const buyNow = (product, customName = '') => {
-    const trimmedCustom = customName.trim();
-    const cartItemId = `${product.id}_${trimmedCustom}`;
-
-    setCart(prev => {
-      const exists = prev.find(p => p.cartItemId === cartItemId);
-      if (exists) return prev;
-      return [...prev, { ...product, cartItemId, customName: trimmedCustom, qty: 1 }];
-    });
-
-    setTimeout(() => {
-      const cartElement = document.getElementById('cart-floating');
-      if (cartElement) {
-        cartElement.scrollIntoView({ behavior: 'smooth' });
-        cartElement.classList.add('animate-bounce');
-        setTimeout(() => cartElement.classList.remove('animate-bounce'), 1000);
-      }
-    }, 150);
+  const buyNow = (product) => {
+    setSelectedProduct(product);
+    setCartModalStep('preview');
+    setCartModalOpen(true);
   };
 
   const handleCheckoutWA = () => {
@@ -516,25 +534,113 @@ export default function ShopPage({ params }) {
         </div>
       </header>
 
-      {/* Filtros */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10 overflow-x-auto px-2">
-        {filterButtons.map(cat => (
+      {/* Filtros de categoria */}
+      <div className="relative mb-4 px-2">
+        <div
+          ref={categoryScrollRef}
+          className="flex gap-3 overflow-x-auto overflow-y-hidden py-2 pr-16 pl-4 snap-x snap-mandatory touch-pan-x scrollbar-none min-w-0"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          {filterButtons.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className="shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-all whitespace-nowrap snap-start"
+              style={
+                activeCategory === cat.id
+                  ? { backgroundColor: 'var(--accent)', color: 'var(--cart-text)', borderColor: 'var(--accent)' }
+                  : { backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border-color)' }
+              }
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex">
           <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className="px-4 py-2 rounded-full text-sm font-semibold transition-all border whitespace-nowrap"
-            style={
-              activeCategory === cat.id
-                ? { backgroundColor: 'var(--accent)', color: 'var(--cart-text)', borderColor: 'var(--accent)', boxShadow: '0 4px 15px rgba(0,229,255,0.2)' }
-                : { backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border-color)' }
-            }
+            type="button"
+            onClick={() => categoryScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
+            className="rounded-full border p-2 bg-[var(--bg-card)] text-[var(--text-primary)]"
+            style={{ borderColor: 'var(--border-color)' }}
+            aria-label="Ver próximas categorias"
           >
-            {cat.label}
+            ›
           </button>
-        ))}
+        </div>
       </div>
 
-      {/* Grid */}
+      {/* Botão de ordenação */}
+      <div className="flex items-center justify-between mb-6 px-2 gap-3">
+        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Produto</span>
+
+        <div className="flex items-center gap-3">
+          <div className="relative" ref={sortMenuRef}>
+            <button
+              type="button"
+              onClick={() => setSortMenuOpen(open => !open)}
+              className="rounded-full border p-2 flex items-center justify-center"
+              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              aria-label="Abrir opções de ordenação"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path d="M3 4.5h18M7 12h10M10 19.5h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+
+            {sortMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 rounded-3xl overflow-hidden shadow-2xl"
+                style={{
+                  backgroundColor: 'rgba(10, 18, 35, 0.96)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  minWidth: '12rem',
+                  zIndex: 20,
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.24)',
+                }}
+              >
+                {sortOptions.map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setSortOption(option.value);
+                      setSortMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm transition-colors hover:bg-[rgba(255,255,255,0.08)]"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#f8fbff',
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setCartModalStep('summary');
+              setCartModalOpen(true);
+            }}
+            className="relative rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] p-2 text-[var(--text-primary)]"
+            aria-label="Abrir carrinho"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6m0 0h12m-12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+            </svg>
+            {totalQty > 0 && (
+              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--accent)] px-1.5 text-[10px] font-black text-[var(--cart-text)]">
+                {totalQty}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Produtos */}
       {isLoading ? (
         <div className="text-center py-20 text-lg font-semibold" style={{ color: 'var(--text-secondary)' }}>
           Carregando produtos...
@@ -548,8 +654,8 @@ export default function ShopPage({ params }) {
           Nenhum produto cadastrado nesta categoria.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-28">
-          {products.map(product => (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-28">
+          {sortedProducts.map(product => (
             <ProductCard
               key={product.id}
               product={product}
@@ -562,99 +668,255 @@ export default function ShopPage({ params }) {
         </div>
       )}
 
-      {cart.length > 0 && (
-        <div id="cart-floating" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4 transition-all duration-300">
-          <div
-            className="rounded-3xl shadow-2xl p-5 border"
-            style={{ backgroundColor: 'var(--cart-bg)', color: 'var(--cart-text)', borderColor: 'var(--border-color)' }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-lg">🛒 Carrinho</span>
-                <span className="bg-[var(--accent)] text-[var(--cart-text)] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(0,229,255,0.3)]">
-                  {totalQty}
-                </span>
+      {cartModalOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}>
+          <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl border bg-[var(--bg-card)] shadow-2xl" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+            <button
+              onClick={() => {
+                setCartModalOpen(false);
+                setSelectedProduct(null);
+                setCartModalStep('preview');
+              }}
+              className="absolute right-4 top-4 z-10 text-xl font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              aria-label="Fechar modal"
+            >
+              ✕
+            </button>
+
+            <div className="max-h-[88vh] overflow-hidden">
+              <div className="overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(88vh - 3rem)' }}>
+                {cartModalStep === 'preview' && selectedProduct && (
+                  <div className="space-y-5">
+                    <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Confirme seu pedido</div>
+                    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+                      <div className="relative h-56 w-full overflow-hidden rounded-3xl bg-neutral-100">
+                        <Image
+                          src={selectedProduct.img || selectedProduct.images?.[0] || '/img/placeholder.png'}
+                          alt={selectedProduct.name}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className="flex flex-col justify-between gap-4">
+                        <div>
+                          <h2 className="text-2xl font-black">{selectedProduct.name}</h2>
+                          <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                            {selectedProduct.description}
+                          </p>
+                        </div>
+                        <div className="rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
+                          <div className="text-sm text-[var(--text-secondary)]">Preço</div>
+                          <div className="mt-2 text-2xl font-black">R$ {(selectedProduct.price || 0).toFixed(2).replace('.', ',')}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <button
+                        onClick={() => {
+                          addToCart(selectedProduct);
+                          setCartModalStep('summary');
+                        }}
+                        className="flex-1 rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                      >
+                        Ir para o carrinho
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCartModalOpen(false);
+                          setSelectedProduct(null);
+                        }}
+                        className="flex-1 rounded-2xl border border-[var(--border-color)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
+                      >
+                        Continuar comprando
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {cartModalStep === 'summary' && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Carrinho</div>
+                        <div className="mt-2 text-lg font-black">{cart.length} item{cart.length === 1 ? '' : 's'}</div>
+                      </div>
+                      <div className="text-right text-sm text-[var(--text-secondary)]">
+                        Subtotal
+                        <div className="text-xl font-black text-[var(--accent)]">R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
+                      <div className="space-y-4 max-h-[35vh] overflow-y-auto pr-2">
+                        {cart.length > 0 ? cart.map(item => (
+                          <div key={item.cartItemId} className="flex flex-col gap-3 rounded-3xl border-b border-[var(--border-color)] pb-4 last:border-b-0 last:pb-0">
+                            <div className="flex items-center gap-4">
+                              <div className="relative h-16 w-16 overflow-hidden rounded-3xl bg-neutral-100">
+                                <Image
+                                  src={item.img || item.images?.[0] || '/img/placeholder.png'}
+                                  alt={item.name}
+                                  fill
+                                  style={{ objectFit: 'cover' }}
+                                />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="font-semibold">{item.name}</div>
+                                <div className="text-sm text-[var(--text-secondary)]">R$ {(item.price || 0).toFixed(2).replace('.', ',')} cada</div>
+                              </div>
+                              <div className="text-sm font-bold">R$ {(item.price * item.qty).toFixed(2).replace('.', ',')}</div>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] px-2 py-1">
+                                <button
+                                  onClick={() => updateCartQuantity(item.cartItemId, item.qty - 1)}
+                                  className="h-8 w-8 rounded-full bg-[var(--bg-card)] text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
+                                >
+                                  −
+                                </button>
+                                <span className="w-10 text-center text-sm font-semibold">{item.qty}</span>
+                                <button
+                                  onClick={() => updateCartQuantity(item.cartItemId, item.qty + 1)}
+                                  className="h-8 w-8 rounded-full bg-[var(--bg-card)] text-sm font-bold transition hover:bg-[rgba(0,0,0,0.04)]"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => removeFromCart(item.cartItemId)}
+                                className="text-sm font-semibold text-rose-500"
+                              >
+                                Remover
+                              </button>
+                            </div>
+                          </div>
+                        )) : (
+                          <div className="text-sm text-[var(--text-secondary)]">Seu carrinho está vazio. Adicione um produto para continuar.</div>
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(null);
+                        setCartModalOpen(false);
+                        setCartModalStep('preview');
+                      }}
+                      className="w-full rounded-2xl border border-[var(--border-color)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--bg-card)]"
+                    >
+                      Adicionar mais itens
+                    </button>
+
+                    <div className="space-y-4 rounded-3xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
+                      <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Entrega</div>
+                      <div className="flex flex-col gap-3">
+                        <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 cursor-pointer" style={{ borderColor: deliveryMethod === 'pickup' ? 'var(--accent)' : 'var(--border-color)' }}>
+                          <input
+                            type="radio"
+                            name="delivery"
+                            value="pickup"
+                            checked={deliveryMethod === 'pickup'}
+                            onChange={() => setDeliveryMethod('pickup')}
+                            className="h-4 w-4 accent-[var(--accent)]"
+                          />
+                          <span className="text-sm font-medium">Retirar na loja</span>
+                        </label>
+                        <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 cursor-pointer" style={{ borderColor: deliveryMethod === 'delivery' ? 'var(--accent)' : 'var(--border-color)' }}>
+                          <input
+                            type="radio"
+                            name="delivery"
+                            value="delivery"
+                            checked={deliveryMethod === 'delivery'}
+                            onChange={() => setDeliveryMethod('delivery')}
+                            className="h-4 w-4 accent-[var(--accent)]"
+                          />
+                          <span className="text-sm font-medium">Entregar no meu endereço</span>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-semibold">Observações (opcional)</label>
+                        <textarea
+                          value={orderNotes}
+                          onChange={(e) => setOrderNotes(e.target.value)}
+                          rows={4}
+                          className="mt-2 w-full resize-none rounded-3xl border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]"
+                          placeholder="Digite algo sobre entrega, cor ou outro pedido especial"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setCartModalStep('payment')}
+                      className="w-full rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                    >
+                      Avançar para pagamento
+                    </button>
+                  </div>
+                )}
+
+                {cartModalStep === 'payment' && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">Pagamento</div>
+                        <div className="mt-2 text-lg font-black">Total: R$ {totalPrice.toFixed(2).replace('.', ',')}</div>
+                      </div>
+                      <button
+                        onClick={() => setCartModalStep('summary')}
+                        className="rounded-2xl border border-[var(--border-color)] px-4 py-2 text-sm font-semibold"
+                      >
+                        Voltar
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {(store.payment_methods === 'whatsapp' || store.payment_methods === 'both' || store.payment_methods === 'all') && (
+                        <button
+                          onClick={() => {
+                            handleCheckoutWA();
+                            setCartModalOpen(false);
+                          }}
+                          className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                        >
+                          Pagar via WhatsApp
+                        </button>
+                      )}
+
+                      {(store.payment_methods === 'pix_direct' || store.payment_methods === 'both' || store.payment_methods === 'all') && store.pix_key && (
+                        <button
+                          onClick={() => {
+                            handleCheckoutPix();
+                            setCartModalOpen(false);
+                          }}
+                          className="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95"
+                        >
+                          Pagar com Pix Direto
+                        </button>
+                      )}
+
+                      {(store.payment_methods === 'mercadopago' || store.payment_methods === 'all') && store.mp_access_token && (
+                        <button
+                          onClick={() => {
+                            handleCheckoutMP();
+                            setCartModalOpen(false);
+                          }}
+                          className="w-full rounded-2xl bg-gradient-to-r from-cyan-600 to-sky-500 px-5 py-3 text-sm font-bold text-white transition hover:opacity-95 disabled:opacity-60"
+                          disabled={mpLoading}
+                        >
+                          {mpLoading ? 'Processando pagamento...' : 'Pagar com Mercado Pago'}
+                        </button>
+                      )}
+                    </div>
+
+                    {(store.payment_methods !== 'whatsapp' && store.payment_methods !== 'pix_direct' && store.payment_methods !== 'mercadopago' && store.payment_methods !== 'both' && store.payment_methods !== 'all') && (
+                      <div className="rounded-3xl border border-rose-500 bg-rose-50 p-4 text-sm text-rose-700">
+                        Nenhuma forma de pagamento disponível no momento.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              <span className="font-black text-xl text-[var(--accent)]">
-                R$ {totalPrice.toFixed(2).replace('.', ',')}
-              </span>
-            </div>
-
-            <div className="space-y-2 mb-4 max-h-28 overflow-y-auto">
-              {cart.map(item => (
-                <div key={item.cartItemId} className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
-                  <span className="truncate flex-1">
-                    {item.name} × {item.qty}
-                  </span>
-                  <button
-                    onClick={() => removeFromCart(item.cartItemId)}
-                    className="ml-3 hover:text-rose-500 transition-colors"
-                  >✕</button>
-                </div>
-              ))}
-            </div>
-
-            {/* Ações de Checkout baseadas na configuração da loja */}
-            <div className="flex flex-col gap-3 mt-4">
-              {/* Botão WhatsApp */}
-              {(store.payment_methods === 'whatsapp' || store.payment_methods === 'both' || store.payment_methods === 'all') && (
-                <button
-                  onClick={handleCheckoutWA}
-                  className="w-full font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-95 active:scale-[0.98] cursor-pointer"
-                  style={{
-                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                    color: '#fff',
-                    boxShadow: '0 5px 20px rgba(34,197,94,0.3)',
-                  }}
-                >
-                  Pedir via WhatsApp
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
-                  </svg>
-                </button>
-              )}
-
-              {/* Botão Pix Direto */}
-              {(store.payment_methods === 'pix_direct' || store.payment_methods === 'both' || store.payment_methods === 'all') && store.pix_key && (
-                <button
-                  onClick={handleCheckoutPix}
-                  className="w-full font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-95 active:scale-[0.98] cursor-pointer"
-                  style={{
-                    background: 'linear-gradient(135deg, #00B0FF 0%, #0081CB 100%)',
-                    color: '#fff',
-                    boxShadow: '0 5px 20px rgba(0,176,255,0.3)',
-                  }}
-                >
-                  Pagar com Pix Direto
-                  <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>Código/QR</span>
-                </button>
-              )}
-
-              {/* Botão Mercado Pago */}
-              {(store.payment_methods === 'mercadopago' || store.payment_methods === 'all') && store.mp_access_token && (
-                <button
-                  onClick={handleCheckoutMP}
-                  disabled={mpLoading}
-                  className="w-full font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
-                  style={{
-                    background: 'linear-gradient(135deg, #009ee3 0%, #00bcff 100%)',
-                    color: '#fff',
-                    boxShadow: '0 5px 20px rgba(0,158,227,0.35)',
-                  }}
-                >
-                  {mpLoading ? (
-                    <>
-                      <svg style={{ animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                      </svg>
-                      Processando...
-                    </>
-                  ) : (
-                    <>Pagar com Mercado Pago 💳</>
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
