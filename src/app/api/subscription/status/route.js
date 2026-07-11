@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseServer';
+import { supabaseAdmin } from '@/lib/supabaseServer';
 import { NextResponse } from 'next/server';
 
 /**
@@ -17,7 +17,7 @@ export async function GET(req) {
       );
     }
 
-    const { data: store, error } = await supabase
+    const { data: store, error } = await supabaseAdmin
       .from('stores')
       .select('id, slug, subscription_status, trial_start_date, trial_end_date, subscription_active, monthly_price')
       .eq('slug', slug)
@@ -48,7 +48,7 @@ export async function GET(req) {
 
     // Se o trial expirou, atualizar o status
     if (store.subscription_status === 'trial' && trialEndDate && trialEndDate <= now) {
-      await supabase
+      await supabaseAdmin
         .from('stores')
         .update({ subscription_status: 'expired' })
         .eq('id', store.id);

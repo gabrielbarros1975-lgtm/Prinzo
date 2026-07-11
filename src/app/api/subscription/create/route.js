@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseServer';
+import { supabaseAdmin } from '@/lib/supabaseServer';
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, PreApprovalPlan, PreApproval } from 'mercadopago';
 
@@ -18,7 +18,7 @@ export async function POST(req) {
     }
 
     // Buscar a loja
-    const { data: store, error: storeError } = await supabase
+    const { data: store, error: storeError } = await supabaseAdmin
       .from('stores')
       .select('id, mp_access_token, name, monthly_price')
       .eq('slug', storeSlug)

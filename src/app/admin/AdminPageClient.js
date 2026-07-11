@@ -140,15 +140,16 @@ export default function AdminPage() {
   }, [subscriptionStatus, refreshStore]);
 
   useEffect(() => {
-    if (!store || !store.subscription_active) {
+    if (!store?.id || !store.subscription_active) {
       return;
     }
+
     const timeoutId = setTimeout(() => {
       fetchList();
       fetchCategories();
     }, 0);
     return () => clearTimeout(timeoutId);
-  }, [store, fetchCategories, fetchList]);
+  }, [store?.id, store?.subscription_active, fetchCategories, fetchList]);
 
   async function handleSubscriptionCheckout() {
     if (!store) return;
@@ -190,6 +191,8 @@ export default function AdminPage() {
             return;
           }
           setStore(storeData);
+          setProducts([]);
+          setCategories([]);
           localStorage.setItem('saas_current_store', JSON.stringify(storeData));
           setSettingsForm({
             name: storeData.name || '',
@@ -250,6 +253,8 @@ export default function AdminPage() {
       }
 
       setStore(storeData);
+      setProducts([]);
+      setCategories([]);
       localStorage.setItem('saas_current_store', JSON.stringify(storeData));
       setSettingsForm({
         name: storeData.name || '',
@@ -297,6 +302,8 @@ export default function AdminPage() {
       }
 
       setStore(storeData);
+      setProducts([]);
+      setCategories([]);
       localStorage.setItem('saas_current_store', JSON.stringify(storeData));
       setSettingsForm({
         name: storeData.name || '',
@@ -336,6 +343,8 @@ export default function AdminPage() {
     localStorage.removeItem('saas_current_store');
     await supabase.auth.signOut();
     setStore(null);
+    setProducts([]);
+    setCategories([]);
     setActiveTab('products');
   }
 

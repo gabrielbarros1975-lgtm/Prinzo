@@ -4,12 +4,11 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const storeId = searchParams.get('store_id');
 
-  const query = supabase.from('categories').select('*');
-  if (storeId) {
-    query.eq('store_id', storeId);
-  } else {
-    query.is('store_id', null);
+  if (!storeId) {
+    return new Response(JSON.stringify({ error: 'store_id é obrigatório' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
+
+  const query = supabase.from('categories').select('*').eq('store_id', storeId);
 
   const { data, error } = await query.order('id', { ascending: true });
   if (error) {

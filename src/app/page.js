@@ -155,163 +155,43 @@ export default function SaaSLandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* CTA / Benefits Section */}
       <section className="py-20 px-4 text-center relative overflow-hidden">
-        {/* Background gradient effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
-        
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="mb-8 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black text-sm uppercase tracking-widest shadow-lg animate-pulse">
-            🎉 OFERTA ESPECIAL: 1 MÊS 100% GRÁTIS!
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--accent)]/5 to-transparent pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="mb-8 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] text-white font-black text-sm uppercase tracking-widest shadow-lg">
+            Comece a vender agora
           </div>
-          
+
           <h2 className="text-5xl md:text-6xl font-black mb-6" style={{ color: 'var(--text-primary)' }}>
-            Comece sem<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-600">Pagar Nada</span>
+            Transforme seu catálogo em<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]">uma loja de vendas</span>
           </h2>
-          
-          <p className="text-xl mb-16 max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            Teste totalmente grátis durante 30 dias. Sem cartão de crédito. Sem compromisso.
-            <br/>
-            <strong style={{ color: 'var(--accent)' }}>Depois apenas R$ 20,00/mês</strong>
+
+          <p className="text-xl mb-10 max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+            Configure seu link, seus produtos e o Pix em poucos minutos. Tudo preparado para você receber pedidos e fechar vendas direto pelo WhatsApp.
           </p>
 
-          {/* Main Pricing Card */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <div className="p-10 rounded-3xl border-2 shadow-2xl relative overflow-hidden" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--accent)' }}>
-              {/* Animated gradient background */}
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full opacity-10 blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full opacity-10 blur-3xl" />
-              
-              <div className="relative z-10">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  {/* Left side - Free Trial */}
-                  <div className="text-left">
-                    <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-green-600" style={{ color: '#ffffff' }}>
-                      <span className="font-black text-sm">✨ GRÁTIS POR 30 DIAS</span>
-                    </div>
-                    <h3 className="text-5xl md:text-6xl font-black mb-3 leading-tight">
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500">
-                        R$ 0,00
-                      </span>
-                    </h3>
-                    <p className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      Período Completamente Grátis
-                    </p>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      Acesso total a todos os recursos por 1 mês inteiro. Sem cartão de crédito solicitado.
-                    </p>
-                  </div>
-
-                  {/* Right side - Then Price */}
-                  <div className="text-left md:border-l md:pl-8" style={{ borderColor: 'var(--border-color)' }}>
-                    <div className="inline-block mb-4 px-4 py-2 rounded-full bg-[var(--bg-header)]">
-                      <span className="font-black text-sm" style={{ color: 'var(--accent)' }}>DEPOIS DO TESTE</span>
-                    </div>
-                    <h3 className="text-4xl md:text-5xl font-black mb-3">
-                      R$ 20,00
-                      <span className="text-lg md:text-xl font-bold block" style={{ color: 'var(--text-secondary)' }}>por mês</span>
-                    </h3>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      Seu catálogo continua online. Cancele quando quiser, sem multa.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Features Grid */}
-                <div className="mt-10 pt-10 border-t" style={{ borderColor: 'var(--border-color)' }}>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
-                    <div>
-                      <span className="text-2xl mb-2 block">🎁</span>
-                      <p className="font-bold">30 Dias Grátis</p>
-                    </div>
-                    <div>
-                      <span className="text-2xl mb-2 block">📦</span>
-                      <p className="font-bold">Produtos Ilimitados</p>
-                    </div>
-                    <div>
-                      <span className="text-2xl mb-2 block">🔗</span>
-                      <p className="font-bold">Link Próprio</p>
-                    </div>
-                    <div>
-                      <span className="text-2xl mb-2 block">⚡</span>
-                      <p className="font-bold">Pix Direto</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  onClick={() => window.location.href = '/admin'}
-                  className="w-full mt-10 py-5 rounded-2xl font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-2xl text-white uppercase tracking-wide"
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #0891b2 100%)',
-                    boxShadow: '0 20px 50px rgba(16, 185, 129, 0.4)',
-                  }}
-                >
-                  🚀 Ativar Meus 30 Dias Grátis Agora
-                </button>
-                
-                <p className="text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
-                  ✓ Sem cartão de crédito
-                  <span className="mx-2">•</span>
-                  ✓ Cancele a qualquer momento
-                  <span className="mx-2">•</span>
-                  ✓ Sem compromisso
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Proof / Benefits */}
-          <div className="max-w-2xl mx-auto bg-[var(--bg-header)] rounded-3xl p-8 border border-[var(--border-color)]">
-            <h3 className="font-black text-xl mb-6" style={{ color: 'var(--text-primary)' }}>
-              Seu 1º mês inclui tudo isso:
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-sm">
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">🎁</span>
-                <div>
-                  <p className="font-bold">1 Mês Sem Pagar</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Acesso total, sem restrições</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">📦</span>
-                <div>
-                  <p className="font-bold">Catálogo Ilimitado</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Adicione quantos produtos quiser</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">🔗</span>
-                <div>
-                  <p className="font-bold">Link Próprio Exclusivo</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Compartilhe em qualquer rede social</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">⚡</span>
-                <div>
-                  <p className="font-bold">Pix com QR Code</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Gera automaticamente com valor da compra</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">💬</span>
-                <div>
-                  <p className="font-bold">WhatsApp Integrado</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Receba pedidos automaticamente</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-2xl shrink-0">📊</span>
-                <div>
-                  <p className="font-bold">Painel Completo</p>
-                  <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-1">Gerencie produtos, categorias e pedidos</p>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Link
+              href="/admin"
+              className="px-8 py-4 rounded-full font-extrabold shadow-xl hover:scale-105 active:scale-98 transition-all text-center"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)',
+                color: '#ffffff',
+                boxShadow: '0 10px 30px rgba(0,229,255,0.3)',
+              }}
+            >
+              Acessar o Painel
+            </Link>
+            <Link
+              href="/ljvision"
+              className="px-8 py-4 rounded-full font-bold border text-center transition-all"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              Ver Exemplo de Catálogo
+            </Link>
           </div>
         </div>
       </section>
