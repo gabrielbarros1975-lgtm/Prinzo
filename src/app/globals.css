@@ -1,150 +1,74 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* Light theme (default) */
 :root {
   color-scheme: light;
-  --bg-page: #dbe5fb;
-  --bg-card: #f7fbff;
-  --bg-header: #eef5ff;
-  --border-color: #9bb0d4;
-  --text-primary: #031026;
-  --text-secondary: #1f3a5f;
-  --text-muted: #364b71;
-  --shadow-card: 0 10px 26px rgba(15, 23, 42, 0.14);
-  --shadow-card-hover: 0 14px 40px rgba(15, 23, 42, 0.2);
-  --cart-bg: #16223f;
-  --cart-text: #f8fafc;
-  --accent: #0c4a9f;
-  --accent-hover: #093e82;
-  --logo-primary: #0c4a9f;
-  --logo-secondary: #1092e0;
-  --logo-text: #031026;
-  --toggle-track: #9fb5d4;
-  --toggle-thumb: #ffffff;
-}
+  --navy: #1A222D;
+  --navy-2: #111826;
+  --bg: #F8F8F6;
+  --card: #F3F3F0;
+  --border: #E4E0D8;
+  --text-secondary: #5B6470;
+  --text-muted: #808892;
+  --accent: #234E43;
+  --accent-bg: #ECF2EE;
+  --gold: #9C7A43;
 
-/* The default theme is light. Dark mode is controlled via html.dark in the page script.
-   This avoids conflicting with a saved user preference when the OS theme changes. */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --bg-page: #061122;
-    --bg-card: #111826;
-    --bg-header: #071022;
-    --border-color: #1d2a45;
-    --text-primary: #f8fbff;
-    --text-secondary: #d8e7ff;
-    --text-muted: #9fb8d3;
-    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.55);
-    --shadow-card-hover: 0 10px 40px rgba(0, 145, 255, 0.22);
-    --cart-bg: #17213a;
-    --cart-text: #ffffff;
-    --accent: #0ea5ff;
-    --accent-hover: #00c7ff;
-    --logo-primary: #0ea5ff;
-    --logo-secondary: #22d3ee;
-    --logo-text: #f8fbff;
-    --toggle-track: #1f2e4d;
-    --toggle-thumb: #e2f3ff;
-  }
-}
-
-html.light {
-  color-scheme: light;
-  --bg-page: #dbe5fb;
-  --bg-card: #f7fbff;
-  --bg-header: #eef5ff;
-  --border-color: #9bb0d4;
-  --text-primary: #031026;
-  --text-secondary: #1f3a5f;
-  --text-muted: #364b71;
-  --shadow-card: 0 10px 26px rgba(15, 23, 42, 0.14);
-  --shadow-card-hover: 0 14px 40px rgba(15, 23, 42, 0.2);
-  --cart-bg: #16223f;
-  --cart-text: #f8fafc;
-  --accent: #0c4a9f;
-  --accent-hover: #093e82;
-  --logo-primary: #0c4a9f;
-  --logo-secondary: #1092e0;
-  --logo-text: #031026;
-  --toggle-track: #9fb5d4;
-  --toggle-thumb: #ffffff;
-}
-
-html.dark {
-  --bg-page: #061122;
-  --bg-card: #111826;
-  --bg-header: #071022;
-  --border-color: #1d2a45;
-  --text-primary: #f8fbff;
-  --text-secondary: #d8e7ff;
-  --text-muted: #9fb8d3;
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.55);
-  --shadow-card-hover: 0 10px 40px rgba(0, 145, 255, 0.22);
-  --cart-bg: #17213a;
+  --bg-page: var(--bg);
+  --bg-card: #FFFFFF;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --border-color: var(--border);
+  --text-primary: var(--navy);
+  --shadow-card: 0 18px 44px rgba(16, 24, 40, 0.08);
+  --shadow-card-hover: 0 24px 60px rgba(16, 24, 40, 0.12);
+  --cart-bg: var(--navy);
   --cart-text: #ffffff;
-  --accent: #0ea5ff;
-  --accent-hover: #00c7ff;
-  --logo-primary: #0ea5ff;
-  --logo-secondary: #22d3ee;
-  --logo-text: #f8fbff;
-  --toggle-track: #1f2e4d;
-  --toggle-thumb: #e2f3ff;
-  color-scheme: dark;
+  --accent-hover: var(--navy-2);
+  --logo-primary: var(--navy);
+  --logo-secondary: var(--navy-2);
+  --logo-text: var(--navy);
+  --toggle-track: #d9e3f1;
+  --toggle-thumb: #ffffff;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
   font-family: var(--font-sans), sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for both themes */
-::-webkit-scrollbar {
-  width: 8px;
-}
-html:not(.dark) ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-}
-html.dark ::-webkit-scrollbar-track {
-  background: #0a0f1a;
-}
-html.dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #00e5ff;
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Esconder scrollbar mantendo funcionalidade de scroll */
+* {
+  box-sizing: border-box;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* ─── Product Image Container Styles ─────────────────────────────── */
 .product-image-container {
   position: relative;
   width: 100%;
@@ -171,7 +95,6 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   display: block;
 }
 
-/* Mobile responsiveness for product image */
 @media (max-width: 640px) {
   .product-image-container {
     aspect-ratio: 1 / 1.15;

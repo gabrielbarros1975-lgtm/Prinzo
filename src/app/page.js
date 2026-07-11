@@ -1,218 +1,265 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const SUPPORT_WA = '5598984809302';
 const SUPPORT_WA_LINK = `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent('Olá! Tenho interesse no Prinzo e gostaria de mais informações.')}`;
+
+const highlights = [
+  { value: 'Painel admin', label: 'cadastro e gestão' },
+  { value: 'Catálogo público', label: 'visual da loja' },
+  { value: 'Checkout', label: 'pedido e Pix' },
+];
+
+const features = [
+  {
+    title: 'Administração central',
+    description: 'Cadastre produtos, categorias, preços e conteúdo em um painel organizado para operar o negócio de forma clara.',
+  },
+  {
+    title: 'Loja pública',
+    description: 'A vitrine do catálogo fica pronta para apresentar itens de forma profissional e com navegação simples para o cliente.',
+  },
+  {
+    title: 'Fluxo de pedido',
+    description: 'O cliente visualiza o catálogo, escolhe o item e segue para o pagamento ou para o atendimento com menos atrito.',
+  },
+];
+
+const integrationItems = ['Pix', 'Mercado Pago', 'WhatsApp'];
 
 export default function SaaSLandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <main className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-page)' }}>
-      {/* Header */}
       <header
-        className="py-4 px-4 sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-300"
+        className="sticky top-0 z-50 border-b"
         style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}
       >
-        <div className="max-w-6xl mx-auto flex justify-between items-center gap-4">
-          <Link href="/" className="text-2xl font-black tracking-tighter group flex items-center">
-            <span className="bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(0,229,255,0.2)]">
-              Prinzo
-            </span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <Link href="/" className="text-2xl font-semibold tracking-tight">
+            <span className="font-display text-[var(--logo-primary)]">Prinzo</span>
           </Link>
 
-          <nav className="hidden sm:flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="text-sm font-semibold transition-colors hover:text-[#00E5FF]" style={{ color: 'var(--text-secondary)' }}
-            >
+          <nav className="hidden items-center gap-6 md:flex">
+            <Link href="#recursos" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
               Recursos
             </Link>
-            <Link
-              href="/admin"
-              className="text-sm font-bold px-4 py-2 rounded-full transition-all border hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.1)] border-none" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }}
-            >
-              Painel Administrativo 🔑
+            <Link href="#como-funciona" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
+              Como funciona
             </Link>
-            <ThemeToggle />
+            <Link href="/admin" className="rounded-full border px-4 py-2 text-sm font-bold transition-all" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)', borderColor: 'var(--text-primary)' }}>
+              Entrar no painel
+            </Link>
           </nav>
 
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(prev => !prev)}
-            className="sm:hidden inline-flex items-center justify-center rounded-xl border bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm p-3 border-[var(--border-color)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-[var(--border-color)]"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="inline-flex items-center justify-center rounded-xl border p-3 md:hidden"
+            style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
           >
             <span className="sr-only">{mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}</span>
             <div className="space-y-1.5">
-              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
-              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
-              <span className="block h-0.5 w-6 rounded-full bg-[var(--text-primary)]" />
+              <span className="block h-0.5 w-6 rounded-full" style={{ backgroundColor: 'var(--text-primary)' }} />
+              <span className="block h-0.5 w-6 rounded-full" style={{ backgroundColor: 'var(--text-primary)' }} />
+              <span className="block h-0.5 w-6 rounded-full" style={{ backgroundColor: 'var(--text-primary)' }} />
             </div>
           </button>
         </div>
 
         {mobileMenuOpen && (
-          <div className="sm:hidden mt-4 rounded-3xl border p-4 shadow-sm" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/admin"
-                className="block rounded-2xl px-4 py-3 text-sm font-semibold transition-colors text-[var(--text-primary)] hover:bg-[var(--bg-header)] dark:text-[var(--text-primary)] dark:hover:bg-[var(--bg-header)]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Recursos
-              </Link>
-              <Link
-                href="/admin"
-                className="block rounded-2xl px-4 py-3 text-sm font-bold transition-all bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-header)] dark:bg-[var(--bg-card)] dark:text-[var(--text-primary)] dark:border-[var(--border-color)] dark:hover:bg-[var(--bg-header)]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Painel Administrativo 🔑
-              </Link>
-              <div className="rounded-2xl px-4 py-3 bg-[var(--bg-card)]">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-[var(--text-secondary)]">Tema</span>
-                  <ThemeToggle />
-                </div>
+          <div className="mx-auto max-w-6xl px-4 pb-4 md:hidden">
+            <div className="rounded-3xl border p-4" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+              <div className="flex flex-col gap-3">
+                <Link href="#recursos" className="block rounded-2xl px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)}>
+                  Recursos
+                </Link>
+                <Link href="#como-funciona" className="block rounded-2xl px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)}>
+                  Como funciona
+                </Link>
+                <Link href="/admin" className="block rounded-2xl px-4 py-3 text-sm font-bold" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }} onClick={() => setMobileMenuOpen(false)}>
+                  Entrar no painel
+                </Link>
               </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-5 px-4 overflow-hidden text-center flex flex-col items-center justify-center">
-        {/* Background Gradients */}
-        <div className="absolute top-[-10%] left-[-20%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-15" style={{ background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)' }}></div>
-        <div className="absolute bottom-[-10%] right-[-20%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-15" style={{ background: 'radial-gradient(circle, var(--logo-secondary) 0%, transparent 70%)' }}></div>
+      <section className="px-4 py-12 md:py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--accent)' }}>
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+              Sistema · catálogo · checkout
+            </span>
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] shadow-lg shadow-cyan-500/20" style={{ color: '#ffffff' }}>
-            Nova Era de Catálogos Digitais
-          </span>
-          <h1 className="text-5xl md:text-7xl font-black mt-6 mb-8 leading-tight tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Crie seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#0091FF]">Catálogo Digital</span> em minutos e venda no Pix
-          </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10" style={{ color: 'var(--text-secondary)' }}>
-            Transforme suas vendas online. Tenha uma loja própria e configurável com link exclusivo, recebimento direto no seu WhatsApp e checkout via Pix automático sem intermediários.
-          </p>
+            <h1 className="mt-6 max-w-xl text-4xl leading-[1.1] md:text-6xl" style={{ color: 'var(--text-primary)' }}>
+              Uma landing para apresentar o sistema do Prinzo.
+            </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/admin"
-              className="px-8 py-4 rounded-full font-extrabold shadow-xl hover:scale-105 active:scale-98 transition-all text-center"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)',
-                color: '#ffffff',
-                boxShadow: '0 10px 30px rgba(0,229,255,0.3)',
-              }}
+            <p className="mt-5 max-w-xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
+              Essa interface foi pensada para receber os prints do painel administrativo, da loja pública e do fluxo de pedido como uma apresentação clean e profissional.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
+                Abrir painel
+              </Link>
+              <Link href="/ljvision" className="rounded-full border px-8 py-4 text-center text-sm font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                Ver exemplo
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {highlights.map((item) => (
+                <div key={item.value} className="rounded-2xl border p-4" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+      <section className="px-4 py-16 md:py-20" style={{ backgroundColor: 'var(--card)' }}>
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 max-w-2xl">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Telas do sistema</h2>
+            <p className="mt-2 text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>Blocos prontos para receber os prints de cada parte do produto em uma apresentação enxuta.</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Anterior"
+              onClick={() => document.getElementById('showcaseTrack')?.scrollBy({ left: -320, behavior: 'smooth' })}
+              className="h-9 w-9 rounded-full border text-lg"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
-              Criar Meu Catálogo Grátis 🚀
-            </Link>
-            <Link
-              href="/ljvision"
-              className="px-8 py-4 rounded-full font-bold border text-center transition-all"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              ‹
+            </button>
+            <button
+              type="button"
+              aria-label="Próximo"
+              onClick={() => document.getElementById('showcaseTrack')?.scrollBy({ left: 320, behavior: 'smooth' })}
+              className="h-9 w-9 rounded-full border text-lg"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
-              Ver Exemplo de Catálogo
-            </Link>
+              ›
+            </button>
+          </div>
+
+          <div id="showcaseTrack" className="mt-6 flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {[
+              { title: 'Admin · produtos', subtitle: 'Cadastro e gestão de catálogo' },
+              { title: 'Loja pública', subtitle: 'Visual do catálogo para clientes' },
+              { title: 'Checkout', subtitle: 'Fluxo de pedido e pagamento' },
+              { title: 'WhatsApp + pedidos', subtitle: 'Atendimento e confirmação' },
+            ].map((item) => (
+              <article key={item.title} className="w-[300px] shrink-0 overflow-hidden rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div className="flex h-[220px] items-center justify-center bg-[var(--card)] text-xs" style={{ color: 'var(--text-muted)' }}>
+                  print da tela
+                </div>
+                <div className="p-4">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{item.title}</p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>{item.subtitle}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 bg-[var(--bg-header)] border-t border-b border-[var(--border-color)]">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-black text-center mb-16" style={{ color: 'var(--text-primary)' }}>
-            Recursos Premium para Potencializar suas Vendas
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
-              <span className="text-4xl mb-4">🔗</span>
-              <h3 className="text-xl font-bold mb-2">Seu Link Próprio</h3>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                URL personalizada e exclusiva para sua loja (ex: <code className="text-cyan-500">prinzo.com/sualoja</code>) para compartilhar no Instagram, TikTok e enviar para clientes.
-              </p>
-            </div>
-            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
-              <span className="text-4xl mb-4">⚡</span>
-              <h3 className="text-xl font-bold mb-2">Pix Direto Sem Taxas</h3>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                Configure sua chave Pix e gere QR Codes e códigos Copia e Cola dinâmicos automaticamente. O valor cai na hora na sua conta bancária sem tarifas ou intermediários.
-              </p>
-            </div>
-            <div className="p-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm flex flex-col items-start">
-              <span className="text-4xl mb-4">💬</span>
-              <h3 className="text-xl font-bold mb-2">Vendas Integradas ao WhatsApp</h3>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                Os pedidos do carrinho e os comprovantes de pagamento do Pix são enviados formatados diretamente para o seu contato de WhatsApp para facilitar o atendimento.
-              </p>
-            </div>
+      <section id="recursos" className="px-4 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>O fluxo do sistema em uma só narrativa</h2>
+            <p className="mt-4 text-base md:text-lg" style={{ color: 'var(--text-secondary)' }}>Do painel administrativo até a loja pública e o checkout, a experiência fica clara e pronta para ser exibida em apresentação.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {features.map((feature, index) => (
+              <article key={feature.title} className="rounded-3xl border p-7" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <p className="text-[13px] font-bold" style={{ color: 'var(--gold)' }}>{String(index + 1).padStart(2, '0')}</p>
+                <h3 className="mt-4 text-xl" style={{ color: 'var(--text-primary)' }}>{feature.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{feature.description}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA / Benefits Section */}
-      <section className="py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--accent)]/5 to-transparent pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="mb-8 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] text-white font-black text-sm uppercase tracking-widest shadow-lg">
-            Comece a vender agora
+      <section className="px-4 py-20" style={{ backgroundColor: 'var(--card)' }}>
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Conectado ao que seu cliente já usa e confia</h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>Recebimento e atendimento rodando nos sistemas que seu comprador já conhece.</p>
           </div>
 
-          <h2 className="text-5xl md:text-6xl font-black mb-6" style={{ color: 'var(--text-primary)' }}>
-            Transforme seu catálogo em<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)]">uma loja de vendas</span>
-          </h2>
-
-          <p className="text-xl mb-10 max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            Configure seu link, seus produtos e o Pix em poucos minutos. Tudo preparado para você receber pedidos e fechar vendas direto pelo WhatsApp.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link
-              href="/admin"
-              className="px-8 py-4 rounded-full font-extrabold shadow-xl hover:scale-105 active:scale-98 transition-all text-center"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)',
-                color: '#ffffff',
-                boxShadow: '0 10px 30px rgba(0,229,255,0.3)',
-              }}
-            >
-              Acessar o Painel
-            </Link>
-            <Link
-              href="/ljvision"
-              className="px-8 py-4 rounded-full font-bold border text-center transition-all"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-            >
-              Ver Exemplo de Catálogo
-            </Link>
+          <div className="grid gap-px overflow-hidden rounded-2xl border" style={{ backgroundColor: 'var(--border-color)', borderColor: 'var(--border-color)' }}>
+            {integrationItems.map((item) => (
+              <div key={item} className="flex min-h-24 items-center justify-center px-6 py-8 text-sm font-bold" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer
-        className="border-t mt-auto py-8 text-center text-sm transition-colors duration-300"
-        style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
-      >
-        <p>© 2026 <span className="font-bold text-cyan-500">Prinzo</span>. Todos os direitos reservados.</p>
-        <p className="mt-1">Crie sua loja de catálogo em minutos com Pix e WhatsApp.</p>
-        <p className="mt-3">
-          <a
-            href={SUPPORT_WA_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-green-500 font-bold hover:underline text-sm"
-          >
-            💬 Falar com Suporte via WhatsApp
-          </a>
-        </p>
+      <section id="como-funciona" className="px-4 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 max-w-2xl">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Do cadastro ao primeiro pedido</h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>Três etapas, nessa ordem, sem passos escondidos.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { number: '1', title: 'Crie sua loja', description: 'Cadastre nome, link e dados de contato.' },
+              { number: '2', title: 'Adicione suas peças', description: 'Organize por categoria, cores de filamento e preço em minutos.' },
+              { number: '3', title: 'Receba pedidos', description: 'O cliente escolhe pelo catálogo e você combina impressão e entrega pelo WhatsApp.' },
+            ].map((step) => (
+              <article key={step.number} className="rounded-3xl border p-6" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <p className="text-5xl leading-none" style={{ color: 'var(--navy)' }}>{step.number}</p>
+                <h3 className="mt-4 text-xl" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20" style={{ backgroundColor: 'var(--navy-2)' }}>
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--bg)' }}>Interface profissional para apresentar o sistema.</h2>
+            <p className="mt-3 text-base" style={{ color: '#c8d0dc' }}>Use essa landing como base para um deck de produto, com os prints das telas do painel, catálogo e checkout já organizados visualmente.</p>
+          </div>
+
+          <div className="flex w-full max-w-xs flex-col gap-3 md:items-end">
+            <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--bg)', color: 'var(--navy)' }}>
+              Abrir sistema
+            </Link>
+            <a href={SUPPORT_WA_LINK} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/25 px-8 py-4 text-center text-sm font-bold" style={{ color: 'var(--bg)' }}>
+              Falar com suporte
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+        <div className="mx-auto max-w-6xl flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+          <span>© 2026 <span className="font-bold" style={{ color: 'var(--accent)' }}>Prinzo</span>. Todos os direitos reservados.</span>
+          <span>Catálogo para vender impressão 3D, com Pix e WhatsApp.</span>
+        </div>
       </footer>
     </main>
   );

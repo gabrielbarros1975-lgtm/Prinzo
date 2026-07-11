@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prinzo — Catálogo para vendedores de impressão 3D</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --navy:#132A46;
+    --navy-2:#0B1D33;
+    --bg:#FAF9F6;
+    --card:#F3F1EA;
+    --border:#E2DFD5;
+    --text-secondary:#5B6472;
+    --text-muted:#8A93A0;
+    --accent:#0F6E56;
+    --accent-bg:#E1F5EE;
+    --gold:#9C7A3C;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', -apple-system, sans-serif;
+    background:var(--bg);
+    color:var(--navy);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{ font-family:'Fraunces', Georgia, serif; }
+  a{ text-decoration:none; color:inherit; }
+  img,svg{ display:block; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 32px; }
+
+  /* HEADER */
+  header{ border-bottom:1px solid var(--border); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
+  .logo{ font-family:'Fraunces', serif; font-size:20px; font-weight:600; letter-spacing:-0.01em; }
+  .nav-right{ display:flex; align-items:center; gap:24px; }
+  .nav-links{ display:flex; align-items:center; gap:24px; font-size:14px; color:var(--text-secondary); }
+  .nav-links a:hover{ color:var(--navy); }
+  .btn-ghost{
+    border:1px solid var(--border); padding:9px 18px; border-radius:6px;
+    color:var(--navy); font-size:14px; font-weight:500;
+  }
+  .btn-ghost:hover{ border-color:var(--navy); }
+
+  /* HERO */
+  .hero{ padding:88px 0 72px; }
+  .hero-inner{ max-width:680px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; color:var(--accent); font-weight:500;
+    margin-bottom:20px;
+  }
+  .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .hero h1{
+    font-size:48px; font-weight:500; line-height:1.15; letter-spacing:-0.01em;
+    color:var(--navy); margin-bottom:22px; max-width:600px;
+  }
+  .hero p.lead{ font-size:17px; color:var(--text-secondary); max-width:520px; margin-bottom:32px; }
+  .cta-row{ display:flex; gap:12px; margin-bottom:44px; }
+  .btn-primary{
+    background:var(--navy); color:#fff; font-size:14px; font-weight:500;
+    padding:13px 24px; border-radius:6px; display:inline-block;
+  }
+  .btn-primary:hover{ background:var(--navy-2); }
+  .btn-secondary{
+    border:1px solid var(--border); color:var(--navy); font-size:14px; font-weight:500;
+    padding:13px 24px; border-radius:6px; display:inline-block;
+  }
+  .btn-secondary:hover{ border-color:var(--navy); }
+
+  .trust-row{ display:flex; gap:40px; padding-top:28px; border-top:1px solid var(--border); max-width:600px; }
+  .trust-item p.label{ font-size:13px; font-weight:500; color:var(--navy); margin-bottom:2px; }
+  .trust-item p.desc{ font-size:12px; color:var(--text-muted); }
+
+  /* CAROUSEL — example catalogs */
+  .showcase{ padding:0 0 80px; }
+  .showcase-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+  .showcase-head h2{ font-size:22px; font-weight:500; }
+  .showcase-head p{ font-size:14px; color:var(--text-secondary); margin-top:6px; }
+  .showcase-nav{ display:flex; gap:8px; }
+  .showcase-nav button{
+    width:36px; height:36px; border-radius:50%; border:1px solid var(--border);
+    background:#fff; color:var(--navy); font-size:16px; cursor:pointer;
+  }
+  .showcase-nav button:hover{ border-color:var(--navy); }
+  .carousel-track{
+    display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding-bottom:8px; scrollbar-width:none;
+  }
+  .carousel-track::-webkit-scrollbar{ display:none; }
+  .carousel-card{
+    flex:0 0 auto; width:300px; scroll-snap-align:start;
+    border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#fff;
+  }
+  .carousel-card .thumb{
+    width:100%; height:220px; background:var(--card);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:var(--text-muted);
+  }
+  .carousel-card .thumb img{ width:100%; height:100%; object-fit:cover; }
+  .carousel-card .info{ padding:14px 16px; }
+  .carousel-card .info p.name{ font-size:13px; font-weight:500; color:var(--navy); }
+  .carousel-card .info p.desc{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+  /* INTEGRATIONS */
+  .integrations{ background:var(--card); text-align:center; }
+  .integrations .section-head{ margin-left:auto; margin-right:auto; text-align:center; }
+  .logo-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden; background:var(--border);
+    gap:1px; margin-top:8px;
+  }
+  .logo-cell{
+    background:#fff; padding:36px 24px; display:flex; align-items:center; justify-content:center;
+    height:96px;
+  }
+  .logo-cell img{ max-height:34px; max-width:120px; width:auto; object-fit:contain; }
+
+  /* FEATURES */
+  .section{ padding:80px 0; }
+  .section-head{ max-width:520px; margin-bottom:48px; }
+  .section-head h2{ font-size:28px; font-weight:500; margin-bottom:12px; }
+  .section-head p{ font-size:15px; color:var(--text-secondary); }
+  .feature-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .feature{ background:#fff; padding:32px 28px; }
+  .feature .num{ font-family:'Fraunces', serif; font-size:13px; color:var(--gold); margin-bottom:16px; }
+  .feature h3{ font-size:16px; font-weight:500; margin-bottom:10px; }
+  .feature p{ font-size:14px; color:var(--text-secondary); }
+
+  /* HOW IT WORKS */
+  .how{ background:var(--card); }
+  .how-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; margin-top:8px; }
+  .how-step{ position:relative; padding-top:8px; }
+  .how-step .ghost-num{
+    font-family:'Fraunces', serif; font-size:56px; font-weight:500; color:var(--navy);
+    opacity:0.08; line-height:1; margin-bottom:-8px;
+  }
+  .how-step h3{ font-size:16px; font-weight:500; margin-bottom:8px; }
+  .how-step p{ font-size:14px; color:var(--text-secondary); }
+
+  /* CLOSING CTA BAND */
+  .cta-band{ background:var(--navy-2); color:#fff; padding:72px 0; }
+  .cta-band .wrap{ display:flex; align-items:center; justify-content:space-between; gap:40px; }
+  .cta-band h2{ font-size:26px; font-weight:500; max-width:440px; margin-bottom:12px; color:#fff; }
+  .cta-band p{ font-size:14px; color:#B9C2CE; max-width:420px; }
+  .cta-band-actions{ display:flex; flex-direction:column; gap:10px; min-width:220px; }
+  .btn-light{ background:#fff; color:var(--navy); font-size:14px; font-weight:500; padding:13px 22px; border-radius:6px; text-align:center; }
+  .btn-outline-light{ border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:14px; font-weight:500; padding:13px 22px; border-radius:6px; text-align:center; }
+
+  /* FOOTER */
+  footer{ padding:32px 0; border-top:1px solid var(--border); }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text-muted); }
+
+  /* RESPONSIVE — tablet */
+  @media (max-width:860px){
+    .wrap{ padding:0 24px; }
+    .feature-grid, .how-grid{ grid-template-columns:1fr; }
+    .logo-grid{ grid-template-columns:repeat(3, 1fr); }
+    .cta-band .wrap{ flex-direction:column; align-items:flex-start; gap:28px; }
+    .cta-band-actions{ width:100%; }
+    .nav-links{ display:none; }
+    .hero{ padding:56px 0 48px; }
+    .hero h1{ font-size:34px; }
+    .hero p.lead{ font-size:16px; }
+    .trust-row{ gap:24px; }
+    .carousel-card{ width:240px; }
+    .section{ padding:56px 0; }
+  }
+
+  /* RESPONSIVE — phone */
+  @media (max-width:480px){
+    .wrap{ padding:0 18px; }
+    .nav{ padding:16px 0; }
+    .logo{ font-size:18px; }
+    .btn-ghost{ padding:8px 14px; font-size:13px; }
+    .hero{ padding:40px 0 36px; }
+    .eyebrow{ font-size:12px; }
+    .hero h1{ font-size:27px; margin-bottom:14px; }
+    .hero p.lead{ font-size:14.5px; margin-bottom:24px; }
+    .cta-row{ flex-direction:column; gap:10px; margin-bottom:32px; }
+    .btn-primary, .btn-secondary{ text-align:center; width:100%; }
+    .trust-row{ flex-direction:column; gap:14px; padding-top:20px; }
+    .showcase-head{ flex-direction:column; align-items:flex-start; gap:14px; }
+    .showcase-head h2{ font-size:19px; }
+    .carousel-card{ width:78vw; }
+    .section-head h2{ font-size:22px; }
+    .section-head p{ font-size:14px; }
+    .feature{ padding:26px 22px; }
+    .logo-grid{ grid-template-columns:repeat(2, 1fr); }
+    .logo-cell{ height:76px; padding:20px; }
+    .logo-cell img{ max-height:26px; max-width:96px; }
+    .how-grid{ gap:28px; }
+    .cta-band{ padding:48px 0; }
+    .cta-band h2{ font-size:21px; }
+    .cta-band-actions{ min-width:0; }
+    footer .wrap{ flex-direction:column; gap:6px; text-align:left; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <span class="logo">Prinzo</span>
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="#recursos">Recursos</a>
+        <a href="#como-funciona">Como funciona</a>
+      </nav>
+      <a href="/admin" class="btn-ghost">Entrar no painel</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Catálogo para quem vende impressão 3D</span>
+    <h1>Sua produção 3D com um catálogo à altura</h1>
+    <p class="lead">Miniaturas, peças sob encomenda, decoração ou funcionais — organize seu catálogo, receba por Pix e feche pedidos pelo WhatsApp, com a apresentação que sua produção merece.</p>
+    <div class="cta-row">
+      <a href="/admin" class="btn-primary">Criar meu catálogo</a>
+      <a href="/ljvision" class="btn-secondary">Ver exemplo real</a>
+    </div>
+    <div class="trust-row">
+      <div class="trust-item">
+        <p class="label">Link próprio</p>
+        <p class="desc">Para compartilhar com clientes</p>
+      </div>
+      <div class="trust-item">
+        <p class="label">Pix direto</p>
+        <p class="desc">Sem intermediários</p>
+      </div>
+      <div class="trust-item">
+        <p class="label">WhatsApp</p>
+        <p class="desc">Confirmação com o cliente</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="showcase">
+  <div class="wrap">
+    <div class="showcase-head">
+      <div>
+        <h2>Marcas de impressão 3D no Prinzo</h2>
+        <p>Exemplos reais de catálogos de peças e produtos impressos.</p>
+      </div>
+      <div class="showcase-nav">
+        <button type="button" aria-label="Anterior" onclick="document.getElementById('showcaseTrack').scrollBy({left:-320,behavior:'smooth'})">‹</button>
+        <button type="button" aria-label="Próximo" onclick="document.getElementById('showcaseTrack').scrollBy({left:320,behavior:'smooth'})">›</button>
+      </div>
+    </div>
+    <div class="carousel-track" id="showcaseTrack">
+      <div class="carousel-card">
+        <div class="thumb"><!-- substituir por imagem real do catálogo --> imagem do catálogo</div>
+        <div class="info">
+          <p class="name">Nome do maker</p>
+          <p class="desc">Miniaturas e colecionáveis</p>
+        </div>
+      </div>
+      <div class="carousel-card">
+        <div class="thumb">imagem do catálogo</div>
+        <div class="info">
+          <p class="name">Nome do maker</p>
+          <p class="desc">Peças funcionais sob encomenda</p>
+        </div>
+      </div>
+      <div class="carousel-card">
+        <div class="thumb">imagem do catálogo</div>
+        <div class="info">
+          <p class="name">Nome do maker</p>
+          <p class="desc">Decoração e presentes</p>
+        </div>
+      </div>
+      <div class="carousel-card">
+        <div class="thumb">imagem do catálogo</div>
+        <div class="info">
+          <p class="name">Nome do maker</p>
+          <p class="desc">Multicolor com AMS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="recursos">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Feito pra quem vive de impressora ligada</h2>
+      <p>Três coisas que pesam na hora da compra: como sua produção aparece, como o pagamento chega e quanto tempo você gasta organizando pedido.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature">
+        <p class="num">01</p>
+        <h3>Catálogo por peça, não por post solto</h3>
+        <p>Organize por categoria — miniaturas, funcionais, personalizados — com fotos, cores disponíveis e prazo de impressão claros pro cliente.</p>
+      </div>
+      <div class="feature">
+        <p class="num">02</p>
+        <h3>Recebimento organizado</h3>
+        <p>O cliente paga por Pix ou combina pelo WhatsApp, e o pedido chega pronto pra você entrar na fila de impressão.</p>
+      </div>
+      <div class="feature">
+        <p class="num">03</p>
+        <h3>Configuração rápida</h3>
+        <p>Catálogo no ar em poucos minutos. Cadastre peça, cor e preço, e comece a vender sem depender só de rede social.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section integrations" id="integracoes">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Conectado ao que seu cliente já usa e confia</h2>
+      <p>Recebimento e atendimento rodando nos sistemas que seu comprador já conhece.</p>
+    </div>
+    <div class="logo-grid">
+      <div class="logo-cell"><img src="/logos/mercado-pago.svg" alt="Mercado Pago" loading="lazy"></div>
+      <div class="logo-cell"><img src="/logos/pix-bacen.svg" alt="Pix — Banco Central" loading="lazy"></div>
+      <div class="logo-cell"><img src="/logos/whatsapp.svg" alt="WhatsApp" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section how" id="como-funciona">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Do cadastro ao primeiro pedido</h2>
+      <p>Três etapas, nessa ordem, sem passos escondidos.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-step">
+        <p class="ghost-num">1</p>
+        <h3>Crie sua loja</h3>
+        <p>Cadastre nome, link e dados de contato.</p>
+      </div>
+      <div class="how-step">
+        <p class="ghost-num">2</p>
+        <h3>Adicione suas peças</h3>
+        <p>Organize por categoria, cores de filamento e preço em minutos.</p>
+      </div>
+      <div class="how-step">
+        <p class="ghost-num">3</p>
+        <h3>Receba pedidos</h3>
+        <p>O cliente escolhe pelo catálogo e você combina impressão e entrega pelo WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div>
+      <h2>Sem exagero, sem promessa vazia. Só presença profissional.</h2>
+      <p>O Prinzo é uma vitrine pra sua produção 3D vender melhor e um painel simples pra administrar pedido e impressão no dia a dia.</p>
+    </div>
+    <div class="cta-band-actions">
+      <a href="/admin" class="btn-light">Começar agora</a>
+      <a href="https://wa.me/5598984809302?text=Ol%C3%A1!%20Tenho%20interesse%20no%20Prinzo%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." class="btn-outline-light">Falar com suporte</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Prinzo. Todos os direitos reservados.</span>
+    <span>Catálogo pra vender impressão 3D, com Pix e WhatsApp.</span>
+  </div>
+</footer>
+
+</body>
+</html>
