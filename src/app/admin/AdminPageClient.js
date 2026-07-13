@@ -4,6 +4,42 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
+// Simple in-memory request cache + in-progress tracker to avoid duplicate rapid GETs
+const __fetchCache = new Map(); // url -> { data, ts }
+const __inProgress = new Map(); // url -> Promise
+
+async function fetchWithCache(url, { ttl = 2000, force = false } = {}) {
+  if (!force) {
+    const hit = __fetchCache.get(url);
+    if (hit && (Date.now() - hit.ts) < ttl) {
+      return hit.data;
+    }
+  }
+
+  if (__inProgress.has(url)) {
+    return __inProgress.get(url);
+  }
+
+  const p = (async () => {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (res.ok) {
+        __fetchCache.set(url, { data, ts: Date.now() });
+        return data;
+      }
+      return { error: data?.error || `Request failed: ${res.status}` };
+    } catch (err) {
+      return { error: err.message };
+    } finally {
+      __inProgress.delete(url);
+    }
+  })();
+
+  __inProgress.set(url, p);
+  return p;
+}
+
 const SUPPORT_WA = '5598984809302';
 const SUPPORT_MSG = encodeURIComponent('Olá! Preciso de suporte com o Prinzo.');
 const SUPPORT_LINK = `https://wa.me/${SUPPORT_WA}?text=${SUPPORT_MSG}`;
@@ -140,11 +176,10 @@ export default function AdminPage() {
 
   const refreshStore = useCallback(async () => {
     if (!store?.slug) return;
-
     try {
-      const res = await fetch(`/api/stores?slug=${encodeURIComponent(store.slug)}`);
-      const data = await res.json();
-      if (!res.ok || data.error) return;
+      const url = `/api/stores?slug=${encodeURIComponent(store.slug)}`;
+      const data = await fetchWithCache(url, { ttl: 2000 });
+      if (!data || data.error) return;
       setStore(data);
       localStorage.setItem('saas_current_store', JSON.stringify(data));
     } catch (err) {
@@ -155,9 +190,9 @@ export default function AdminPage() {
   const fetchCategories = useCallback(async () => {
     if (!store) return;
     try {
-      const res = await fetch(`/api/admin/categories?store_id=${store.id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Erro');
+      const url = `/api/admin/categories?store_id=${store.id}`;
+      const data = await fetchWithCache(url, { ttl: 2000 });
+      if (!data || data.error) throw new Error(data?.error || 'Erro');
       setCategories(data || []);
       if (data?.length) {
         setForm(current => current.category ? current : ({ ...current, category: data[0].slug }));
@@ -172,9 +207,9 @@ export default function AdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/products?store_id=${store.id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Erro');
+      const url = `/api/admin/products?store_id=${store.id}`;
+      const data = await fetchWithCache(url, { ttl: 2000 });
+      if (!data || data.error) throw new Error(data?.error || 'Erro');
       setProducts(data);
     } catch (err) {
       setError(err.message);
@@ -330,6 +365,49 @@ export default function AdminPage() {
 
     restoreSession();
   }, []);
+
+  // Keep settingsForm in sync when store data changes (covers other devices)
+  useEffect(() => {
+    if (!store) return;
+    setSettingsForm(prev => ({
+      ...prev,
+      name: store.name || prev.name,
+      description: store.description || prev.description,
+      whatsapp_number: store.whatsapp_number || prev.whatsapp_number,
+      pix_key: store.pix_key || prev.pix_key,
+      pix_name: store.pix_name || prev.pix_name,
+      pix_city: store.pix_city || prev.pix_city,
+      mp_access_token: store.mp_access_token || prev.mp_access_token,
+      payment_methods: store.payment_methods || prev.payment_methods,
+      logo_url: store.logo_url || prev.logo_url,
+      theme_font_family: store.theme_font_family || prev.theme_font_family,
+      theme_primary_color: store.theme_primary_color || prev.theme_primary_color,
+      theme_secondary_color: store.theme_secondary_color || prev.theme_secondary_color,
+      theme_background_color: store.theme_background_color || prev.theme_background_color,
+      theme_card_color: store.theme_card_color || prev.theme_card_color,
+      theme_text_color: store.theme_text_color || prev.theme_text_color,
+    }));
+  }, [store]);
+
+  // When the user opens the Personalizar tab, refresh store data from server
+  useEffect(() => {
+    if (activeTab !== 'customize') return;
+    // refreshStore uses store.slug; if not available, attempt to restore from localStorage
+    (async () => {
+      try {
+        if (!store?.slug) {
+          const cached = localStorage.getItem('saas_current_store');
+          if (cached) {
+            const s = JSON.parse(cached);
+            setStore(s);
+          }
+        }
+        await refreshStore();
+      } catch (err) {
+        console.error('[Admin] failed to refresh store on customize tab open', err);
+      }
+    })();
+  }, [activeTab, refreshStore, store?.slug]);
 
 
   async function handleRegister(e) {
