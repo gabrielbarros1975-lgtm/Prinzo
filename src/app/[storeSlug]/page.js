@@ -206,12 +206,12 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.5rem', opacity: 0 }} className="group-hover:opacity-100 group-hover:!bg-black/20 flex items-center justify-center dark:group-hover:!bg-white/30 dark:text-black">🔍</div>
             </>
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${product.gradient || ''} flex items-center justify-center`}>
+            <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--accent-bg), var(--card))' }}>
               <span className="text-6xl sm:text-7xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
             </div>
           )}
           {product.tag && (
-            <span className={`absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || 'bg-blue-600'}`} style={{ color: '#ffffff' }}>
+            <span className={`absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow ${product.tag_color || 'bg-[var(--accent)]'}`} style={{ color: '#ffffff' }}>
               {product.tag}
             </span>
           )}
@@ -231,9 +231,10 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
           <div className="flex gap-2">
             <button
               onClick={handleBuy}
-              className="w-full py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_5px_15px_rgba(0,145,255,0.3)] hover:shadow-[0_8px_25px_rgba(0,145,255,0.4)] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] text-white"
+              className="w-full py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95"
+              style={{ backgroundColor: 'var(--accent)', color: '#ffffff', boxShadow: '0 12px 24px rgba(19, 42, 70, 0.14)' }}
             >
-              Comprar ⚡
+              Comprar
             </button>
           </div>
         </div>
@@ -535,7 +536,7 @@ export default function ShopPage({ params }) {
           </p>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight sm:leading-snug max-w-full break-words" style={{ color: 'var(--text-primary)' }}>
             Catálogo{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--logo-primary)] to-[var(--logo-secondary)] inline-block break-words max-w-full">
+            <span className="inline-block break-words max-w-full" style={{ color: 'var(--accent)' }}>
               {store.name}
             </span>
           </h1>
@@ -600,11 +601,11 @@ export default function ShopPage({ params }) {
               <div
                 className="absolute right-0 top-full mt-2 rounded-3xl overflow-hidden shadow-2xl"
                 style={{
-                  backgroundColor: 'rgba(10, 18, 35, 0.96)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
                   minWidth: '12rem',
                   zIndex: 20,
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.24)',
+                  boxShadow: 'var(--shadow-card)',
                 }}
               >
                 {sortOptions.map(option => (
@@ -617,7 +618,7 @@ export default function ShopPage({ params }) {
                     className="w-full text-left px-4 py-3 text-sm transition-colors hover:bg-[rgba(255,255,255,0.08)]"
                     style={{
                       backgroundColor: 'transparent',
-                      color: '#f8fbff',
+                      color: 'var(--text-primary)',
                     }}
                   >
                     {option.label}

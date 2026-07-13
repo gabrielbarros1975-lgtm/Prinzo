@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 const SUPPORT_WA = '5598984809302';
 const SUPPORT_MSG = encodeURIComponent('Olá! Preciso de suporte com o Prinzo.');
@@ -541,11 +540,7 @@ export default function AdminPage() {
   /* ─── Login & Register Screens ─────────────────────────────────── */
   if (!store) {
     return (
-      <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center relative">
-        {/* Floating Theme Toggle */}
-        <div className="absolute top-4 right-4">
-          <ThemeToggle />
-        </div>
+      <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <span className="text-4xl">🚀</span>
@@ -556,25 +551,33 @@ export default function AdminPage() {
           <div className="flex bg-[var(--bg-header)] rounded-xl p-1 mb-6">
             <button
               onClick={() => { setAuthMode('login'); setAuthError(''); setAuthInfo(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'login' ? 'bg-cyan-500 text-white' : ''}`}
+              className="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+              style={{
+                backgroundColor: authMode === 'login' ? 'var(--accent)' : 'transparent',
+                color: authMode === 'login' ? '#ffffff' : 'var(--text-secondary)',
+              }}
             >
               Entrar
             </button>
             <button
               onClick={() => { setAuthMode('register'); setAuthError(''); setAuthInfo(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === 'register' ? 'bg-cyan-500 text-white' : ''}`} style={{ color: authMode === 'register' ? '#ffffff' : 'var(--text-muted)' }}
+              className="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+              style={{
+                backgroundColor: authMode === 'register' ? 'var(--accent)' : 'transparent',
+                color: authMode === 'register' ? '#ffffff' : 'var(--text-muted)',
+              }}
             >
               Criar Loja
             </button>
           </div>
 
           {authError && (
-            <div className="bg-rose-950/40 border border-rose-900 text-rose-400 text-xs p-3 rounded-xl mb-4 text-center">
+            <div className="text-xs p-3 rounded-xl mb-4 text-center" style={{ backgroundColor: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.25)', color: '#B91C1C' }}>
               {authError}
             </div>
           )}
           {authInfo && (
-            <div className="bg-cyan-950/40 border border-cyan-800 text-cyan-200 text-xs p-3 rounded-xl mb-4 text-center">
+            <div className="text-xs p-3 rounded-xl mb-4 text-center" style={{ backgroundColor: 'var(--accent-bg)', border: '1px solid var(--border-color)', color: 'var(--accent)' }}>
               {authInfo}
             </div>
           )}
@@ -593,7 +596,7 @@ export default function AdminPage() {
                     placeholder="Ex: Minha Loja de Decoração"
                     value={authForm.name}
                     onChange={e => setAuthForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-[var(--accent)] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -606,7 +609,7 @@ export default function AdminPage() {
                       placeholder="minhaloja"
                       value={authForm.slug}
                       onChange={e => setAuthForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
-                      className="w-full p-3 rounded-r-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
+                      className="w-full p-3 rounded-r-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-[var(--accent)] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -618,7 +621,7 @@ export default function AdminPage() {
                     placeholder="Ex: 5598984809302"
                     value={authForm.whatsapp_number}
                     onChange={e => setAuthForm(f => ({ ...f, whatsapp_number: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-cyan-500 focus:outline-none"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-header)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm focus:border-[var(--accent)] focus:outline-none"
                   />
                 </div>
               </>
@@ -632,7 +635,7 @@ export default function AdminPage() {
                 placeholder="Ex: lojista@exemplo.com"
                 value={authForm.owner_email}
                 onChange={e => setAuthForm(f => ({ ...f, owner_email: e.target.value }))}
-                className="w-full p-3 rounded-xl text-sm focus:border-cyan-500 focus:outline-none"
+                className="w-full p-3 rounded-xl text-sm focus:border-[var(--accent)] focus:outline-none"
                 style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               />
             </div>
@@ -646,7 +649,7 @@ export default function AdminPage() {
                   placeholder="Sua senha"
                   value={authForm.owner_password}
                   onChange={e => setAuthForm(f => ({ ...f, owner_password: e.target.value }))}
-                  className="w-full p-3 rounded-xl text-sm focus:border-cyan-500 focus:outline-none"
+                  className="w-full p-3 rounded-xl text-sm focus:border-[var(--accent)] focus:outline-none"
                   style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
@@ -702,15 +705,15 @@ export default function AdminPage() {
 
           <div className="space-y-4">
             {subscriptionMessage && (
-              <div className="bg-cyan-950/30 border border-cyan-800 text-cyan-100 p-4 rounded-2xl text-sm">
+              <div className="p-4 rounded-2xl text-sm" style={{ backgroundColor: 'var(--accent-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                 {subscriptionMessage}
               </div>
             )}
             <button
               onClick={handleSubscriptionCheckout}
               disabled={loading}
-              className="w-full py-3.5 rounded-xl font-bold text-sm hover:opacity-95 shadow-lg"
-              style={{ background: 'linear-gradient(to right, var(--accent), #2563eb)', color: '#ffffff' }}
+              className="w-full py-3.5 rounded-xl font-bold text-sm hover:opacity-95"
+              style={{ backgroundColor: 'var(--accent)', color: '#ffffff', boxShadow: '0 12px 24px rgba(19, 42, 70, 0.14)' }}
             >
               {loading ? 'Redirecionando...' : 'Assinar com Mercado Pago'}
             </button>
@@ -732,7 +735,7 @@ export default function AdminPage() {
     <main className="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
       {/* Alerta de Período de Testes */}
       {!store.subscription_active && isTrialActive && (
-        <div className="bg-cyan-950/40 border border-cyan-800 text-cyan-400 text-xs p-3 rounded-2xl mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-md">
+        <div className="text-xs p-3 rounded-2xl mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-md" style={{ backgroundColor: 'var(--accent-bg)', border: '1px solid var(--border-color)', color: 'var(--accent)' }}>
           <div>
             <strong>🔥 Modo de Avaliação Gratuita Ativo!</strong> Restam <strong>{remainingDays} dias</strong> de teste para seu catálogo.
           </div>
@@ -754,26 +757,25 @@ export default function AdminPage() {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-3xl font-black truncate" style={{ color: 'var(--text-primary)' }}>{store.name}</h1>
               {store.subscription_active ? (
-                <span className="bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Ativo</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}>Ativo</span>
               ) : (
-                <span className="bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">Avaliação</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--gold)', color: '#ffffff' }}>Avaliação</span>
               )}
             </div>
             <div className="space-y-1">
               <p className="text-xs truncate" style={{ color: 'var(--text-primary)' }}>
-                <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-slate-950 dark:text-cyan-200 font-semibold hover:text-slate-700 inline-block max-w-full truncate" style={{ textDecoration: 'none' }}>
+                <a href={`/${store.slug}`} target="_blank" rel="noopener noreferrer" className="font-semibold inline-block max-w-full truncate" style={{ textDecoration: 'none', color: 'var(--text-primary)' }}>
                   prinzo.com/{store.slug}
                 </a>
               </p>
               {store.subscription_active && remainingSubscriptionText ? (
-                <p className="text-xs text-slate-950 dark:text-emerald-200 font-semibold">
+                <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>
                   Plano ativo — <strong>{remainingSubscriptionText}</strong>
                 </p>
               ) : null}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 justify-end w-full sm:w-auto">
-            <ThemeToggle />
             <button
               onClick={handleLogout}
               className="px-3 py-2 rounded-xl text-xs font-black transition-colors"

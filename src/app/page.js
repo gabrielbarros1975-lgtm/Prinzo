@@ -91,22 +91,17 @@ export default function SaaSLandingPage() {
       </header>
 
       <section className="px-4 py-12 md:py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--accent)' }}>
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
-              Sistema · catálogo · checkout
-            </span>
-
-            <h1 className="mt-6 max-w-xl text-4xl leading-[1.1] md:text-6xl" style={{ color: 'var(--text-primary)' }}>
-              Uma landing para apresentar o sistema do Prinzo.
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col gap-6">
+            <h1 className="max-w-3xl text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.05]" style={{ color: 'var(--text-primary)' }}>
+              Uma apresentação profissional do sistema Prinzo.
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Essa interface foi pensada para receber os prints do painel administrativo, da loja pública e do fluxo de pedido como uma apresentação clean e profissional.
+            <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
+              Essa página foi organizada para mostrar o painel administrativo, a vitrine pública e o fluxo de pedido com um visual mais limpo, mais confiável e mais responsivo.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
                 Abrir painel
               </Link>
@@ -115,7 +110,7 @@ export default function SaaSLandingPage() {
               </Link>
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <div className="mt-2 grid gap-3 sm:grid-cols-3">
               {highlights.map((item) => (
                 <div key={item.value} className="rounded-2xl border p-4" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                   <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
@@ -124,8 +119,6 @@ export default function SaaSLandingPage() {
               ))}
             </div>
           </div>
-
-
         </div>
       </section>
 

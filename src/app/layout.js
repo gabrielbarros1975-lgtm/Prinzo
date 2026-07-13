@@ -1,15 +1,15 @@
-import { Fraunces, Inter } from 'next/font/google';
+import { Sora, Manrope } from 'next/font/google';
 import './globals.css';
 
-const fraunces = Fraunces({
+const sora = Sora({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-display',
 });
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
 });
 
@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" className={`${fraunces.variable} ${inter.variable} h-full`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${sora.variable} ${manrope.variable} h-full`} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#FAF9F6" />
       </head>
