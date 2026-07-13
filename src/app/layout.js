@@ -1,5 +1,5 @@
+import Script from 'next/script';
 import { Sora, Manrope } from 'next/font/google';
-import GoogleAnalytics from '../components/GoogleAnalytics';
 import './globals.css';
 
 const sora = Sora({
@@ -15,6 +15,7 @@ const manrope = Manrope({
 });
 
 const siteUrl = 'https://www.prinzo.com.br';
+const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
@@ -82,9 +83,27 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/prinzo_icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/prinzo_icon.svg" />
         <link rel="manifest" href="/manifest.webmanifest" />
+        {measurementId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+              strategy="beforeInteractive"
+            />
+            <Script id="ga-init" strategy="beforeInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${measurementId}', {
+                  anonymize_ip: true,
+                  send_page_view: true,
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
       </head>
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
-        <GoogleAnalytics />
         {children}
       </body>
     </html>
