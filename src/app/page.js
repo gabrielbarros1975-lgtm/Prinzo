@@ -27,7 +27,11 @@ const features = [
   },
 ];
 
-const integrationItems = ['Pix', 'Mercado Pago', 'WhatsApp'];
+const integrationItems = [
+  { name: 'Pix', image: '/pix-logo.svg' },
+  { name: 'Mercado Pago', image: '/mercado-pago-logo.webp' },
+  { name: 'WhatsApp', image: '/whatsapp-logo.webp' },
+];
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -119,7 +123,7 @@ export default function SaaSLandingPage() {
             </h1>
 
             <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário.
+              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser instalado como aplicativo no Android e no iPhone.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -129,6 +133,12 @@ export default function SaaSLandingPage() {
               <Link href="/ljvision" className="rounded-full border px-8 py-4 text-center text-sm font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
                 Ver catálogo de exemplo
               </Link>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
+                Disponível também como app para Android e iPhone
+              </span>
             </div>
 
             <div className="mt-2 grid gap-3 sm:grid-cols-3">
@@ -173,14 +183,37 @@ export default function SaaSLandingPage() {
 
           <div id="showcaseTrack" className="mt-6 flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {[
-              { title: 'Admin · produtos', subtitle: 'Cadastro e gestão de catálogo' },
-              { title: 'Loja pública', subtitle: 'Visual do catálogo para clientes' },
-              { title: 'Checkout', subtitle: 'Fluxo de pedido e pagamento' },
-              { title: 'WhatsApp + pedidos', subtitle: 'Atendimento e confirmação' },
+              {
+                title: 'Admin · produtos',
+                subtitle: 'Cadastro e gestão de catálogo',
+                image: '/paineladmin.webp',
+              },
+              {
+                title: 'Loja pública',
+                subtitle: 'Visual do catálogo para clientes',
+                image: '/loja-pub.webp',
+              },
+              {
+                title: 'Checkout',
+                subtitle: 'Fluxo de pedido e pagamento',
+                image: '/chekout.webp',
+              },
+              {
+                title: 'Formas de pagamento',
+                subtitle: 'Pix, Mercado Pago e checkout pronto',
+                image: '/pagamento.webp',
+              },
             ].map((item) => (
-              <article key={item.title} className="w-[300px] shrink-0 overflow-hidden rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-                <div className="flex h-[220px] items-center justify-center bg-[var(--card)] text-xs" style={{ color: 'var(--text-muted)' }}>
-                  print da tela
+              <article key={item.title} className="w-[min(100%,300px)] shrink-0 rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div className="overflow-hidden bg-[var(--card)]" style={{ aspectRatio: '16 / 10' }}>
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={1200}
+                    height={750}
+                    className="block h-full w-full object-contain"
+                    sizes="(max-width: 768px) 100vw, 300px"
+                  />
                 </div>
                 <div className="p-4">
                   <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{item.title}</p>
@@ -218,10 +251,12 @@ export default function SaaSLandingPage() {
             <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>Recebimento e atendimento rodando nos sistemas que seu comprador já conhece.</p>
           </div>
 
-          <div className="grid gap-px overflow-hidden rounded-2xl border" style={{ backgroundColor: 'var(--border-color)', borderColor: 'var(--border-color)' }}>
+          <div className="grid gap-px overflow-hidden rounded-2xl border md:grid-cols-3" style={{ backgroundColor: 'var(--border-color)', borderColor: 'var(--border-color)' }}>
             {integrationItems.map((item) => (
-              <div key={item} className="flex min-h-24 items-center justify-center px-6 py-8 text-sm font-bold" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>
-                {item}
+              <div key={item.name} className="flex min-h-24 items-center justify-center px-6 py-8" style={{ backgroundColor: 'var(--bg-card)' }}>
+                <div className="flex items-center justify-center">
+                  <Image src={item.image} alt={item.name} width={140} height={56} className="max-h-12 w-auto object-contain" />
+                </div>
               </div>
             ))}
           </div>
