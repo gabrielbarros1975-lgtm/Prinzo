@@ -29,11 +29,30 @@ const features = [
 
 const integrationItems = ['Pix', 'Mercado Pago', 'WhatsApp'];
 
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Prinzo',
+  url: 'https://www.prinzo.com.br',
+  description:
+    'Plataforma para catálogos digitais, vitrine online e pedidos com Pix e WhatsApp.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://www.prinzo.com.br/?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 export default function SaaSLandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <main className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-page)' }}>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <main className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-page)' }}>
       <header
         className="sticky top-0 z-50 border-b"
         style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}
@@ -257,5 +276,6 @@ export default function SaaSLandingPage() {
         </div>
       </footer>
     </main>
+    </>
   );
 }

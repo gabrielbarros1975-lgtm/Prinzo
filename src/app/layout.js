@@ -1,4 +1,5 @@
 import { Sora, Manrope } from 'next/font/google';
+import GoogleAnalytics from '../components/GoogleAnalytics';
 import './globals.css';
 
 const sora = Sora({
@@ -13,9 +14,53 @@ const manrope = Manrope({
   variable: '--font-sans',
 });
 
+const siteUrl = 'https://www.prinzo.com.br';
+
 export const metadata = {
-  title: 'Prinzo | Plataforma de Catálogos Digitais',
-  description: 'Crie seu catálogo personalizado, receba pedidos no WhatsApp e pagamentos via Pix direto sem intermediários.',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Prinzo | Plataforma de Catálogos Digitais',
+    template: '%s | Prinzo',
+  },
+  description:
+    'Prinzo é uma plataforma para criar catálogos digitais, lojas online e recebimento via Pix e WhatsApp para negócios de impressão 3D e produtos personalizados.',
+  keywords: [
+    'Prinzo',
+    'catálogo digital',
+    'loja online',
+    'vitrine de produtos',
+    'sistema de loja',
+    'pix',
+    'whatsapp',
+    'impressão 3D',
+    'catálogo para loja',
+  ],
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Prinzo | Plataforma de Catálogos Digitais',
+    description:
+      'Crie seu catálogo digital, compartilhe a loja e receba pedidos com Pix e WhatsApp sem complexidade.',
+    url: siteUrl,
+    siteName: 'Prinzo',
+    locale: 'pt_BR',
+    type: 'website',
+    images: [
+      {
+        url: '/prinzo_icon.svg',
+        width: 512,
+        height: 512,
+        alt: 'Prinzo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Prinzo | Plataforma de Catálogos Digitais',
+    description:
+      'Catálogo digital, loja online e atendimento com Pix e WhatsApp em uma plataforma moderna.',
+  },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -39,6 +84,7 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/manifest.webmanifest" />
       </head>
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
+        <GoogleAnalytics />
         {children}
       </body>
     </html>
