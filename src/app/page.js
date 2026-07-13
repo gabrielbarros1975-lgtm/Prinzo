@@ -289,8 +289,8 @@ export default function SaaSLandingPage() {
       <section className="px-4 py-20" style={{ backgroundColor: 'var(--navy-2)' }}>
         <div className="mx-auto flex max-w-6xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--bg)' }}>Interface profissional para apresentar o sistema.</h2>
-            <p className="mt-3 text-base" style={{ color: '#c8d0dc' }}>Use essa landing como base para um deck de produto, com os prints das telas do painel, catálogo e checkout já organizados visualmente.</p>
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--bg)' }}>Tudo pronto para começar a vender</h2>
+            <p className="mt-3 text-base" style={{ color: '#c8d0dc' }}>Crie sua loja gratuitamente, organize seu catálogo e compartilhe com seus clientes em poucos minutos.</p>
           </div>
 
           <div className="flex w-full max-w-xs flex-col gap-3 md:items-end">
