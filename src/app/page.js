@@ -7,9 +7,9 @@ const SUPPORT_WA = '5598984809302';
 const SUPPORT_WA_LINK = `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent('Olá! Tenho interesse no Prinzo e gostaria de mais informações.')}`;
 
 const highlights = [
-  { value: 'Painel admin', label: 'cadastro e gestão' },
-  { value: 'Catálogo público', label: 'visual da loja' },
-  { value: 'Checkout', label: 'pedido e Pix' },
+  { value: 'Cadastre em minutos', label: 'Peças, cores e preços' },
+  { value: 'Loja pronta pra compartilhar', label: 'Link no Instagram e WhatsApp' },
+  { value: 'Pix sem taxa de terceiros', label: 'Cliente paga, você recebe' },
 ];
 
 const features = [
@@ -95,20 +95,20 @@ export default function SaaSLandingPage() {
       <section className="px-4 py-12 md:py-20">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col gap-6">
-            <h1 className="max-w-3xl text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.05]" style={{ color: 'var(--text-primary)' }}>
-              Uma apresentação profissional do sistema Prinzo.
+            <h1 className="max-w-4xl text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.05]" style={{ color: 'var(--text-primary)' }}>
+              Sua loja de peças 3D, pronta em minutos.
             </h1>
 
             <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Essa página foi organizada para mostrar o painel administrativo, a vitrine pública e o fluxo de pedido com um visual mais limpo, mais confiável e mais responsivo.
+              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
-                Abrir painel
+                Criar minha loja grátis
               </Link>
               <Link href="/ljvision" className="rounded-full border px-8 py-4 text-center text-sm font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
-                Ver exemplo
+                Ver catálogo de exemplo
               </Link>
             </div>
 
