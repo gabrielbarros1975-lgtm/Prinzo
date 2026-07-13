@@ -1,0 +1,19 @@
+{
+  "name": "Prinzo",
+  "short_name": "Prinzo",
+  "description": "Painel administrativo e catálogo digital do Prinzo.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#132A46",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/prinzo_icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

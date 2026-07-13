@@ -24,6 +24,8 @@ export default function AdminPage() {
     owner_email: '',
     owner_password: '',
   });
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   // Current Dashboard Tab
   const [activeTab, setActiveTab] = useState('products'); // 'products', 'categories', 'settings'
@@ -150,6 +152,23 @@ export default function AdminPage() {
     return () => clearTimeout(timeoutId);
   }, [store?.id, store?.subscription_active, fetchCategories, fetchList]);
 
+  async function handleInstallPWA() {
+    if (!installPrompt) {
+      return;
+    }
+
+    try {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsStandalone(true);
+      }
+      setInstallPrompt(null);
+    } catch (err) {
+      console.error('[Admin] PWA install failed', err);
+    }
+  }
+
   async function handleSubscriptionCheckout() {
     if (!store) return;
     setLoading(true);
@@ -169,6 +188,44 @@ export default function AdminPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const syncStandalone = () => setIsStandalone(Boolean(mediaQuery.matches));
+    syncStandalone();
+
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    };
+
+    const handleAppInstalled = () => {
+      setInstallPrompt(null);
+      setIsStandalone(true);
+    };
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncStandalone);
+    } else {
+      mediaQuery.addListener(syncStandalone);
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', syncStandalone);
+      } else {
+        mediaQuery.removeListener(syncStandalone);
+      }
+
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
 
   useEffect(() => {
     async function restoreSession() {
@@ -543,7 +600,9 @@ export default function AdminPage() {
       <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <span className="text-4xl">🚀</span>
+            <div className="mb-3 flex justify-center">
+              <Image src="/prinzo_icon.svg" alt="Prinzo" width={64} height={64} className="rounded-full" />
+            </div>
             <h1 className="text-2xl font-black mt-2">Painel do Lojista</h1>
             <p className="text-[var(--text-secondary)] text-xs mt-1">Configure seus produtos, categorias e Pix direto</p>
           </div>
@@ -579,6 +638,29 @@ export default function AdminPage() {
           {authInfo && (
             <div className="text-xs p-3 rounded-xl mb-4 text-center" style={{ backgroundColor: 'var(--accent-bg)', border: '1px solid var(--border-color)', color: 'var(--accent)' }}>
               {authInfo}
+            </div>
+          )}
+
+          {isStandalone ? (
+            <div className="rounded-2xl border p-3 mb-4 text-center text-xs" style={{ backgroundColor: 'var(--accent-bg)', borderColor: 'var(--border-color)', color: 'var(--accent)' }}>
+              App instalado com sucesso.
+            </div>
+          ) : (
+            <div className="rounded-2xl border p-3 mb-4 text-center" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
+              <button
+                type="button"
+                onClick={handleInstallPWA}
+                disabled={!installPrompt}
+                className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity"
+                style={{ backgroundColor: installPrompt ? 'var(--accent)' : 'var(--border-color)', color: installPrompt ? '#ffffff' : 'var(--text-secondary)' }}
+              >
+                {installPrompt ? 'Instalar como app' : 'Instalar como app'}
+              </button>
+              <p className="mt-2 text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                {installPrompt
+                  ? 'Instale o painel como aplicativo no seu celular.'
+                  : 'Em iPhone, use o botão de compartilhamento e escolha “Adicionar à Tela de Início”.'}
+              </p>
             </div>
           )}
 

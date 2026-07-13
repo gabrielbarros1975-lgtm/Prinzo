@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const SUPPORT_WA = '5598984809302';
@@ -38,7 +39,8 @@ export default function SaaSLandingPage() {
         style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-2xl font-semibold tracking-tight">
+          <Link href="/" className="flex items-center gap-3 text-2xl font-semibold tracking-tight">
+            <Image src="/prinzo_icon.svg" alt="Prinzo" width={28} height={28} className="shrink-0" />
             <span className="font-display text-[var(--logo-primary)]">Prinzo</span>
           </Link>
 
