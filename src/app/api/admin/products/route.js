@@ -10,7 +10,7 @@ export async function GET(request) {
 
   const query = supabaseAdmin.from('products').select('*').eq('store_id', storeId);
 
-  const { data, error } = await query.order('id', { ascending: true });
+  const { data, error } = await query.order('position', { ascending: true }).order('id', { ascending: true });
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   return new Response(JSON.stringify(data || []), { headers: { 'Content-Type': 'application/json' } });
 }
@@ -18,10 +18,24 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { category, name, description, price, tag, tag_color, img, images, emoji, gradient, has_img, store_id } = body;
+    const { category, name, description, price, tag, tag_color, img, images, emoji, gradient, has_img, store_id, position } = body;
+    let positionValue = position;
+    if (positionValue === undefined || positionValue === null) {
+      const { data: maxPositionData, error: maxError } = await supabaseAdmin
+        .from('products')
+        .select('position', { count: 'exact', head: false })
+        .eq('store_id', store_id)
+        .order('position', { ascending: false })
+        .limit(1);
+      if (maxError) {
+        return new Response(JSON.stringify({ error: maxError.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
+      positionValue = (maxPositionData?.[0]?.position || 0) + 1;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('products')
-      .insert([{ category, name, description, price, tag, tag_color, img, images: images || [], emoji, gradient, has_img, store_id }])
+      .insert([{ category, name, description, price, tag, tag_color, img, images: images || [], emoji, gradient, has_img, store_id, position: positionValue }])
       .select()
       .single();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });

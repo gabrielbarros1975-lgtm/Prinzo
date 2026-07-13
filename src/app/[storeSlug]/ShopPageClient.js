@@ -150,36 +150,29 @@ function Lightbox({ images, startIndex, onClose }) {
   );
 }
 
+function PortalModal({ children, onClose }) {
+  const [mounted, setMounted] = useState(true);
+
+  useEffect(() => {
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} onClick={onClose}>
+      <div className="relative z-10 w-full max-w-lg rounded-2xl bg-[var(--bg-card)] p-6 max-h-[90vh] overflow-y-auto" style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 /* ─── ProductCard ───────────────────────────────────────────────── */
 function ProductCard({ product, onBuyNow, whatsappNumber }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [descExpanded, setDescExpanded] = useState(false);
-
-  // Simple portal modal to avoid clipping inside card containers
-  function PortalModal({ children, onClose }) {
-    const hostRef = useRef(null);
-    if (!hostRef.current && typeof document !== 'undefined') hostRef.current = document.createElement('div');
-
-    useEffect(() => {
-      const host = hostRef.current;
-      if (!host) return;
-      document.body.appendChild(host);
-      return () => {
-        if (host.parentNode) host.parentNode.removeChild(host);
-      };
-    }, []);
-
-    if (!hostRef.current) return null;
-
-    return createPortal(
-      <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} onClick={onClose}>
-        <div className="relative z-10 w-full max-w-lg rounded-2xl bg-[var(--bg-card)] p-6 max-h-[90vh] overflow-y-auto" style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={(e) => e.stopPropagation()}>
-          {children}
-        </div>
-      </div>,
-      hostRef.current
-    );
-  }
 
   const allImages = [];
   if (product.img) allImages.push(product.img);
@@ -188,6 +181,8 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
   }
 
   const hasImages = allImages.length > 0;
+  const descriptionText = product.description?.trim() || '';
+  const shouldShowDescriptionToggle = descriptionText.length > 100;
 
   const handleBuy = () => {
     onBuyNow(product);
@@ -253,10 +248,23 @@ function ProductCard({ product, onBuyNow, whatsappNumber }) {
           <h2 className="text-base font-bold mb-2 leading-snug" style={{ color: 'var(--text-primary)' }}>
             {product.name}
           </h2>
-          <div className="text-sm mb-4 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }} title={product.description || ''}>
-            <span className="min-w-0 line-clamp-2 sm:line-clamp-1">{product.description}</span>
-            {product.description && product.description.length > 160 && (
-              <button onClick={() => setDescExpanded(true)} className="text-xs font-semibold text-[var(--accent)] shrink-0">ver mais</button>
+          <div className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }} title={descriptionText}>
+            <div className="min-w-0 leading-relaxed">
+              {descExpanded ? (
+                <span>{descriptionText}</span>
+              ) : (
+                <span className="block overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  {descriptionText}
+                </span>
+              )}
+            </div>
+            {shouldShowDescriptionToggle && (
+              <button
+                onClick={() => setDescExpanded(prev => !prev)}
+                className="mt-1 text-xs font-semibold text-[var(--accent)] shrink-0"
+              >
+                {descExpanded ? 'ver menos' : 'ver mais'}
+              </button>
             )}
           </div>
 
@@ -576,7 +584,7 @@ export default function ShopPageClient({ storeSlug }) {
           )}
 
           <div className="min-w-0">
-            <p className="font-semibold uppercase tracking-widest text-[10px] sm:text-xs md:text-sm mb-1 text-[var(--accent)] max-w-xl truncate">
+            <p className="font-semibold uppercase tracking-widest text-[10px] sm:text-xs md:text-sm mb-1 text-[var(--accent)] max-w-full break-words">
               {store.description || 'Seja bem-vindo!'}
             </p>
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight sm:leading-snug max-w-full break-words" style={{ color: 'var(--text-primary)' }}>

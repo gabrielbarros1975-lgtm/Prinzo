@@ -44,6 +44,21 @@ const SUPPORT_WA = '5598984809302';
 const SUPPORT_MSG = encodeURIComponent('Olá! Preciso de suporte com o Prinzo.');
 const SUPPORT_LINK = `https://wa.me/${SUPPORT_WA}?text=${SUPPORT_MSG}`;
 
+function getPortugueseAuthMessage(error) {
+  const rawMessage = error?.message || error?.toString?.() || '';
+  const message = rawMessage.toLowerCase();
+
+  if (message.includes('email not confirmed') || message.includes('user not confirmed') || message.includes('email_not_confirmed')) {
+    return 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada e clique no link de confirmação antes de entrar.';
+  }
+
+  if (message.includes('invalid login credentials') || message.includes('invalid credentials')) {
+    return 'E-mail ou senha inválidos. Verifique os dados e tente novamente.';
+  }
+
+  return '';
+}
+
 function hexToRgba(hex, alpha = 1) {
   const clean = (hex || '#000000').replace('#', '').trim();
   if (!clean) return `rgba(0, 0, 0, ${alpha})`;
@@ -58,6 +73,45 @@ function hexToRgba(hex, alpha = 1) {
   const b = parsed & 255;
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function PasswordInput({ value, onChange, placeholder, className = '', style, required = false, autoComplete }) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        type={showPassword ? 'text' : 'password'}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        className={`w-full p-3 rounded-xl text-sm focus:border-[var(--accent)] focus:outline-none pr-12 ${className}`.trim()}
+        style={style}
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(prev => !prev)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--accent)]"
+        aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+      >
+        {showPassword ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 2l20 20" />
+            <path d="M10.5 10.5A3 3 0 0 0 13.5 13.5" />
+            <path d="M6.7 6.7A10.9 10.9 0 0 0 2 12s3.5 7 10 7a10.9 10.9 0 0 0 4.3-.9" />
+            <path d="M9.2 4.2A10.9 10.9 0 0 1 12 3c6.5 0 10 7 10 7a17.2 17.2 0 0 1-3.4 4.3" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
 }
 
 export default function AdminPage() {
@@ -369,6 +423,7 @@ export default function AdminPage() {
   // Keep settingsForm in sync when store data changes (covers other devices)
   useEffect(() => {
     if (!store) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettingsForm(prev => ({
       ...prev,
       name: store.name || prev.name,
@@ -423,8 +478,9 @@ export default function AdminPage() {
         throw error;
       }
 
-      if (!data.user) {
-        setAuthInfo('Confirmação de e-mail enviada. Verifique sua caixa de entrada antes de entrar.');
+      if (!data?.user) {
+        setAuthInfo('Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de entrar no painel.');
+        setAuthMode('login');
         return;
       }
 
@@ -446,6 +502,13 @@ export default function AdminPage() {
         throw new Error(storeData?.error || 'Erro ao registrar loja.');
       }
 
+      if (!data.session) {
+        setAuthInfo('Cadastro realizado! Verifique seu e-mail para confirmar a conta e depois faça login no painel.');
+        setAuthMode('login');
+        setAuthForm(prev => ({ ...prev, owner_password: '' }));
+        return;
+      }
+
       setStore(storeData);
       setProducts([]);
       setCategories([]);
@@ -461,7 +524,8 @@ export default function AdminPage() {
         payment_methods: storeData.payment_methods || 'whatsapp',
       });
     } catch (err) {
-      setAuthError(err.message);
+      const translatedMessage = getPortugueseAuthMessage(err);
+      setAuthError(translatedMessage || err.message || 'Não foi possível criar a loja.');
     } finally {
       setLoading(false);
     }
@@ -510,7 +574,8 @@ export default function AdminPage() {
         payment_methods: storeData.payment_methods || 'whatsapp',
       });
     } catch (err) {
-      setAuthError(err.message || 'Não foi possível entrar.');
+      const translatedMessage = getPortugueseAuthMessage(err);
+      setAuthError(translatedMessage || err.message || 'Não foi possível entrar.');
     } finally {
       setLoading(false);
     }
@@ -640,6 +705,45 @@ export default function AdminPage() {
       await fetchList();
       resetForm();
       setShowProductForm(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function moveProduct(id, direction) {
+    if (!products?.length) return;
+    const sorted = [...products].sort((a, b) => (a.position || 0) - (b.position || 0) || (a.id || 0) - (b.id || 0));
+    const index = sorted.findIndex(p => p.id === id);
+    if (index === -1) return;
+
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= sorted.length) return;
+
+    const current = sorted[index];
+    const target = sorted[swapIndex];
+    const currentPosition = current.position ?? 0;
+    const targetPosition = target.position ?? 0;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const updateCurrent = await fetch(`/api/admin/products/${current.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: targetPosition }),
+      });
+      const updateTarget = await fetch(`/api/admin/products/${target.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: currentPosition }),
+      });
+      const currentData = await updateCurrent.json();
+      const targetData = await updateTarget.json();
+      if (!updateCurrent.ok) throw new Error(currentData?.error || 'Erro ao mover produto.');
+      if (!updateTarget.ok) throw new Error(targetData?.error || 'Erro ao mover produto.');
+      await fetchList();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -877,13 +981,12 @@ export default function AdminPage() {
             {authMode !== 'forgot' && (
               <div>
                 <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Senha</label>
-                <input
-                  type="password"
+                <PasswordInput
                   required
                   placeholder="Sua senha"
                   value={authForm.owner_password}
                   onChange={e => setAuthForm(f => ({ ...f, owner_password: e.target.value }))}
-                  className="w-full p-3 rounded-xl text-sm focus:border-[var(--accent)] focus:outline-none"
+                  className=""
                   style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
@@ -1293,7 +1396,23 @@ export default function AdminPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => moveProduct(p.id, 'up')}
+                      className="px-3 py-1.5 rounded-lg border text-xs"
+                      style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                      disabled={products.findIndex(item => item.id === p.id) === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => moveProduct(p.id, 'down')}
+                      className="px-3 py-1.5 rounded-lg border text-xs"
+                      style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                      disabled={products.findIndex(item => item.id === p.id) === products.length - 1}
+                    >
+                      ↓
+                    </button>
                     <button onClick={() => edit(p)} className="px-3 py-1.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Editar</button>
                     <button onClick={() => remove(p.id)} className="px-3 py-1.5 rounded-lg transition-all text-xs hover:bg-rose-600 hover:text-white" style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444' }}>Excluir</button>
                   </div>
@@ -1446,12 +1565,11 @@ export default function AdminPage() {
               <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Insira o seu Access Token do Mercado Pago para permitir pagamentos online com cartão, Pix do MP, e outros métodos. Obtenha em: <a href="https://www.mercadopago.com.br/developers" target="_blank" rel="noreferrer" className="underline" style={{ color: 'var(--accent)' }}>mercadopago.com.br/developers</a></p>
               <div>
                 <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Access Token (MP_ACCESS_TOKEN)</label>
-                <input
-                  type="password"
+                <PasswordInput
                   placeholder="APP_USR-..."
                   value={settingsForm.mp_access_token}
                   onChange={e => setSettingsForm(f => ({ ...f, mp_access_token: e.target.value }))}
-                  className="w-full p-3 rounded-xl text-sm focus:outline-none font-mono"
+                  className="font-mono"
                   style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
                 <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Seu token é guardado com segurança e utilizado apenas para criar preferências de pagamento da sua loja.</p>

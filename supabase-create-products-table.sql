@@ -13,7 +13,8 @@ create table if not exists public.products (
   emoji text,
   gradient text,
   has_img boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  position bigint not null default 0
 );
 
 alter table public.products
