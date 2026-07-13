@@ -137,7 +137,7 @@ export default function SaaSLandingPage() {
 
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
-                Disponível também como app para Android e iPhone
+                Disponível como aplicativo
               </span>
             </div>
 
