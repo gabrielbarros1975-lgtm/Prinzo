@@ -123,7 +123,7 @@ export default function SaaSLandingPage() {
             </h1>
 
             <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser instalado como aplicativo no Android e no iPhone.
+              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser instalado como aplicativo no Android e iOS.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
