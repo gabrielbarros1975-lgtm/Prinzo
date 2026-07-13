@@ -14,7 +14,7 @@ export async function GET(request) {
     query.eq('category', category);
   }
 
-  const { data, error } = await query.order('id', { ascending: true });
+  const { data, error } = await query.order('position', { ascending: true }).order('id', { ascending: true });
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }

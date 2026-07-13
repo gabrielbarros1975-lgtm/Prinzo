@@ -308,7 +308,7 @@ export default function ShopPageClient({ storeSlug }) {
   const [cart, setCart] = useState([]);
   const [addedId, setAddedId] = useState(null);
   const [mpLoading, setMpLoading] = useState(false);
-  const [sortOption, setSortOption] = useState('az');
+  const [sortOption, setSortOption] = useState('custom');
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const sortMenuRef = useRef(null);
   const categoryScrollRef = useRef(null);
@@ -423,6 +423,10 @@ export default function ShopPageClient({ storeSlug }) {
     const createdAt = (item) => item.created_at ? new Date(item.created_at).getTime() : 0;
 
     switch (sortOption) {
+      case 'custom':
+        return copy;
+      case 'az':
+        return copy.sort((a, b) => normalizeText(a.name).localeCompare(normalizeText(b.name)));
       case 'za':
         return copy.sort((a, b) => normalizeText(b.name).localeCompare(normalizeText(a.name)));
       case 'price_low':
@@ -432,11 +436,12 @@ export default function ShopPageClient({ storeSlug }) {
       case 'newest':
         return copy.sort((a, b) => createdAt(b) - createdAt(a) || (b.id || 0) - (a.id || 0));
       default:
-        return copy.sort((a, b) => normalizeText(a.name).localeCompare(normalizeText(b.name)));
+        return copy;
     }
   }, [products, sortOption]);
 
   const sortOptions = [
+    { value: 'custom', label: 'Ordem do painel' },
     { value: 'az', label: 'A - Z' },
     { value: 'za', label: 'Z - A' },
     { value: 'price_low', label: 'Menor Preço' },

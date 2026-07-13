@@ -372,6 +372,39 @@ export default function AdminPage() {
   useEffect(() => {
     async function restoreSession() {
       try {
+        let cachedStoreData = null;
+        try {
+          const cached = localStorage.getItem('saas_current_store');
+          if (cached) {
+            cachedStoreData = JSON.parse(cached);
+          }
+        } catch (cacheErr) {
+          console.error('[Admin] failed to read cached store', cacheErr);
+        }
+
+        if (cachedStoreData) {
+          setStore(cachedStoreData);
+          setProducts([]);
+          setCategories([]);
+          setSettingsForm({
+            name: cachedStoreData.name || '',
+            description: cachedStoreData.description || '',
+            whatsapp_number: cachedStoreData.whatsapp_number || '',
+            pix_key: cachedStoreData.pix_key || '',
+            pix_name: cachedStoreData.pix_name || '',
+            pix_city: cachedStoreData.pix_city || '',
+            mp_access_token: cachedStoreData.mp_access_token || '',
+            payment_methods: cachedStoreData.payment_methods || 'whatsapp',
+            logo_url: cachedStoreData.logo_url || '',
+            theme_font_family: cachedStoreData.theme_font_family || 'Manrope',
+            theme_primary_color: cachedStoreData.theme_primary_color || '#0F6E56',
+            theme_secondary_color: cachedStoreData.theme_secondary_color || '#132A46',
+            theme_background_color: cachedStoreData.theme_background_color || '#FAF9F6',
+            theme_card_color: cachedStoreData.theme_card_color || '#FFFFFF',
+            theme_text_color: cachedStoreData.theme_text_color || '#132A46',
+          });
+        }
+
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
 
@@ -385,7 +418,28 @@ export default function AdminPage() {
           }
           const storeData = await res.json();
           if (!res.ok || storeData.error) {
-            setSessionLoading(false);
+            if (cachedStoreData) {
+              setStore(cachedStoreData);
+              setProducts([]);
+              setCategories([]);
+              setSettingsForm({
+                name: cachedStoreData.name || '',
+                description: cachedStoreData.description || '',
+                whatsapp_number: cachedStoreData.whatsapp_number || '',
+                pix_key: cachedStoreData.pix_key || '',
+                pix_name: cachedStoreData.pix_name || '',
+                pix_city: cachedStoreData.pix_city || '',
+                mp_access_token: cachedStoreData.mp_access_token || '',
+                payment_methods: cachedStoreData.payment_methods || 'whatsapp',
+                logo_url: cachedStoreData.logo_url || '',
+                theme_font_family: cachedStoreData.theme_font_family || 'Manrope',
+                theme_primary_color: cachedStoreData.theme_primary_color || '#0F6E56',
+                theme_secondary_color: cachedStoreData.theme_secondary_color || '#132A46',
+                theme_background_color: cachedStoreData.theme_background_color || '#FAF9F6',
+                theme_card_color: cachedStoreData.theme_card_color || '#FFFFFF',
+                theme_text_color: cachedStoreData.theme_text_color || '#132A46',
+              });
+            }
             return;
           }
           setStore(storeData);
@@ -1380,41 +1434,45 @@ export default function AdminPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {products.map(p => (
-                <div key={p.id} className="flex items-center justify-between p-4 rounded-2xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-12 flex items-center justify-center rounded-xl overflow-hidden border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div key={p.id} className="flex flex-col gap-3 p-4 rounded-2xl border sm:flex-row sm:items-center sm:justify-between" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)' }}>
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-16 h-12 flex items-center justify-center rounded-xl overflow-hidden border shrink-0" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                       {p.img ? (
                         <div className="relative w-full h-full">
                           <Image src={p.img} alt={p.name} fill style={{ objectFit: 'contain' }} />
                         </div>
                       ) : <span className="text-xl">{p.emoji}</span>}
                     </div>
-                    <div>
-                      <div className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{p.name}</div>
-                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <div className="min-w-0">
+                      <div className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{p.name}</div>
+                      <div className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
                         {p.category} — R$ {Number(p.price || 0).toFixed(2)}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => moveProduct(p.id, 'up')}
-                      className="px-3 py-1.5 rounded-lg border text-xs"
-                      style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                      disabled={products.findIndex(item => item.id === p.id) === 0}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={() => moveProduct(p.id, 'down')}
-                      className="px-3 py-1.5 rounded-lg border text-xs"
-                      style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                      disabled={products.findIndex(item => item.id === p.id) === products.length - 1}
-                    >
-                      ↓
-                    </button>
-                    <button onClick={() => edit(p)} className="px-3 py-1.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Editar</button>
-                    <button onClick={() => remove(p.id)} className="px-3 py-1.5 rounded-lg transition-all text-xs hover:bg-rose-600 hover:text-white" style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444' }}>Excluir</button>
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => moveProduct(p.id, 'up')}
+                        className="px-3 py-1.5 rounded-lg border text-xs min-w-[2.2rem]"
+                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                        disabled={products.findIndex(item => item.id === p.id) === 0}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveProduct(p.id, 'down')}
+                        className="px-3 py-1.5 rounded-lg border text-xs min-w-[2.2rem]"
+                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                        disabled={products.findIndex(item => item.id === p.id) === products.length - 1}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button onClick={() => edit(p)} className="px-3 py-1.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Editar</button>
+                      <button onClick={() => remove(p.id)} className="px-3 py-1.5 rounded-lg transition-all text-xs hover:bg-rose-600 hover:text-white" style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444' }}>Excluir</button>
+                    </div>
                   </div>
                 </div>
               ))}
