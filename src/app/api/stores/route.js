@@ -54,7 +54,22 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { slug, name, description, whatsapp_number, owner_email, owner_password, auth_user_id } = body;
+    const {
+      slug,
+      name,
+      description,
+      whatsapp_number,
+      owner_email,
+      owner_password,
+      auth_user_id,
+      logo_url,
+      theme_font_family,
+      theme_primary_color,
+      theme_secondary_color,
+      theme_background_color,
+      theme_card_color,
+      theme_text_color,
+    } = body;
 
     if (!slug || !name || !whatsapp_number || !owner_email) {
       return new Response(JSON.stringify({ error: 'Dados incompletos' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -71,6 +86,13 @@ export async function POST(request) {
           owner_email,
           owner_password: owner_password || null,
           auth_user_id: auth_user_id || null,
+          logo_url: logo_url || null,
+          theme_font_family: theme_font_family || 'Manrope',
+          theme_primary_color: theme_primary_color || '#0F6E56',
+          theme_secondary_color: theme_secondary_color || '#132A46',
+          theme_background_color: theme_background_color || '#FAF9F6',
+          theme_card_color: theme_card_color || '#FFFFFF',
+          theme_text_color: theme_text_color || '#132A46',
           subscription_active: false, // Inicia inativo até ativar/pagar
         }
       ])
@@ -90,7 +112,25 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const body = await request.json();
-    const { id, name, description, whatsapp_number, pix_key, pix_name, pix_city, mp_access_token, payment_methods, subscription_active } = body;
+    const {
+      id,
+      name,
+      description,
+      whatsapp_number,
+      pix_key,
+      pix_name,
+      pix_city,
+      mp_access_token,
+      payment_methods,
+      subscription_active,
+      logo_url,
+      theme_font_family,
+      theme_primary_color,
+      theme_secondary_color,
+      theme_background_color,
+      theme_card_color,
+      theme_text_color,
+    } = body;
 
     if (!id) {
       return new Response(JSON.stringify({ error: 'ID da loja não informado' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -106,6 +146,13 @@ export async function PUT(request) {
     if (mp_access_token !== undefined) updateData.mp_access_token = mp_access_token;
     if (payment_methods !== undefined) updateData.payment_methods = payment_methods;
     if (subscription_active !== undefined) updateData.subscription_active = subscription_active;
+    if (logo_url !== undefined) updateData.logo_url = logo_url;
+    if (theme_font_family !== undefined) updateData.theme_font_family = theme_font_family;
+    if (theme_primary_color !== undefined) updateData.theme_primary_color = theme_primary_color;
+    if (theme_secondary_color !== undefined) updateData.theme_secondary_color = theme_secondary_color;
+    if (theme_background_color !== undefined) updateData.theme_background_color = theme_background_color;
+    if (theme_card_color !== undefined) updateData.theme_card_color = theme_card_color;
+    if (theme_text_color !== undefined) updateData.theme_text_color = theme_text_color;
 
     const { data, error } = await supabase
       .from('stores')

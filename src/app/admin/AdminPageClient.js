@@ -8,6 +8,22 @@ const SUPPORT_WA = '5598984809302';
 const SUPPORT_MSG = encodeURIComponent('Olá! Preciso de suporte com o Prinzo.');
 const SUPPORT_LINK = `https://wa.me/${SUPPORT_WA}?text=${SUPPORT_MSG}`;
 
+function hexToRgba(hex, alpha = 1) {
+  const clean = (hex || '#000000').replace('#', '').trim();
+  if (!clean) return `rgba(0, 0, 0, ${alpha})`;
+
+  const expanded = clean.length === 3
+    ? clean.split('').map(char => char + char).join('')
+    : clean;
+
+  const parsed = Number.parseInt(expanded, 16);
+  const r = (parsed >> 16) & 255;
+  const g = (parsed >> 8) & 255;
+  const b = parsed & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export default function AdminPage() {
   // Session states
   const [store, setStore] = useState(null);
@@ -28,7 +44,7 @@ export default function AdminPage() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   // Current Dashboard Tab
-  const [activeTab, setActiveTab] = useState('products'); // 'products', 'categories', 'settings'
+  const [activeTab, setActiveTab] = useState('products'); // 'products', 'categories', 'customize', 'settings'
 
   // Products and Categories states
   const [products, setProducts] = useState([]);
@@ -48,7 +64,15 @@ export default function AdminPage() {
     pix_city: '',
     mp_access_token: '',
     payment_methods: 'whatsapp',
+    logo_url: '',
+    theme_font_family: 'Manrope',
+    theme_primary_color: '#0F6E56',
+    theme_secondary_color: '#132A46',
+    theme_background_color: '#FAF9F6',
+    theme_card_color: '#FFFFFF',
+    theme_text_color: '#132A46',
   });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [form, setForm] = useState({
     id: null,
@@ -84,6 +108,35 @@ export default function AdminPage() {
     }
     return 'Pagamento pendente. Aguardando confirmação do Mercado Pago.';
   }, [checkoutMessage, subscriptionStatus]);
+
+  const customizationPreviewStyle = useMemo(() => {
+    const primary = settingsForm.theme_primary_color || '#0F6E56';
+    const secondary = settingsForm.theme_secondary_color || '#132A46';
+    const background = settingsForm.theme_background_color || '#FAF9F6';
+    const card = settingsForm.theme_card_color || '#FFFFFF';
+    const text = settingsForm.theme_text_color || '#132A46';
+    const fontFamily = settingsForm.theme_font_family || 'Manrope';
+
+    return {
+      '--accent': primary,
+      '--accent-hover': secondary,
+      '--accent-bg': hexToRgba(primary, 0.12),
+      '--bg-page': background,
+      '--bg-card': card,
+      '--bg-header': hexToRgba(card, 0.96),
+      '--border-color': hexToRgba(text, 0.16),
+      '--text-primary': text,
+      '--text-secondary': hexToRgba(text, 0.72),
+      '--text-muted': hexToRgba(text, 0.5),
+      '--cart-bg': secondary,
+      '--cart-text': '#ffffff',
+      '--font-display': fontFamily,
+      '--font-sans': fontFamily,
+      backgroundColor: background,
+      color: text,
+      fontFamily,
+    };
+  }, [settingsForm]);
 
   const refreshStore = useCallback(async () => {
     if (!store?.slug) return;
@@ -259,6 +312,13 @@ export default function AdminPage() {
             pix_city: storeData.pix_city || '',
             mp_access_token: storeData.mp_access_token || '',
             payment_methods: storeData.payment_methods || 'whatsapp',
+            logo_url: storeData.logo_url || '',
+            theme_font_family: storeData.theme_font_family || 'Manrope',
+            theme_primary_color: storeData.theme_primary_color || '#0F6E56',
+            theme_secondary_color: storeData.theme_secondary_color || '#132A46',
+            theme_background_color: storeData.theme_background_color || '#FAF9F6',
+            theme_card_color: storeData.theme_card_color || '#FFFFFF',
+            theme_text_color: storeData.theme_text_color || '#132A46',
           });
         }
       } catch (err) {
@@ -465,6 +525,20 @@ export default function AdminPage() {
     const data = await res.json();
     if (!res.ok) throw new Error(data?.error || 'Erro ao enviar imagem');
     return data.url;
+  }
+
+  async function handleLogoUpload(e) {
+    const file = e?.target?.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const url = await uploadFile(file);
+      setSettingsForm(f => ({ ...f, logo_url: url }));
+    } catch (err) {
+      setError(err.message || 'Erro ao enviar logo');
+    } finally {
+      setUploadingLogo(false);
+    }
   }
 
   async function submit(e) {
@@ -831,6 +905,8 @@ export default function AdminPage() {
         </div>
       )}
 
+      
+
       {/* Header Info */}
       <div className="border-b pb-4 mb-8" style={{ borderColor: 'var(--border-color)' }}>
         {/* Top Row: Store name + link + logout/theme */}
@@ -891,6 +967,16 @@ export default function AdminPage() {
             🗂️ Categorias
           </button>
           <button
+            onClick={() => setActiveTab('customize')}
+            className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 whitespace-normal sm:whitespace-nowrap ${activeTab === 'customize' ? 'shadow-lg' : ''}`}
+            style={{
+              backgroundColor: activeTab === 'customize' ? 'var(--accent)' : 'var(--bg-header)',
+              color: activeTab === 'customize' ? '#ffffff' : 'var(--text-secondary)'
+            }}
+          >
+            🎨 Personalizar
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`px-3 py-2 rounded-xl text-xs font-black text-center transition-all shrink-0 min-w-[96px] sm:min-w-0 whitespace-normal sm:whitespace-nowrap ${activeTab === 'settings' ? 'shadow-lg' : ''}`}
             style={{
@@ -902,6 +988,109 @@ export default function AdminPage() {
           </button>
         </div>
       </div>
+
+      {/* ─── CUSTOMIZE TAB (moved below header to match other tabs) ─────────────────────────────────────── */}
+      {activeTab === 'customize' && (
+        <section className="max-w-2xl">
+          <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Personalizar Catálogo</h2>
+
+          <form className="space-y-4">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 mb-6 shadow-2xl">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Logo da Loja</label>
+                  <div className="flex items-center gap-3">
+                    {settingsForm.logo_url ? (
+                      <img src={settingsForm.logo_url} alt="Logo" className="w-28 h-20 object-contain rounded-md border" style={{ borderColor: 'var(--border-color)' }} />
+                    ) : (
+                      <div className="w-28 h-20 rounded-md flex items-center justify-center text-xs" style={{ backgroundColor: 'var(--bg-header)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>Sem logo</div>
+                    )}
+                    <div className="flex-1">
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} />
+                      <div className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>{uploadingLogo ? 'Enviando...' : 'PNG/JPG/WebP — até 5MB'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Fonte</label>
+                    <select value={settingsForm.theme_font_family} onChange={e => setSettingsForm(f => ({ ...f, theme_font_family: e.target.value }))} className="w-full p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                      <option value="Manrope">Manrope</option>
+                      <option value="Sora">Sora</option>
+                      <option value="Inter">Inter</option>
+                      <option value="System">System</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cor Primária</label>
+                    <input type="color" value={settingsForm.theme_primary_color} onChange={e => setSettingsForm(f => ({ ...f, theme_primary_color: e.target.value }))} className="w-full h-10 p-1 rounded-xl" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cor Secundária</label>
+                    <input type="color" value={settingsForm.theme_secondary_color} onChange={e => setSettingsForm(f => ({ ...f, theme_secondary_color: e.target.value }))} className="w-full h-10 p-1 rounded-xl" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Fundo da Página</label>
+                    <input type="color" value={settingsForm.theme_background_color} onChange={e => setSettingsForm(f => ({ ...f, theme_background_color: e.target.value }))} className="w-full h-10 p-1 rounded-xl" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cor dos Cards</label>
+                    <input type="color" value={settingsForm.theme_card_color} onChange={e => setSettingsForm(f => ({ ...f, theme_card_color: e.target.value }))} className="w-full h-10 p-1 rounded-xl" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Cor do Texto</label>
+                    <input type="color" value={settingsForm.theme_text_color} onChange={e => setSettingsForm(f => ({ ...f, theme_text_color: e.target.value }))} className="w-full h-10 p-1 rounded-xl" />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-4">
+                  <button type="button" onClick={handleUpdateSettings} className="px-5 py-2.5 rounded-xl font-bold text-sm" style={{ backgroundColor: 'var(--accent)', color: '#ffffff' }}>Salvar Personalização</button>
+                  <button type="button" onClick={() => setSettingsForm(f => ({ ...f,
+                    logo_url: '',
+                    theme_font_family: 'Manrope',
+                    theme_primary_color: '#0F6E56',
+                    theme_secondary_color: '#132A46',
+                    theme_background_color: '#FAF9F6',
+                    theme_card_color: '#FFFFFF',
+                    theme_text_color: '#132A46',
+                  }))} className="px-5 py-2.5 rounded-xl border text-sm" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>Resetar</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-2xl">
+              <div style={customizationPreviewStyle} className="p-4 rounded-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  {settingsForm.logo_url ? (
+                    <img src={settingsForm.logo_url} alt="logo" className="w-12 h-12 object-contain" />
+                  ) : (
+                    <div className="w-12 h-12 rounded bg-[var(--bg-card)]" />
+                  )}
+                  <div>
+                    <div className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>LJVision</div>
+                    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Coleção exclusiva de produtos personalizados</div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                  <div className="h-36 rounded-md mb-3" style={{ background: 'linear-gradient(135deg, var(--accent-bg), var(--card))' }} />
+                  <div className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>Produto Exemplo</div>
+                  <div className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Descrição curta de demonstração</div>
+                  <div className="inline-flex items-center gap-3">
+                    <div className="px-3 py-2 rounded-full text-sm font-bold" style={{ backgroundColor: 'var(--accent)', color: '#fff' }}>R$ 49,90</div>
+                    <div className="px-3 py-2 rounded-full text-sm font-semibold" style={{ backgroundColor: 'var(--bg-header)', border: '1px solid var(--border-color)' }}>Comprar</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+      )}
 
       {error && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-500 p-4 rounded-2xl mb-6 text-sm">{error}</div>}
 
