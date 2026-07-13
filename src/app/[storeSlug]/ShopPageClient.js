@@ -570,16 +570,19 @@ export default function ShopPageClient({ storeSlug }) {
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full flex-1">
       <header className="flex items-center justify-between gap-4 mb-6">
-        <div className="min-w-0">
-          <p className="font-semibold uppercase tracking-widest text-[10px] sm:text-xs md:text-sm mb-3 text-[var(--accent)] max-w-xl truncate">
-            {store.description || 'Seja bem-vindo!'}
-          </p>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight sm:leading-snug max-w-full break-words" style={{ color: 'var(--text-primary)' }}>
-            Catálogo{' '}
-            <span className="inline-block break-words max-w-full" style={{ color: 'var(--accent)' }}>
+        <div className="flex items-center gap-4 min-w-0">
+          {store.logo_url && (
+            <img src={store.logo_url} alt={`${store.name} logo`} className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg" />
+          )}
+
+          <div className="min-w-0">
+            <p className="font-semibold uppercase tracking-widest text-[10px] sm:text-xs md:text-sm mb-1 text-[var(--accent)] max-w-xl truncate">
+              {store.description || 'Seja bem-vindo!'}
+            </p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight sm:leading-snug max-w-full break-words" style={{ color: 'var(--text-primary)' }}>
               {store.name}
-            </span>
-          </h1>
+            </h1>
+          </div>
         </div>
       </header>
 
