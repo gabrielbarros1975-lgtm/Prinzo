@@ -7,6 +7,16 @@ import { fetchProducts } from '@/lib/fetchProducts';
 import { fetchCategories } from '@/lib/fetchCategories';
 import { generatePixPayload } from '@/lib/pixHelper';
 
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(0,0,0,${alpha})`;
+  const normalized = hex.replace('#', '');
+  const bigint = parseInt(normalized.length === 3 ? normalized.split('').map(c => c + c).join('') : normalized, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 /* ─── Lightbox ─────────────────────────────────────────────────── */
 function Lightbox({ images, startIndex, onClose }) {
   const [idx, setIdx] = useState(startIndex ?? 0);
@@ -350,6 +360,33 @@ export default function ShopPageClient({ storeSlug }) {
 
     loadStore();
   }, [storeSlug]);
+
+  useEffect(() => {
+    if (!store) return;
+
+    const primary = store.theme_primary_color || '#0F6E56';
+    const secondary = store.theme_secondary_color || '#132A46';
+    const background = store.theme_background_color || '#FAF9F6';
+    const card = store.theme_card_color || '#FFFFFF';
+    const text = store.theme_text_color || '#132A46';
+    const fontFamily = store.theme_font_family || 'Manrope';
+    const root = document.documentElement;
+
+    root.style.setProperty('--accent', primary);
+    root.style.setProperty('--accent-hover', secondary);
+    root.style.setProperty('--accent-bg', hexToRgba(primary, 0.12));
+    root.style.setProperty('--bg-page', background);
+    root.style.setProperty('--bg-card', card);
+    root.style.setProperty('--bg-header', hexToRgba(card, 0.96));
+    root.style.setProperty('--border-color', hexToRgba(text, 0.16));
+    root.style.setProperty('--text-primary', text);
+    root.style.setProperty('--text-secondary', hexToRgba(text, 0.72));
+    root.style.setProperty('--text-muted', hexToRgba(text, 0.5));
+    root.style.setProperty('--cart-bg', secondary);
+    root.style.setProperty('--cart-text', '#ffffff');
+    root.style.setProperty('--font-display', fontFamily);
+    root.style.setProperty('--font-sans', fontFamily);
+  }, [store]);
 
   // Fetch Categories
   useEffect(() => {

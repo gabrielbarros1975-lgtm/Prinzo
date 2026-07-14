@@ -1240,17 +1240,52 @@ export default function AdminPage() {
                     ) : (
                       <div className="w-28 h-20 rounded-md flex items-center justify-center text-xs" style={{ backgroundColor: 'var(--bg-header)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>Sem logo</div>
                     )}
-                    <div className="flex-1">
-                      <input type="file" accept="image/*" onChange={handleLogoUpload} />
+                    <div className="flex-1 min-w-0">
+                      <input type="file" className="w-full min-w-0" accept="image/*" onChange={handleLogoUpload} />
                       <div className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>{uploadingLogo ? 'Enviando...' : 'PNG/JPG/WebP — até 5MB'}</div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome da Loja</label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.name}
+                      onChange={e => setSettingsForm(f => ({ ...f, name: e.target.value }))}
+                      className="w-full p-3 rounded-xl border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Descrição / Slogan</label>
+                    <input
+                      type="text"
+                      value={settingsForm.description}
+                      onChange={e => setSettingsForm(f => ({ ...f, description: e.target.value }))}
+                      className="w-full p-3 rounded-xl border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>WhatsApp para Vendas</label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.whatsapp_number}
+                      onChange={e => setSettingsForm(f => ({ ...f, whatsapp_number: e.target.value.replace(/[^0-9]/g, '') }))}
+                      className="w-full p-3 rounded-xl border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Fonte</label>
-                    <select value={settingsForm.theme_font_family} onChange={e => setSettingsForm(f => ({ ...f, theme_font_family: e.target.value }))} className="w-full p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <select value={settingsForm.theme_font_family} onChange={e => setSettingsForm(f => ({ ...f, theme_font_family: e.target.value }))} className="w-full p-3 rounded-xl border" style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
                       <option value="Manrope">Manrope</option>
                       <option value="Sora">Sora</option>
                       <option value="Inter">Inter</option>
@@ -1545,39 +1580,6 @@ export default function AdminPage() {
         <section className="max-w-2xl">
           <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Configurações da Loja</h2>
           <form onSubmit={handleUpdateSettings} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Nome da Loja</label>
-              <input
-                type="text"
-                required
-                value={settingsForm.name}
-                onChange={e => setSettingsForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full p-3 rounded-xl text-sm focus:outline-none"
-                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Descrição / Slogan</label>
-              <input
-                type="text"
-                value={settingsForm.description}
-                onChange={e => setSettingsForm(f => ({ ...f, description: e.target.value }))}
-                className="w-full p-3 rounded-xl text-sm focus:outline-none"
-                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>WhatsApp para Vendas</label>
-              <input
-                type="text"
-                required
-                value={settingsForm.whatsapp_number}
-                onChange={e => setSettingsForm(f => ({ ...f, whatsapp_number: e.target.value.replace(/[^0-9]/g, '') }))}
-                className="w-full p-3 rounded-xl text-sm focus:outline-none"
-                style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-              />
-            </div>
-
             <div className="border-t pt-4 mt-6" style={{ borderColor: 'var(--border-color)' }}>
               <h3 className="text-md font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Integração Pix Direto (Recebimento sem Intermediários)</h3>
               <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Insira os dados do seu Pix para permitir que seus clientes paguem por Pix na loja e copiem o código/QR code.</p>

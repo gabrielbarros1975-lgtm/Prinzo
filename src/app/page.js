@@ -123,7 +123,7 @@ export default function SaaSLandingPage() {
             </h1>
 
             <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser instalado como aplicativo no Android e iOS.
+              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser exibido como totem digital na loja ou instalado como aplicativo no Android e iOS.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -203,6 +203,11 @@ export default function SaaSLandingPage() {
                 subtitle: 'Pix, Mercado Pago e checkout pronto',
                 image: '/pagamento.webp',
               },
+              {
+                title: 'Totem digital',
+                subtitle: 'Exposição em pontos de venda e vitrine interativa',
+                image: '/paineladmin.webp',
+              },
             ].map((item) => (
               <article key={item.title} className="w-[min(100%,300px)] shrink-0 rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 <div className="overflow-hidden bg-[var(--card)]" style={{ aspectRatio: '16 / 10' }}>
@@ -221,6 +226,42 @@ export default function SaaSLandingPage() {
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <div className="mx-auto max-w-6xl grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+          <div className="max-w-2xl">
+            <p className="text-sm uppercase tracking-[0.3em] font-bold mb-4" style={{ color: 'var(--accent)' }}>
+              Totem Digital
+            </p>
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>
+              Use o Prinzo como vitrine interativa na sua loja.
+            </h2>
+            <p className="mt-4 text-base md:text-lg" style={{ color: 'var(--text-secondary)' }}>
+              Apresente produtos, preços e opções de pedido em um painel digital no ponto de venda. O cliente navega, escolhe e envia pedido direto pelo WhatsApp ou Pix, sem precisar de atendimento extra.
+            </p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-3xl border p-5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-color)' }}>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Autoatendimento</p>
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Deixe o cliente explorar os produtos sozinho no totem.</p>
+              </div>
+              <div className="rounded-3xl border p-5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-color)' }}>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Experiência moderna</p>
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Transforme a vitrine física em uma experiência digital e interativa.</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-3xl overflow-hidden border" style={{ borderColor: 'var(--border-color)' }}>
+            <Image
+              src="/totemdigital.png"
+              alt="Totem digital do Prinzo em loja"
+              width={1200}
+              height={900}
+              className="w-full h-full object-cover"
+              sizes="(max-width: 768px) 100vw, 420px"
+            />
           </div>
         </div>
       </section>
