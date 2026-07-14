@@ -206,7 +206,7 @@ export default function SaaSLandingPage() {
               {
                 title: 'Totem digital',
                 subtitle: 'Exposição em pontos de venda e vitrine interativa',
-                image: '/paineladmin.webp',
+                image: '/totemdigital.png',
               },
             ].map((item) => (
               <article key={item.title} className="w-[min(100%,300px)] shrink-0 rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
