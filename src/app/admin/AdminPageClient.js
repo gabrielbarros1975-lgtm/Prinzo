@@ -228,6 +228,13 @@ export default function AdminPage() {
     };
   }, [settingsForm]);
 
+  const trialDurationMs = 30 * 24 * 60 * 60 * 1000;
+  const isTrialActive = useMemo(() => {
+    if (!store?.created_at) return false;
+    const timeDiff = Date.now() - new Date(store.created_at).getTime();
+    return timeDiff < trialDurationMs;
+  }, [store?.created_at, trialDurationMs]);
+
   const refreshStore = useCallback(async () => {
     if (!store?.slug) return;
     try {
@@ -283,7 +290,7 @@ export default function AdminPage() {
   }, [subscriptionStatus, refreshStore]);
 
   useEffect(() => {
-    if (!store?.id || !store.subscription_active) {
+    if (!store?.id || (!store.subscription_active && !isTrialActive)) {
       return;
     }
 
@@ -292,7 +299,7 @@ export default function AdminPage() {
       fetchCategories();
     }, 0);
     return () => clearTimeout(timeoutId);
-  }, [store?.id, store?.subscription_active, fetchCategories, fetchList]);
+  }, [store?.id, store?.subscription_active, isTrialActive, fetchCategories, fetchList]);
 
   async function handleInstallPWA() {
     if (!installPrompt) {
@@ -884,10 +891,7 @@ export default function AdminPage() {
     });
   }
 
-  // Cálculo da avaliação gratuita de 30 dias (1 mês)
-  const trialDurationMs = 30 * 24 * 60 * 60 * 1000;
-  const timeDiff = store?.created_at ? (new Date() - new Date(store.created_at)) : 0;
-  const isTrialActive = store?.created_at ? timeDiff < trialDurationMs : false;
+  const timeDiff = store?.created_at ? (Date.now() - new Date(store.created_at).getTime()) : 0;
   const remainingDays = store?.created_at ? Math.max(0, Math.ceil((trialDurationMs - timeDiff) / (1000 * 60 * 60 * 24))) : 0;
 
   // Subscription expiration countdown
