@@ -211,6 +211,7 @@ export async function POST(req) {
       .update({
         subscription_active: true,
         subscription_plan: 'monthly',
+        subscription_status: 'active',
         subscription_started_at: subscriptionStartedAt,
         subscription_expires_at: subscriptionExpiresAt,
         mp_subscription_payment_id: String(payment?.id || dataId),

@@ -118,6 +118,8 @@ export default function AdminPage() {
   // Session states
   const [store, setStore] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [subStatus, setSubStatus] = useState(null);
+  const [subStatusLoading, setSubStatusLoading] = useState(true);
 
   // Authentication forms
   const [authMode, setAuthMode] = useState('login'); // 'login', 'register', 'forgot'
@@ -228,12 +230,30 @@ export default function AdminPage() {
     };
   }, [settingsForm]);
 
-  const trialDurationMs = 30 * 24 * 60 * 60 * 1000;
-  const isTrialActive = useMemo(() => {
-    if (!store?.created_at) return false;
-    const timeDiff = Date.now() - new Date(store.created_at).getTime();
-    return timeDiff < trialDurationMs;
-  }, [store?.created_at, trialDurationMs]);
+  const isTrialActive = !!subStatus?.isInTrial;
+
+  useEffect(() => {
+    if (!store?.slug) {
+      setSubStatus(null);
+      return;
+    }
+    let cancelled = false;
+    setSubStatusLoading(true);
+    (async () => {
+      try {
+        const url = `/api/subscription/status?slug=${encodeURIComponent(store.slug)}`;
+        const data = await fetchWithCache(url, { ttl: 2000 });
+        if (!cancelled && data && !data.error) {
+          setSubStatus(data);
+        }
+      } catch (err) {
+        console.error('[Admin] subscription status fetch failed', err);
+      } finally {
+        if (!cancelled) setSubStatusLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [store?.slug, store?.subscription_active]);
 
   const refreshStore = useCallback(async () => {
     if (!store?.slug) return;
@@ -290,7 +310,7 @@ export default function AdminPage() {
   }, [subscriptionStatus, refreshStore]);
 
   useEffect(() => {
-    if (!store?.id || (!store.subscription_active && !isTrialActive)) {
+    if (!store?.id || subStatusLoading || !subStatus?.canAccess) {
       return;
     }
 
@@ -299,7 +319,7 @@ export default function AdminPage() {
       fetchCategories();
     }, 0);
     return () => clearTimeout(timeoutId);
-  }, [store?.id, store?.subscription_active, isTrialActive, fetchCategories, fetchList]);
+  }, [store?.id, subStatusLoading, subStatus?.canAccess, fetchCategories, fetchList]);
 
   async function handleInstallPWA() {
     if (!installPrompt) {
@@ -891,8 +911,7 @@ export default function AdminPage() {
     });
   }
 
-  const timeDiff = store?.created_at ? (Date.now() - new Date(store.created_at).getTime()) : 0;
-  const remainingDays = store?.created_at ? Math.max(0, Math.ceil((trialDurationMs - timeDiff) / (1000 * 60 * 60 * 24))) : 0;
+  const remainingDays = subStatus?.daysRemaining ?? 0;
 
   // Subscription expiration countdown
   const subscriptionExpiresAt = store?.subscription_expires_at ? new Date(store.subscription_expires_at) : null;
@@ -900,7 +919,7 @@ export default function AdminPage() {
   const remainingSubscriptionDays = subscriptionExpiresAt ? Math.max(0, Math.ceil(remainingSubscriptionMs / (1000 * 60 * 60 * 24))) : 0;
   const remainingSubscriptionText = subscriptionExpiresAt && remainingSubscriptionMs > 0 ? `${remainingSubscriptionDays} dias restantes` : null;
 
-  if (sessionLoading) {
+  if (sessionLoading || (store && subStatusLoading)) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[70vh]">
         <div className="text-lg font-medium animate-pulse">Carregando painel administrativo...</div>
@@ -1084,17 +1103,17 @@ export default function AdminPage() {
   }
 
   /* ─── Inactive Subscription / Billing Screen ───────────────────── */
-  if (!store.subscription_active && !isTrialActive) {
+  if (!subStatus?.canAccess) {
     return (
       <main className="max-w-md mx-auto px-4 py-16 flex-1 flex flex-col justify-center">
         <div className="rounded-3xl p-8 shadow-2xl text-center" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
           <span className="text-5xl mb-3 inline-block">👑</span>
           <h2 className="text-2xl font-black mb-1">Período de Avaliação Encerrado</h2>
-          <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>Assine agora para continuar vendendo! Você já testou durante 1 mês.</p>
+          <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>Assine agora para continuar vendendo! Seu período de avaliação gratuita terminou.</p>
 
           <div className="p-4 rounded-2xl mb-6 text-left" style={{ backgroundColor: 'var(--bg-header)' }}>
             <span className="text-xs uppercase font-extrabold tracking-wider" style={{ color: 'var(--accent)' }}>Plano Completo</span>
-            <div className="text-3xl font-black my-2">R$ 20,00 <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>/mês</span></div>
+            <div className="text-3xl font-black my-2">R$ 19,90 <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>/mês</span></div>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Libera seu catálogo online com vendas ilimitadas via Pix e WhatsApp.</p>
           </div>
 

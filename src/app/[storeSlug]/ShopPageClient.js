@@ -309,6 +309,7 @@ export default function ShopPageClient({ storeSlug }) {
   const [store, setStore] = useState(null);
   const [storeLoading, setStoreLoading] = useState(true);
   const [storeError, setStoreError] = useState(null);
+  const [subStatus, setSubStatus] = useState(null);
 
   const [activeCategory, setActiveCategory] = useState('todos');
   const [categories, setCategories] = useState([]);
@@ -348,8 +349,19 @@ export default function ShopPageClient({ storeSlug }) {
 
         if (data.error) {
           setStoreError(data.error);
-        } else {
-          setStore(data);
+          return;
+        }
+
+        setStore(data);
+
+        try {
+          const statusRes = await fetch(`/api/subscription/status?slug=${storeSlug}`);
+          const statusData = await statusRes.json();
+          if (!statusData.error) {
+            setSubStatus(statusData);
+          }
+        } catch (statusErr) {
+          console.error('[Shop] subscription status fetch failed', statusErr);
         }
       } catch (err) {
         setStoreError(err.message);
@@ -598,12 +610,7 @@ export default function ShopPageClient({ storeSlug }) {
     );
   }
 
-  // 5 dias de avaliação gratuita
-  const isTrialActive = store?.created_at
-    ? (new Date() - new Date(store.created_at)) < 5 * 24 * 60 * 60 * 1000
-    : false;
-
-  const isStoreAccessible = store?.subscription_active || isTrialActive;
+  const isStoreAccessible = !!subStatus?.canAccess;
 
   if (!isStoreAccessible) {
     return (

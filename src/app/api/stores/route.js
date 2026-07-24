@@ -75,6 +75,9 @@ export async function POST(request) {
       return new Response(JSON.stringify({ error: 'Dados incompletos' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
+    const now = new Date();
+    const trialEndDate = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
+
     const { data, error } = await supabase
       .from('stores')
       .insert([
@@ -94,6 +97,9 @@ export async function POST(request) {
           theme_card_color: theme_card_color || '#FFFFFF',
           theme_text_color: theme_text_color || '#132A46',
           subscription_active: false, // Inicia inativo até ativar/pagar
+          trial_start_date: now.toISOString(),
+          trial_end_date: trialEndDate.toISOString(),
+          subscription_status: 'trial',
         }
       ])
       .select()

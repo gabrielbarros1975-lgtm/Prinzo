@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server';
 
 /**
  * GET /api/subscription/status?slug=store-slug
- * Verifica o status de assinatura/trial da loja
+ * Fonte única de verdade sobre acesso da loja (trial ou assinatura paga).
+ * Deriva o status direto dos campos crus (subscription_active, trial_end_date,
+ * subscription_expires_at) e persiste no banco quando detecta expiração.
  */
 export async function GET(req) {
   try {
@@ -19,7 +21,7 @@ export async function GET(req) {
 
     const { data: store, error } = await supabaseAdmin
       .from('stores')
-      .select('id, slug, subscription_status, trial_start_date, trial_end_date, subscription_active, monthly_price')
+      .select('id, slug, subscription_status, trial_start_date, trial_end_date, subscription_active, subscription_expires_at, monthly_price')
       .eq('slug', slug)
       .single();
 
@@ -32,32 +34,52 @@ export async function GET(req) {
 
     const now = new Date();
     const trialEndDate = store.trial_end_date ? new Date(store.trial_end_date) : null;
-    const daysRemaining = trialEndDate ? Math.ceil((trialEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    const subscriptionExpiresAt = store.subscription_expires_at ? new Date(store.subscription_expires_at) : null;
 
-    const status = {
-      storeSlug: store.slug,
-      subscriptionStatus: store.subscription_status,
-      isInTrial: store.subscription_status === 'trial' && trialEndDate && trialEndDate > now,
-      isActive: store.subscription_status === 'active' && store.subscription_active,
-      trialStartDate: store.trial_start_date,
-      trialEndDate: store.trial_end_date,
-      daysRemaining: Math.max(0, daysRemaining),
-      monthlyPrice: store.monthly_price,
-      canAccess: (store.subscription_status === 'trial' && trialEndDate && trialEndDate > now) || (store.subscription_status === 'active' && store.subscription_active),
-    };
+    const isPaidActive = !!store.subscription_active && (!subscriptionExpiresAt || subscriptionExpiresAt > now);
+    const isInTrial = !store.subscription_active && !!trialEndDate && trialEndDate > now;
+    const canAccess = isPaidActive || isInTrial;
 
-    // Se o trial expirou, atualizar o status
-    if (store.subscription_status === 'trial' && trialEndDate && trialEndDate <= now) {
+    let daysRemaining = 0;
+    if (isInTrial) {
+      daysRemaining = Math.max(0, Math.ceil((trialEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    } else if (isPaidActive && subscriptionExpiresAt) {
+      daysRemaining = Math.max(0, Math.ceil((subscriptionExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    }
+
+    let subscriptionStatus = store.subscription_status;
+    let subscriptionActive = store.subscription_active;
+
+    // Assinatura paga venceu: desativa a loja de fato.
+    if (store.subscription_active && subscriptionExpiresAt && subscriptionExpiresAt <= now) {
+      await supabaseAdmin
+        .from('stores')
+        .update({ subscription_active: false, subscription_status: 'expired' })
+        .eq('id', store.id);
+      subscriptionActive = false;
+      subscriptionStatus = 'expired';
+    } else if (!store.subscription_active && trialEndDate && trialEndDate <= now && store.subscription_status !== 'expired') {
+      // Trial venceu sem pagamento.
       await supabaseAdmin
         .from('stores')
         .update({ subscription_status: 'expired' })
         .eq('id', store.id);
-      
-      status.subscriptionStatus = 'expired';
-      status.canAccess = false;
+      subscriptionStatus = 'expired';
     }
 
-    return NextResponse.json(status);
+    return NextResponse.json({
+      storeSlug: store.slug,
+      subscriptionStatus,
+      subscriptionActive,
+      isInTrial,
+      isPaidActive,
+      canAccess,
+      trialStartDate: store.trial_start_date,
+      trialEndDate: store.trial_end_date,
+      subscriptionExpiresAt: store.subscription_expires_at,
+      daysRemaining,
+      monthlyPrice: store.monthly_price,
+    });
 
   } catch (err) {
     console.error('[Subscription Status]', err);

@@ -1,36 +1,61 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const Hero3D = dynamic(() => import('@/components/Hero3D'), { ssr: false });
 
 const SUPPORT_WA = '5598984809302';
 const SUPPORT_WA_LINK = `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent('Olá! Tenho interesse no Prinzo e gostaria de mais informações.')}`;
 
 const highlights = [
-  { value: 'Cadastre em minutos', label: 'Peças, cores e preços' },
-  { value: 'Loja pronta pra compartilhar', label: 'Link no Instagram e WhatsApp' },
-  { value: 'Pix sem taxa de terceiros', label: 'Cliente paga, você recebe' },
-];
-
-const features = [
-  {
-    title: 'Administração central',
-    description: 'Cadastre produtos, categorias, preços e conteúdo em um painel organizado para operar o negócio de forma clara.',
-  },
-  {
-    title: 'Loja pública',
-    description: 'A vitrine do catálogo fica pronta para apresentar itens de forma profissional e com navegação simples para o cliente.',
-  },
-  {
-    title: 'Fluxo de pedido',
-    description: 'O cliente visualiza o catálogo, escolhe o item e segue para o pagamento ou para o atendimento com menos atrito.',
-  },
+  'Cadastre peças em minutos',
+  'Link pronto pro Instagram e WhatsApp',
+  'Pix direto na sua conta, sem taxa',
 ];
 
 const integrationItems = [
   { name: 'Pix', image: '/pix-logo.svg' },
   { name: 'Mercado Pago', image: '/mercado-pago-logo.webp' },
   { name: 'WhatsApp', image: '/whatsapp-logo.webp' },
+];
+
+const trustMarqueeItems = [
+  { type: 'badge', label: 'Disponível como aplicativo' },
+  ...integrationItems.map((item) => ({ type: 'logo', ...item })),
+];
+
+const pricingFeatures = [
+  'Catálogo de produtos e categorias ilimitado',
+  'Loja pública com link próprio para compartilhar',
+  'Checkout com Pix e Mercado Pago',
+  'Pedidos recebidos direto no WhatsApp',
+  'Opção de usar como Totem Digital na loja física',
+  'Sem comissão sobre suas vendas',
+];
+
+const faqs = [
+  {
+    question: 'Funciona no celular?',
+    answer: 'Sim. Tanto o painel administrativo quanto a loja pública são responsivos, e o sistema pode ser instalado como aplicativo (PWA) no Android e no iOS.',
+  },
+  {
+    question: 'Como eu recebo os pagamentos dos meus clientes?',
+    answer: 'O pagamento cai direto na sua própria chave Pix ou na sua conta do Mercado Pago. O Prinzo não fica no meio da transação e não cobra comissão sobre suas vendas.',
+  },
+  {
+    question: 'O que é o Totem Digital?',
+    answer: 'É o mesmo catálogo rodando em modo vitrine, pensado para ficar em uma tela dentro da sua loja física. O cliente navega, escolhe o produto e envia o pedido sozinho.',
+  },
+  {
+    question: 'O que acontece quando o teste grátis de 15 dias termina?',
+    answer: 'A loja fica temporariamente inativa até você assinar o plano mensal. Nada é apagado: seus produtos, categorias e configurações continuam salvos.',
+  },
+  {
+    question: 'Tem fidelidade ou multa de cancelamento?',
+    answer: 'Não. Você pode cancelar quando quiser, sem multa e sem burocracia.',
+  },
 ];
 
 const structuredData = {
@@ -47,14 +72,39 @@ const structuredData = {
   },
 };
 
+const faqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
+};
+
 export default function SaaSLandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
+  const showcaseTrackRef = useRef(null);
+
+  const navLinks = [
+    { href: '#recursos', label: 'Recursos' },
+    { href: '#como-funciona', label: 'Como funciona' },
+    { href: '#precos', label: 'Preços' },
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
       />
       <main className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-page)' }}>
       <header
@@ -68,12 +118,11 @@ export default function SaaSLandingPage() {
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">
-            <Link href="#recursos" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
-              Recursos
-            </Link>
-            <Link href="#como-funciona" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
-              Como funciona
-            </Link>
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
+                {link.label}
+              </Link>
+            ))}
             <Link href="/admin" className="rounded-full border px-4 py-2 text-sm font-bold transition-all" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)', borderColor: 'var(--text-primary)' }}>
               Entrar no painel
             </Link>
@@ -100,12 +149,11 @@ export default function SaaSLandingPage() {
           <div className="mx-auto max-w-6xl px-4 pb-4 md:hidden">
             <div className="rounded-3xl border p-4" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
               <div className="flex flex-col gap-3">
-                <Link href="#recursos" className="block rounded-2xl px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)}>
-                  Recursos
-                </Link>
-                <Link href="#como-funciona" className="block rounded-2xl px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)}>
-                  Como funciona
-                </Link>
+                {navLinks.map((link) => (
+                  <Link key={link.href} href={link.href} className="block rounded-2xl px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)}>
+                    {link.label}
+                  </Link>
+                ))}
                 <Link href="/admin" className="block rounded-2xl px-4 py-3 text-sm font-bold" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-page)' }} onClick={() => setMobileMenuOpen(false)}>
                   Entrar no painel
                 </Link>
@@ -116,56 +164,80 @@ export default function SaaSLandingPage() {
       </header>
 
       <section className="px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-6">
-            <h1 className="max-w-4xl text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.05]" style={{ color: 'var(--text-primary)' }}>
-              Sua loja de peças 3D, pronta em minutos.
-            </h1>
+        <div className="mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="flex min-w-0 flex-col gap-6">
+              <h1 className="max-w-4xl text-[clamp(2.4rem,5vw,4.6rem)] leading-[1.05]" style={{ color: 'var(--text-primary)' }}>
+                Sua loja de peças 3D, pronta em minutos.
+              </h1>
 
-            <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser exibido como totem digital na loja ou instalado como aplicativo no Android e iOS.
-            </p>
+              <p className="max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--text-secondary)' }}>
+                Monte seu catálogo, receba pedidos pelo WhatsApp e o pagamento cai direto no seu Pix. Sem comissão, sem intermediário. O sistema também pode ser exibido como totem digital na loja ou instalado como aplicativo no Android e iOS.
+              </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
-                Criar minha loja grátis
-              </Link>
-              <Link href="/ljvision" className="rounded-full border px-8 py-4 text-center text-sm font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
-                Ver catálogo de exemplo
-              </Link>
-            </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/admin" className="rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
+                  Criar minha loja grátis
+                </Link>
+                <Link href="/ljvision" className="rounded-full border px-8 py-4 text-center text-sm font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                  Ver catálogo de exemplo
+                </Link>
+              </div>
 
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
-                Disponível como aplicativo
-              </span>
-            </div>
-
-            <div className="mt-2 grid gap-3 sm:grid-cols-3">
-              {highlights.map((item) => (
-                <div key={item.value} className="rounded-2xl border p-4" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
+              <div
+                className="relative overflow-hidden"
+                style={{
+                  maskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+                }}
+              >
+                <div className="flex w-max animate-marquee items-center gap-8">
+                  {[...trustMarqueeItems, ...trustMarqueeItems].map((item, index) => (
+                    <div key={`${item.type}-${item.name || item.label}-${index}`} className="flex shrink-0 items-center">
+                      {item.type === 'badge' ? (
+                        <span className="whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
+                          {item.label}
+                        </span>
+                      ) : (
+                        <Image src={item.image} alt={item.name} width={90} height={30} className="h-6 w-auto object-contain opacity-80" />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
+                {highlights.map((item, index) => (
+                  <span key={item} className="flex items-center gap-3">
+                    {item}
+                    {index < highlights.length - 1 && (
+                      <span aria-hidden="true" className="h-1 w-1 rounded-full" style={{ backgroundColor: 'var(--border-color)' }} />
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative min-w-0 w-full h-[240px] sm:h-[300px] lg:h-[420px] overflow-hidden">
+              <Hero3D />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-4 py-16 md:py-20" style={{ backgroundColor: 'var(--card)' }}>
+      <section id="recursos" className="px-4 py-16 md:py-20" style={{ backgroundColor: 'var(--card)' }}>
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 max-w-2xl">
-            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Telas do sistema</h2>
-            <p className="mt-2 text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>Blocos prontos para receber os prints de cada parte do produto em uma apresentação enxuta.</p>
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>O sistema por dentro</h2>
+            <p className="mt-2 text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>Prints reais do painel, da loja pública e do checkout, do jeito que ficam pro seu cliente.</p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               aria-label="Anterior"
-              onClick={() => document.getElementById('showcaseTrack')?.scrollBy({ left: -320, behavior: 'smooth' })}
-              className="h-9 w-9 rounded-full border text-lg"
+              onClick={() => showcaseTrackRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}
+              className="h-9 w-9 rounded-full border text-lg transition-colors hover:opacity-80"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               ‹
@@ -173,24 +245,24 @@ export default function SaaSLandingPage() {
             <button
               type="button"
               aria-label="Próximo"
-              onClick={() => document.getElementById('showcaseTrack')?.scrollBy({ left: 320, behavior: 'smooth' })}
-              className="h-9 w-9 rounded-full border text-lg"
+              onClick={() => showcaseTrackRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}
+              className="h-9 w-9 rounded-full border text-lg transition-colors hover:opacity-80"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               ›
             </button>
           </div>
 
-          <div id="showcaseTrack" className="mt-6 flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div ref={showcaseTrackRef} className="mt-6 flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {[
               {
                 title: 'Admin · produtos',
-                subtitle: 'Cadastro e gestão de catálogo',
+                subtitle: 'Nome, fotos, cor e preço em menos de um minuto',
                 image: '/paineladmin.webp',
               },
               {
                 title: 'Loja pública',
-                subtitle: 'Visual do catálogo para clientes',
+                subtitle: 'Organizada por categoria, funciona bem no celular',
                 image: '/loja-pub.webp',
               },
               {
@@ -200,7 +272,7 @@ export default function SaaSLandingPage() {
               },
               {
                 title: 'Formas de pagamento',
-                subtitle: 'Pix, Mercado Pago e checkout pronto',
+                subtitle: 'Cliente escolhe Pix ou Mercado Pago',
                 image: '/pagamento.webp',
               },
               {
@@ -209,7 +281,7 @@ export default function SaaSLandingPage() {
                 image: '/totemdigital.png',
               },
             ].map((item) => (
-              <article key={item.title} className="w-[min(100%,300px)] shrink-0 rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+              <article key={item.title} className="w-[min(100%,300px)] shrink-0 rounded-2xl border transition-shadow hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 <div className="overflow-hidden bg-[var(--card)]" style={{ aspectRatio: '16 / 10' }}>
                   <Image
                     src={item.image}
@@ -248,8 +320,8 @@ export default function SaaSLandingPage() {
                 <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Deixe o cliente explorar os produtos sozinho no totem.</p>
               </div>
               <div className="rounded-3xl border p-5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-color)' }}>
-                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Experiência moderna</p>
-                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Transforme a vitrine física em uma experiência digital e interativa.</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Sem tela de espera</p>
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>O mesmo catálogo do celular, só que numa tela maior na sua loja.</p>
               </div>
             </div>
           </div>
@@ -266,63 +338,101 @@ export default function SaaSLandingPage() {
         </div>
       </section>
 
-      <section id="recursos" className="px-4 py-20">
+      <section id="como-funciona" className="px-4 py-20" style={{ backgroundColor: 'var(--card)' }}>
         <div className="mx-auto max-w-6xl">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>O fluxo do sistema em uma só narrativa</h2>
-            <p className="mt-4 text-base md:text-lg" style={{ color: 'var(--text-secondary)' }}>Do painel administrativo até a loja pública e o checkout, a experiência fica clara e pronta para ser exibida em apresentação.</p>
+          <div className="mb-14 max-w-2xl">
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Três etapas, sem passo escondido</h2>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {features.map((feature, index) => (
-              <article key={feature.title} className="rounded-3xl border p-7" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-                <p className="text-[13px] font-bold" style={{ color: 'var(--gold)' }}>{String(index + 1).padStart(2, '0')}</p>
-                <h3 className="mt-4 text-xl" style={{ color: 'var(--text-primary)' }}>{feature.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{feature.description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20" style={{ backgroundColor: 'var(--card)' }}>
-        <div className="mx-auto max-w-6xl">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Conectado ao que seu cliente já usa e confia</h2>
-            <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>Recebimento e atendimento rodando nos sistemas que seu comprador já conhece.</p>
-          </div>
-
-          <div className="grid gap-px overflow-hidden rounded-2xl border md:grid-cols-3" style={{ backgroundColor: 'var(--border-color)', borderColor: 'var(--border-color)' }}>
-            {integrationItems.map((item) => (
-              <div key={item.name} className="flex min-h-24 items-center justify-center px-6 py-8" style={{ backgroundColor: 'var(--bg-card)' }}>
-                <div className="flex items-center justify-center">
-                  <Image src={item.image} alt={item.name} width={140} height={56} className="max-h-12 w-auto object-contain" />
+          <div className="relative grid gap-10 md:grid-cols-3 md:gap-6">
+            {/* Alinhado ao centro dos círculos: com 3 colunas iguais e gap-6 (24px),
+                metade da largura de cada coluna é exatamente 100%/6 - 8px. */}
+            <div
+              aria-hidden="true"
+              className="absolute hidden md:block"
+              style={{ top: '18px', left: 'calc(100%/6 - 8px)', right: 'calc(100%/6 - 8px)', height: '2px', backgroundColor: 'var(--border-color)' }}
+            />
+            {[
+              { title: 'Crie sua loja', description: 'Nome, link e dados de contato. Menos de dois minutos.' },
+              { title: 'Adicione suas peças', description: 'Categoria, cor de filamento e preço, uma por uma ou em lote.' },
+              { title: 'Receba pedidos', description: 'O cliente escolhe no catálogo, você combina produção e entrega pelo WhatsApp.' },
+            ].map((step, index) => (
+              <div key={step.title} className="relative flex flex-col items-center text-center md:px-4">
+                <div
+                  className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                  style={{ backgroundColor: 'var(--navy)', color: '#fff' }}
+                >
+                  {index + 1}
                 </div>
+                <h3 className="mt-4 text-xl" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
+                <p className="mt-2 max-w-xs text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="como-funciona" className="px-4 py-20">
-        <div className="mx-auto max-w-6xl">
+      <section id="precos" className="px-4 py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Um plano simples</h2>
+          <p className="mt-4 text-base md:text-lg" style={{ color: 'var(--text-secondary)' }}>Teste de verdade antes de pagar qualquer coisa. Sem cartão de crédito para começar.</p>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-md rounded-3xl border p-8 text-center shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+          <span className="inline-block rounded-full px-4 py-1 text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--accent-bg)', color: 'var(--accent)' }}>
+            15 dias grátis
+          </span>
+          <div className="mt-6 flex items-end justify-center gap-1">
+            <span className="text-5xl font-black" style={{ color: 'var(--text-primary)' }}>R$ 19,90</span>
+            <span className="pb-2 text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>/mês</span>
+          </div>
+          <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>depois do período de teste</p>
+
+          <ul className="mt-8 flex flex-col gap-3 text-left">
+            {pricingFeatures.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: '#fff' }}>✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <Link href="/admin" className="mt-8 block rounded-full px-8 py-4 text-center text-sm font-bold" style={{ backgroundColor: 'var(--navy)', color: '#fff' }}>
+            Começar grátis por 15 dias
+          </Link>
+        </div>
+      </section>
+
+      <section className="px-4 py-20" style={{ backgroundColor: 'var(--card)' }}>
+        <div className="mx-auto max-w-3xl">
           <div className="mb-10 max-w-2xl">
-            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Do cadastro ao primeiro pedido</h2>
-            <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>Três etapas, nessa ordem, sem passos escondidos.</p>
+            <h2 className="text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>Perguntas frequentes</h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>O que a maioria pergunta antes de criar a loja.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { number: '1', title: 'Crie sua loja', description: 'Cadastre nome, link e dados de contato.' },
-              { number: '2', title: 'Adicione suas peças', description: 'Organize por categoria, cores de filamento e preço em minutos.' },
-              { number: '3', title: 'Receba pedidos', description: 'O cliente escolhe pelo catálogo e você combina impressão e entrega pelo WhatsApp.' },
-            ].map((step) => (
-              <article key={step.number} className="rounded-3xl border p-6" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-                <p className="text-5xl leading-none" style={{ color: 'var(--navy)' }}>{step.number}</p>
-                <h3 className="mt-4 text-xl" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.description}</p>
-              </article>
-            ))}
+          <div className="flex flex-col gap-3">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div key={faq.question} className="overflow-hidden rounded-2xl border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-bold"
+                    style={{ color: 'var(--text-primary)' }}
+                    aria-expanded={isOpen}
+                  >
+                    {faq.question}
+                    <span className="shrink-0 text-xl" style={{ color: 'var(--text-muted)' }}>{isOpen ? '−' : '+'}</span>
+                  </button>
+                  {isOpen && (
+                    <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {faq.answer}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -345,10 +455,16 @@ export default function SaaSLandingPage() {
         </div>
       </section>
 
-      <footer className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-        <div className="mx-auto max-w-6xl flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+      <footer className="px-4 py-8 text-sm" style={{ color: 'var(--text-muted)' }}>
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <span>© 2026 <span className="font-bold" style={{ color: 'var(--accent)' }}>Prinzo</span>. Todos os direitos reservados.</span>
-          <span>Catálogo para vender impressão 3D, com Pix e WhatsApp.</span>
+          <nav className="flex flex-wrap gap-4">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="font-semibold transition-colors" style={{ color: 'var(--text-secondary)' }}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </footer>
     </main>
